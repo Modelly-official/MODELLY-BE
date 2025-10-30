@@ -34,7 +34,7 @@ jobs:
 
       - name: Build & Push (nginx)
         run: |
-          docker build -f dockerfile-nginx -t $NGINX_IMAGE:latest -t $NGINX_IMAGE:${{ github.sha }} .
+          docker build -f Dockerfile-nginx -t $NGINX_IMAGE:latest -t $NGINX_IMAGE:${{ github.sha }} .
           docker push $NGINX_IMAGE:${{ github.sha }}
           docker push $NGINX_IMAGE:latest
 
