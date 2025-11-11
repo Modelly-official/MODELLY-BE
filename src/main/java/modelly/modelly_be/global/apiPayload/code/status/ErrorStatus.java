@@ -16,7 +16,25 @@ public enum ErrorStatus implements BaseErrorCode {
     _UNAUTHORIZED(HttpStatus.UNAUTHORIZED,"COMMON401","인증이 필요합니다."),
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
 
+    // 레디스 설정 오류
+    REDIS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "REDIS_ERROR", "Redis 설정에 오류가 발생했습니다."),
+
+    // User
+    NOT_FOUND_USER(HttpStatus.NOT_FOUND, "USER404", "해당 유저를 찾을 수 없습니다."),
+
+    // Token/JWT
+    NOT_FOUND_TOKEN(HttpStatus.NOT_FOUND,"TOKEN404","토큰을 찾을 수 없습니다."),
+    TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "TOKEN401", "토큰이 유효하지 않습니다."),
+    ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "TOKEN401", "Access Token이 만료되었습니다."),
+    REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "TOKEN401", "Refresh Token이 만료되었습니다."),
+
+    // Auth(로그인, 회원가입 관련)
+    DUPLICATE_LOGIN_ID(HttpStatus.CONFLICT, "AUTH409", "이미 사용 중인 아이디입니다."),
+    DUPLICATE_EMAIL(HttpStatus.CONFLICT, "AUTH409", "이미 사용 중인 이메일입니다."),
+    DESIGNER_FIELDS_REQUIRED(HttpStatus.BAD_REQUEST, "AUTH400", "디자이너 회원가입에 필요한 정보가 누락되었습니다."),
+    LOGIN_FAIL(HttpStatus.UNAUTHORIZED, "AUTH401", "아이디 또는 비밀번호가 잘못 되었습니다."),
     ;
+
 
     private final HttpStatus httpStatus;
     private final String code;
