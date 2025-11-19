@@ -1,15 +1,12 @@
 package modelly.modelly_be.domain.auth.service;
 
-import jakarta.servlet.annotation.ServletSecurity;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
+import modelly.modelly_be.domain.auth.dto.internal.LoginResult;
 import modelly.modelly_be.domain.auth.dto.request.LoginRequest;
 import modelly.modelly_be.domain.auth.dto.request.SignupRequest;
-import modelly.modelly_be.domain.auth.dto.response.DuplicateCheckResponse;
-import modelly.modelly_be.domain.auth.dto.response.LoginResponse;
-import modelly.modelly_be.domain.auth.dto.response.SignupResponse;
-import modelly.modelly_be.domain.auth.dto.response.TokenValidationResponse;
+import modelly.modelly_be.domain.auth.dto.response.*;
 import modelly.modelly_be.domain.user.entity.*;
 import modelly.modelly_be.domain.user.repository.ModelRepository;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
@@ -89,7 +86,7 @@ public class AuthService {
 
     /* 로그인 */
     @Transactional(readOnly = true)
-    public LoginResponse login(LoginRequest req) {
+    public LoginResult login(LoginRequest req) {
         User user = userRepository.findByLoginId(req.getLoginId())
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER)); // 이것도 LOGIN_FAIL로 처리할까..
 
@@ -98,11 +95,21 @@ public class AuthService {
 
         TokenResponse tokens = tokenProvider.createToken(user);
 
+        // refresh token
+        String refreshToken = tokens.getRefreshToken();
+
         // userId 기준으로 레디스에 refresh token 저장(TTL=refresh 남은 시간)
         long ttlSec = tokenProvider.getRemainingSeconds(tokens.getRefreshToken());
         redisService.setRefreshToken(RT_KEY_PREFIX + user.getId(), tokens.getRefreshToken(), ttlSec);
 
-        return LoginResponse.of(user.getId(), user.getRole(), tokens.getAccessToken(), tokens.getRefreshToken());
+        // 로그인 응답 생성
+        LoginResponse loginResponse = LoginResponse.of(
+                user.getId(),
+                user.getRole(),
+                tokens.getAccessToken()
+        );
+
+        return LoginResult.of(loginResponse, refreshToken, ttlSec);
     }
 
     @Transactional
@@ -120,7 +127,7 @@ public class AuthService {
 
 
     @Transactional(readOnly = true)
-    public TokenResponse newAccessToken(String refreshToken) { // 프론트에서 Authorization 헤더를 빼고 전송해줘야함.
+    public AccessTokenResponse newAccessToken(String refreshToken) { // 프론트에서 Authorization 헤더를 빼고 전송해줘야함.
 
         // refresh 토큰 검증
         TokenStatus tokenStatus = tokenProvider.validateToken(refreshToken);
@@ -137,7 +144,7 @@ public class AuthService {
         // Redis의 refresh 토큰과 비교
         String key = RT_KEY_PREFIX + userId;
         String stored = redisService.getValue(key);
-        if (stored.isEmpty()) {
+        if (stored == null || stored.isEmpty()) {
             // 만료/로그아웃 등으로 없는 상태
             throw new GeneralException(ErrorStatus.REFRESH_TOKEN_EXPIRED);
         }
@@ -153,7 +160,7 @@ public class AuthService {
         // AccessToken만 새로 발급
         String newAccess = tokenProvider.createAccessToken(user);
 
-        return TokenResponse.of(newAccess, refreshToken);
+        return AccessTokenResponse.of(newAccess);
     }
 
     /* 로그인 아이디 중복 체크 */
@@ -176,6 +183,8 @@ public class AuthService {
         // 유효성 검사는 JwtAuthenticationFilter에서 처리
         String accessToken = tokenProvider.resolveToken(request);
         TokenStatus status = tokenProvider.validateToken(accessToken);
+
         return TokenValidationResponse.of("Access Token이 유효합니다.", status);
     }
 }
+

@@ -42,18 +42,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } catch (ExpiredJwtException e) {
-                handleException(response, ErrorStatus.ACCESS_TOKEN_EXPIRED);
+                handleJwtException(response, ErrorStatus.ACCESS_TOKEN_EXPIRED);
                 return;
             } catch (SecurityException | MalformedJwtException |
                      UnsupportedJwtException | IllegalArgumentException e) {
-                handleException(response, ErrorStatus.TOKEN_INVALID);
+                handleJwtException(response, ErrorStatus.TOKEN_INVALID);
                 return;
             }
         }
         filterChain.doFilter(request, response);
     }
 
-    private void handleException(HttpServletResponse response, ErrorStatus status) throws IOException {
+    private void handleJwtException(HttpServletResponse response, ErrorStatus status) throws IOException {
         response.setStatus(status.getHttpStatus().value());
         response.setContentType("application/json;charset=UTF-8");
 
