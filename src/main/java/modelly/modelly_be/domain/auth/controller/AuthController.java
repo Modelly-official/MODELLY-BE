@@ -12,6 +12,7 @@ import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.apiPayload.code.status.SuccessStatus;
 import modelly.modelly_be.global.security.jwt.CookieUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -21,6 +22,9 @@ import jakarta.servlet.http.HttpServletRequest;
 public class AuthController {
 
     private final AuthService authService;
+
+    @Value("${security.cookie.secure:true}")
+    private boolean refreshCookieSecure;
 
     @Operation(summary = "회원가입", description = "회원가입 완료 메시지, loginId, 이름, 닉네임을 반환합니다.")
     @PostMapping("/auth/signup")
@@ -38,8 +42,8 @@ public class AuthController {
                 result.getRefreshToken(),
                 result.getRefreshTtlSec(),
                 "",
-                false,
-                "LAX"
+                true,
+                ""
         );
         response.addHeader("Set-Cookie", cookie.toString());
 
@@ -52,8 +56,8 @@ public class AuthController {
     public ApiResponse<SimpleMessageDTO> logout(HttpServletRequest request, HttpServletResponse response) {
         var del = CookieUtil.deleteRefreshCookie(
                 "",
-                false,
-                "Lax"
+                true,
+                ""
         );
         response.addHeader("Set-Cookie", del.toString());
 

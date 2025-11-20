@@ -88,7 +88,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public LoginResult login(LoginRequest req) {
         User user = userRepository.findByLoginId(req.getLoginId())
-                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER)); // 이것도 LOGIN_FAIL로 처리할까..
+                .orElseThrow(() -> new GeneralException(ErrorStatus.LOGIN_FAIL));
 
         if (!passwordEncoder.matches(req.getPassword(), user.getPassword()))
             throw new GeneralException(ErrorStatus.LOGIN_FAIL);
