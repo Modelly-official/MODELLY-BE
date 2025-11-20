@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 
+import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
 
@@ -28,7 +29,7 @@ public class TokenProvider implements InitializingBean {
 
     @Value("${jwt.secret}")
     private String secretKey;
-    private Key key;
+    private SecretKey key;
 
     @Value("${jwt.token.access-expiration-time}")
     private long accessExpirationTime;
@@ -54,7 +55,7 @@ public class TokenProvider implements InitializingBean {
                 .setSubject(String.valueOf(user.getId())) // 사용자 ID
                 .setIssuedAt(now) // 발급 시각
                 .setExpiration(expiration) // 만료 시각
-                .signWith(key, SignatureAlgorithm.HS512) // 암호화 알고리즘
+                .signWith(key, Jwts.SIG.HS512) // 암호화 알고리즘
                 .compact();
     }
 
@@ -67,7 +68,7 @@ public class TokenProvider implements InitializingBean {
                 .setSubject(String.valueOf(user.getId()))
                 .setIssuedAt(now)
                 .setExpiration(expiration)
-                .signWith(key,SignatureAlgorithm.HS256)
+                .signWith(key, Jwts.SIG.HS256)
                 .compact();
     }
 
@@ -76,13 +77,18 @@ public class TokenProvider implements InitializingBean {
         return TokenResponse.of(createAccessToken(user), createRefreshToken(user));
     }
 
+    // 공통 parser 헬퍼 (Claims 꺼낼 때 재사용)
+    private Claims parseClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
     // 토큰 만료 시간 조회
     public Long getExpirationTime(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
+        return parseClaims(token)
                 .getExpiration()
                 .getTime();
     }
@@ -98,12 +104,7 @@ public class TokenProvider implements InitializingBean {
 
     //userId 추출
     public String getUserIdFromToken(String token){
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.getSubject();
+        return parseClaims(token).getSubject();
     }
 
     // 토큰 -> 인증 객체 변환
@@ -118,10 +119,10 @@ public class TokenProvider implements InitializingBean {
     public TokenStatus validateToken(String token) {
         if (token == null) return TokenStatus.MISSING;
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
+            Jwts.parser()
+                    .verifyWith(key)
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
             return TokenStatus.VALID;
         } catch (ExpiredJwtException ex) {
             return TokenStatus.EXPIRED;
