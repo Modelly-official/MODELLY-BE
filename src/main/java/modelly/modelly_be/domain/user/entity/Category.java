@@ -1,9 +1,10 @@
 package modelly.modelly_be.domain.user.entity;
 
 public enum Category {
-    HAIR,
-    NAIL,
-    TATTOO,
-    MAKEUP,
-    OTHER
+    HAIR,     // 헤어
+    NAIL,     // 네일
+    TATTOO,   // 타투
+    SHOOTING, // 촬영
+    MAKEUP,   // 메이크업
+    ETC       // 기타
 }

@@ -4,5 +4,5 @@ import modelly.modelly_be.domain.user.entity.Model;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ModelRepository extends JpaRepository<Model, Long> {
-    boolean existsByUserId(Long userId);
+    boolean existsByUser_Id(Long userId);
 }

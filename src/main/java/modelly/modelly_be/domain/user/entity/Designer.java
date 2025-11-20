@@ -16,6 +16,9 @@ public class Designer {
     @Column(name = "shop", length = 50, nullable = false)
     private String shop;
 
+    @Column(name = "shop_address", length = 255)
+    private String shopAddress;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "category")
     private Category category;
@@ -28,8 +31,9 @@ public class Designer {
     private User user;
 
     @Builder
-    public Designer(String shop, Category category, Long chemistryScore, User user) {
+    public Designer(String shop, String shopAddress, Category category, Long chemistryScore, User user) {
         this.shop = shop;
+        this.shopAddress = shopAddress;
         this.category = category;
         this.chemistryScore = chemistryScore;
         this.user = user;

@@ -73,6 +73,7 @@ public class AuthService {
             Designer designer = Designer.builder()
                     .user(user)
                     .shop(designerExtra.getShop())
+                    .shopAddress(designerExtra.getShopAddress())
                     .category(designerExtra.getCategory())
                     .chemistryScore(0L)
                     .build();

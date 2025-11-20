@@ -11,33 +11,33 @@ import java.time.LocalDate;
 @Getter
 @AllArgsConstructor
 public class SignupBase {
-    @NotBlank
+    @NotBlank(message = "아이디는 필수 입력 값입니다.")
     private String loginId;
 
-    @NotBlank
+    @NotBlank(message = "비밀번호는 필수 입력 값입니다.")
     private String password;
 
-    @Email @NotBlank
+    @Email(message = "올바른 이메일 형식이 아닙니다.")
+    @NotBlank(message = "이메일은 필수 입력 값입니다.")
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "이름은 필수 입력 값입니다.")
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "전화번호는 필수 입력 값입니다.")
     private String phoneNum;
 
-    @NotNull
+    @NotNull(message = "성별은 필수 입력 값입니다.")
     private Gender gender;
 
-    @NotNull
+    @NotNull(message = "생년월일은 필수 입력 값입니다.")
     private LocalDate birth;
 
-    @NotBlank
+    @NotBlank(message = "닉네임은 필수 입력 값입니다.")
     private String nickname;
 
-    @NotBlank
     private String imageUrl;
 
-    @NotNull
+    @NotNull(message = "역할(role)은 필수 입력 값입니다.")
     private Role role; // MODEL or DESIGNER
 }
