@@ -8,6 +8,7 @@ import modelly.modelly_be.domain.auth.dto.internal.LoginResult;
 import modelly.modelly_be.domain.auth.dto.request.*;
 import modelly.modelly_be.domain.auth.dto.response.*;
 import modelly.modelly_be.domain.auth.service.AuthService;
+import modelly.modelly_be.domain.auth.service.PhoneAuthService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.apiPayload.code.status.SuccessStatus;
@@ -22,6 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class AuthController {
 
     private final AuthService authService;
+    private final PhoneAuthService phoneAuthService;
 
     @Value("${security.cookie.secure:true}")
     private boolean refreshCookieSecure;
@@ -92,4 +94,17 @@ public class AuthController {
         return ApiResponse.onSuccess(authService.checkEmail(value));
     }
 
+    /* SMS 인증번호 전송 */
+    @PostMapping("/auth/phone/send")
+    public ApiResponse<SimpleMessageDTO> sendAuthCode(@Valid @RequestBody PhoneAuthRequest request) {
+        phoneAuthService.sendAuthCode(request.getPhoneNumber());
+        return ApiResponse.onSuccess(new SimpleMessageDTO("인증번호 발송 성공"));
+    }
+
+    /* SMS 인증 */
+    @PostMapping("/auth/phone/verify")
+    public ApiResponse<SimpleMessageDTO> verifyAuthCode(@Valid @RequestBody VerifyPhoneAuthRequest request) {
+        phoneAuthService.verifyAuthCode(request.getPhoneNumber(), request.getAuthCode());
+        return ApiResponse.onSuccess(new SimpleMessageDTO("인증 성공"));
+    }
 }
