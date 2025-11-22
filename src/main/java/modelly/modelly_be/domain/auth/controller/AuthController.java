@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.auth.dto.internal.LoginResult;
+import modelly.modelly_be.domain.auth.dto.internal.NewTokenResult;
 import modelly.modelly_be.domain.auth.dto.request.*;
 import modelly.modelly_be.domain.auth.dto.response.*;
 import modelly.modelly_be.domain.auth.service.AccountRecoveryService;
@@ -47,7 +48,7 @@ public class AuthController {
                 result.getRefreshToken(),
                 result.getRefreshTtlSec(),
                 "",
-                true,
+                refreshCookieSecure,
                 ""
         );
         response.addHeader("Set-Cookie", cookie.toString());
@@ -61,7 +62,7 @@ public class AuthController {
     public ApiResponse<SimpleMessageDTO> logout(HttpServletRequest request, HttpServletResponse response) {
         var del = CookieUtil.deleteRefreshCookie(
                 "",
-                true,
+                refreshCookieSecure,
                 ""
         );
         response.addHeader("Set-Cookie", del.toString());
@@ -72,10 +73,27 @@ public class AuthController {
     /* ---------- 토큰 재발급 및 토큰 만료 확인---------- */
 
     /* 토큰 재발급 */
-    @Operation(summary = "Access Token 재발급", description = "사용자의 Access Token만 재발급합니다.")
+    @Operation(summary = "Access Token 재발급", description = "사용자의 Access Token과 Refresh Token(쿠키)을 재발급합니다.")
     @PostMapping("/auth/refresh")
-    public ApiResponse<AccessTokenResponse> newAccessToken(@CookieValue(name = CookieUtil.REFRESH_COOKIE, required = false) String refreshToken) {
-        return ApiResponse.onSuccess(authService.newAccessToken(refreshToken));
+    public ApiResponse<AccessTokenResponse> newAccessToken(
+            @CookieValue(name = CookieUtil.REFRESH_COOKIE, required = false) String refreshToken, HttpServletResponse response) {
+
+        NewTokenResult result = authService.newAccessToken(refreshToken);
+
+        // 새 리프레시 토큰으로 쿠키 재세팅
+        var cookie = CookieUtil.buildRefreshCookie(
+                result.getRefreshToken(),
+                result.getRefreshTtlSec(),
+                "",
+                refreshCookieSecure,
+                ""
+        );
+        // Set-Cookie 헤더에 추가
+        response.addHeader("Set-Cookie", cookie.toString());
+
+        // 액세스 토큰 반환
+        AccessTokenResponse accessTokenResponse = AccessTokenResponse.of(result.getAccessTokenResponse().getAccessToken());
+        return ApiResponse.onSuccess(accessTokenResponse);
     }
 
     /* Access Token 만료 기간 확인 */

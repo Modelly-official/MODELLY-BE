@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.auth.dto.internal.DesignerExtra;
 import modelly.modelly_be.domain.auth.dto.internal.LoginResult;
 import modelly.modelly_be.domain.auth.dto.internal.ModelExtra;
+import modelly.modelly_be.domain.auth.dto.internal.NewTokenResult;
 import modelly.modelly_be.domain.auth.dto.request.LoginRequest;
 import modelly.modelly_be.domain.auth.dto.request.SignupRequest;
 import modelly.modelly_be.domain.auth.dto.response.*;
@@ -143,7 +144,7 @@ public class AuthService {
 
 
     @Transactional(readOnly = true)
-    public AccessTokenResponse newAccessToken(String refreshToken) { // 프론트에서 Authorization 헤더를 빼고 전송해줘야함.
+    public NewTokenResult newAccessToken(String refreshToken) {
 
         // refresh 토큰 검증
         TokenStatus tokenStatus = tokenProvider.validateToken(refreshToken);
@@ -173,10 +174,16 @@ public class AuthService {
         User user = userRepository.findById(Long.valueOf(userId))
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
 
-        // AccessToken만 새로 발급
+        //  Access, Refresh 발급
         String newAccess = tokenProvider.createAccessToken(user);
+        String newRefresh = tokenProvider.createRefreshToken(user);
 
-        return AccessTokenResponse.of(newAccess);
+        // Redis에 새 refresh 저장
+        long ttlSec = tokenProvider.getRemainingSeconds(newRefresh);
+        redisService.setRefreshToken(key, newRefresh, ttlSec);
+
+
+        return NewTokenResult.of(AccessTokenResponse.of(newAccess), newRefresh, ttlSec);
     }
 
     /* 로그인 아이디 중복 체크 */

@@ -55,7 +55,7 @@ public class TokenProvider implements InitializingBean {
                 .setSubject(String.valueOf(user.getId())) // 사용자 ID
                 .setIssuedAt(now) // 발급 시각
                 .setExpiration(expiration) // 만료 시각
-                .signWith(key, Jwts.SIG.HS512) // 암호화 알고리즘
+                .signWith(key, Jwts.SIG.HS256) // 암호화 알고리즘
                 .compact();
     }
 
@@ -136,7 +136,7 @@ public class TokenProvider implements InitializingBean {
     }
 
     public long getRemainingSeconds(String token) {
-        return Math.max(1, getRemainingMillis(token) / 1000);
+        return getRemainingMillis(token) / 1000;
     }
 
 }
