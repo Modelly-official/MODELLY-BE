@@ -34,13 +34,11 @@ public enum ErrorStatus implements BaseErrorCode {
     DESIGNER_FIELDS_REQUIRED(HttpStatus.BAD_REQUEST, "AUTH400", "디자이너 회원가입에 필요한 정보가 누락되었습니다."),
     LOGIN_FAIL(HttpStatus.UNAUTHORIZED, "AUTH401", "아이디 또는 비밀번호가 잘못 되었습니다."),
 
-    // Phone Auth (휴대폰 인증)
-    PHONE_AUTH_SEND_FREQUENT(HttpStatus.BAD_REQUEST, "SMS429", "인증번호는 1분 후에 다시 요청할 수 있습니다."),
-    PHONE_AUTH_EXPIRED(HttpStatus.BAD_REQUEST, "SMS400", "인증번호가 만료되었습니다."),
-    PHONE_AUTH_MISMATCH(HttpStatus.BAD_REQUEST, "SMS400", "인증번호가 일치하지 않습니다."),
-    SMS_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "SMS500", "인증번호 문자 발송에 실패했습니다.")
-
-
+    // 휴대폰, 이메일 인증
+    CODE_SEND_FREQUENT(HttpStatus.BAD_REQUEST, "CODE429", "인증번호는 1분 후에 다시 요청할 수 있습니다."),
+    CODE_EXPIRED(HttpStatus.BAD_REQUEST, "CODE400", "인증번호가 만료되었습니다."),
+    CODE_MISMATCH(HttpStatus.BAD_REQUEST, "CODE400", "인증번호가 일치하지 않습니다."),
+    CODE_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "CODE500", "인증번호 발송에 실패했습니다.")
     ;
 
     private final HttpStatus httpStatus;

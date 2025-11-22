@@ -36,7 +36,7 @@ public class SolapiSmsSender implements SmsSender {
             Object response = messageService.send(message);
 
         } catch (Exception e) {
-            throw new GeneralException(ErrorStatus.SMS_SEND_FAIL);
+            throw new GeneralException(ErrorStatus.CODE_SEND_FAIL);
         }
     }
 }

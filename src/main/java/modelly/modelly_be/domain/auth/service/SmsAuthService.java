@@ -14,12 +14,12 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
-public class PhoneAuthService {
+public class SmsAuthService {
 
     private final StringRedisTemplate redisTemplate;
     private final SmsSender smsSender;
 
-    private static final long AUTH_TTL_SECONDS = 3 * 60L;  // 인증번호 유효기간 - 5분
+    private static final long AUTH_TTL_SECONDS = 3 * 60L;  // 인증번호 유효기간 - 3분
     private static final long RESEND_TTL_SECONDS = 60L;     // 재전송 제한 - 1분
 
     private static final String KEY_CODE_PREFIX = "PHONE_AUTH:CODE:";
@@ -33,7 +33,7 @@ public class PhoneAuthService {
             // 재요청 제한(제한 시간은 RESEND_TTL_SECONDS로 설정)
             Boolean exists = redisTemplate.hasKey(resendKey);
             if (Boolean.TRUE.equals(exists)) {
-                throw new GeneralException(ErrorStatus.PHONE_AUTH_SEND_FREQUENT);
+                throw new GeneralException(ErrorStatus.CODE_SEND_FREQUENT);
             }
 
             // 인증번호 생성
@@ -62,11 +62,11 @@ public class PhoneAuthService {
             String savedCode = ops.get(codeKey);
 
             if (savedCode == null) {
-                throw new GeneralException(ErrorStatus.PHONE_AUTH_EXPIRED);
+                throw new GeneralException(ErrorStatus.CODE_EXPIRED);
             }
 
             if (!savedCode.equals(inputCode)) {
-                throw new GeneralException(ErrorStatus.PHONE_AUTH_MISMATCH);
+                throw new GeneralException(ErrorStatus.CODE_MISMATCH);
             }
 
             // 성공 시 인증번호 삭제

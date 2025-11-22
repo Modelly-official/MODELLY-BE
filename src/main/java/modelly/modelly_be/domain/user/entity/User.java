@@ -58,4 +58,8 @@ public class User extends BaseEntity {
     @Column(name = "user_role")
     private UserRole userRole; // USER or ADMIN
 
+    /* 비밀번호 변경 */
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
 }

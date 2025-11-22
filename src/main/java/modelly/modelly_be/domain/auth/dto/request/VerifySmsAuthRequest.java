@@ -5,7 +5,7 @@ import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class VerifyPhoneAuthRequest {
+public class VerifySmsAuthRequest {
     /* 인증번호 검증 요청 DTO*/
     @NotBlank
     private String phoneNumber;
