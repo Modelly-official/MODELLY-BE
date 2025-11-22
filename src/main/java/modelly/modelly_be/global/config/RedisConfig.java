@@ -34,10 +34,10 @@ public class RedisConfig {
 
     // RedisTemplate 설정
     @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 
-        redisTemplate.setConnectionFactory(redisConnectionFactory());
+        redisTemplate.setConnectionFactory(connectionFactory);
         redisTemplate.setDefaultSerializer(new GenericJackson2JsonRedisSerializer());
 
         // key, value에 대한 직렬화 방법 설정

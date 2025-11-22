@@ -26,13 +26,16 @@ public class SmsAuthService {
     private static final String KEY_RESEND_PREFIX = "PHONE_AUTH:RESEND:";
 
     public void sendAuthCode(String phoneNumber) {
-        try {
-            ValueOperations<String, String> ops = redisTemplate.opsForValue();
-            String resendKey = KEY_RESEND_PREFIX + phoneNumber;
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        String resendKey = KEY_RESEND_PREFIX + phoneNumber;
+        String codeKey = KEY_CODE_PREFIX + phoneNumber;
 
+        try {
             // 재요청 제한(제한 시간은 RESEND_TTL_SECONDS로 설정)
-            Boolean exists = redisTemplate.hasKey(resendKey);
-            if (Boolean.TRUE.equals(exists)) {
+            Boolean success = ops.setIfAbsent(resendKey, "BLOCK", RESEND_TTL_SECONDS, TimeUnit.SECONDS);
+
+            // 이미 키가 존재하면 false
+            if (Boolean.FALSE.equals(success)) {
                 throw new GeneralException(ErrorStatus.CODE_SEND_FREQUENT);
             }
 
@@ -40,15 +43,18 @@ public class SmsAuthService {
             String authCode = generateAuthCode();
 
             // Redis에 인증번호 저장(TTL은 AUTH_TTL_SECONDS)
-            String codeKey = KEY_CODE_PREFIX + phoneNumber;
             ops.set(codeKey, authCode, AUTH_TTL_SECONDS, TimeUnit.SECONDS);
-
-            // Redis에 재요청 제한 시간 저장(TTL은 RESEND_TTL_SECONDS)
-            ops.set(resendKey, "BLOCK", RESEND_TTL_SECONDS, TimeUnit.SECONDS);
 
             // 문자 발송
             String message = "[Modelly] 본인확인 인증번호 [" + authCode + "]를 화면에 입력해주세요.";
             smsSender.send(phoneNumber, message);
+        } catch (GeneralException e) {
+            // 문자 발송 실패 시 Redis 롤백
+            if (e.getCode() == ErrorStatus.CODE_SEND_FAIL) {
+                redisTemplate.delete(resendKey);
+                redisTemplate.delete(codeKey);
+            }
+            throw e;
         } catch (DataAccessException e) {
             // Redis 관련 예외
             throw new GeneralException(ErrorStatus.REDIS_ERROR);
