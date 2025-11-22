@@ -1,18 +1,16 @@
 package modelly.modelly_be;
 
 import jakarta.servlet.http.HttpServletRequest;
-import modelly.modelly_be.domain.auth.dto.SignupBase;
+import modelly.modelly_be.domain.auth.dto.internal.SignupBase;
 import modelly.modelly_be.domain.auth.dto.request.LoginRequest;
 import modelly.modelly_be.domain.auth.dto.request.SignupRequest;
 import modelly.modelly_be.domain.auth.dto.response.LoginResponse;
 import modelly.modelly_be.domain.auth.service.AuthService;
 import modelly.modelly_be.domain.user.entity.Gender;
-import modelly.modelly_be.domain.user.entity.Role;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.entity.UserRole;
 import modelly.modelly_be.domain.user.repository.DesignerRepository;
 import modelly.modelly_be.domain.user.repository.UserRepository;
-import modelly.modelly_be.global.apiPayload.code.BaseErrorCode;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;

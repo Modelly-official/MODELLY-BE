@@ -12,13 +12,17 @@ public class Model {
     @Column(name = "model_id")
     private Long id;
 
+    @Column(name = "nickname", length = 20, nullable = false)                                     // VARCHAR(20)
+    private String nickname;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    public static Model of(User user) {
+    public static Model of(User user, String nickname) {
         Model model = new Model();
         model.user = user;
+        model.nickname = nickname;
         return model;
     }
 }

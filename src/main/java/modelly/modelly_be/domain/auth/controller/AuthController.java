@@ -137,7 +137,7 @@ public class AuthController {
     }
 
     /* 아이디 찾기 - 이름, 아이디 반환 */
-    @Operation(summary = "아이디 찾기", description = "이메일 인증 완료한 사용자의 이름과 아이디를 반환합니다.")
+    @Operation(summary = "아이디 찾기 - 이름, 아이디 반환", description = "이메일 인증 완료한 사용자의 이름과 아이디를 반환합니다.")
     @PostMapping("/auth/find-id")
     public ApiResponse<FindIdResponse> findId(@Valid @RequestBody FindIdRequest request) {
         FindIdResponse response = accountRecoveryService.findId(request);
@@ -161,7 +161,7 @@ public class AuthController {
     }
 
     /* 비밀번호 재설정 - 새로운 비밀번호로 변경 */
-    @Operation(summary = "비밀번호 재설정", description = "검증이 완료된 사용자의 비밀번호를 변경합니다.")
+    @Operation(summary = "비밀번호 재설정 - 새로운 비밀번호로 변경", description = "검증이 완료된 사용자의 비밀번호를 변경합니다.")
     @PostMapping("/auth/reset-password")
     public ApiResponse<SimpleMessageDTO> resetPassword(@Valid @RequestBody ResetPasswordConfirmRequest request) {
         accountRecoveryService.resetPassword(request);

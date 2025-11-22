@@ -3,7 +3,9 @@ package modelly.modelly_be.domain.auth.service;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
+import modelly.modelly_be.domain.auth.dto.internal.DesignerExtra;
 import modelly.modelly_be.domain.auth.dto.internal.LoginResult;
+import modelly.modelly_be.domain.auth.dto.internal.ModelExtra;
 import modelly.modelly_be.domain.auth.dto.request.LoginRequest;
 import modelly.modelly_be.domain.auth.dto.request.SignupRequest;
 import modelly.modelly_be.domain.auth.dto.response.*;
@@ -56,33 +58,47 @@ public class AuthService {
                 .phoneNum(base.getPhoneNum())
                 .gender(base.getGender())
                 .birth(base.getBirth())
-                .nickname(base.getNickname())
                 .imageUrl(base.getImageUrl())
-                .role(base.getRole())
                 .userRole(UserRole.USER)
                 .build();
 
         userRepository.save(user);
 
-        // 디자이너 추가 정보
-        if (base.getRole() == Role.DESIGNER) {
-            var designerExtra = req.getDesigner();
-            if (designerExtra == null)
-                throw new GeneralException(ErrorStatus.DESIGNER_FIELDS_REQUIRED);
+        // Designer, Model 정보 받아옴
+        DesignerExtra designerExtra = req.getDesigner();
+        ModelExtra modelExtra = req.getModel();
+        String nickname;
 
+        // Designer, Model 정보가 둘 다 존재하는 경우
+        if (designerExtra != null && modelExtra != null) {
+            System.out.printf("asdf");
+            throw new GeneralException(ErrorStatus.SIGNUP_FIELDS_ERROR);
+        }
+
+        // Designer 회원가입 정보
+        if (designerExtra != null) {
             Designer designer = Designer.builder()
                     .user(user)
                     .shop(designerExtra.getShop())
                     .shopAddress(designerExtra.getShopAddress())
                     .category(designerExtra.getCategory())
                     .chemistryScore(0L)
+                    .nickname(designerExtra.getNickname())
                     .build();
+
             designerRepository.save(designer);
+            nickname = designer.getNickname();
         }
-        else if (base.getRole() == Role.MODEL) {
-            modelRepository.save(Model.of(user));
+        else if (modelExtra != null) { // Model 회원가입 정보
+            Model model = Model.of(user, modelExtra.getNickname());
+            modelRepository.save(model);
+            nickname = model.getNickname();
+        } else {
+            // Designer, Model 정보 둘 다 존재하지 않는 경우
+            throw new GeneralException(ErrorStatus.SIGNUP_FIELDS_ERROR);
         }
-        return SignupResponse.of("회원가입이 완료되었습니다.", user.getLoginId(), user.getName(), user.getNickname());
+
+        return SignupResponse.of("회원가입이 완료되었습니다.", user.getLoginId(), user.getName(), nickname);
     }
 
     /* 로그인 */
@@ -106,7 +122,6 @@ public class AuthService {
         // 로그인 응답 생성
         LoginResponse loginResponse = LoginResponse.of(
                 user.getId(),
-                user.getRole(),
                 tokens.getAccessToken()
         );
 

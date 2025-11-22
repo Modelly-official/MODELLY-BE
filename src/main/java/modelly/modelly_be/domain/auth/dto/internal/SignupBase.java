@@ -1,10 +1,9 @@
-package modelly.modelly_be.domain.auth.dto;
+package modelly.modelly_be.domain.auth.dto.internal;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import modelly.modelly_be.domain.user.entity.Gender;
-import modelly.modelly_be.domain.user.entity.Role;
 
 import java.time.LocalDate;
 
@@ -33,11 +32,6 @@ public class SignupBase {
     @NotNull(message = "생년월일은 필수 입력 값입니다.")
     private LocalDate birth;
 
-    @NotBlank(message = "닉네임은 필수 입력 값입니다.")
-    private String nickname;
-
     private String imageUrl;
 
-    @NotNull(message = "역할(role)은 필수 입력 값입니다.")
-    private Role role; // MODEL or DESIGNER
 }
