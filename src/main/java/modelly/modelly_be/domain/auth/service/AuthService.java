@@ -26,6 +26,7 @@ import modelly.modelly_be.global.security.dto.TokenResponse;
 import modelly.modelly_be.global.security.jwt.TokenProvider;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -327,9 +328,12 @@ public class AuthService {
 
         } else {
             // 회원가입하지 않은 경우, 더미 User 생성
+            String rawRandomPassword = UUID.randomUUID().toString();
+            String encodedRandomPassword = passwordEncoder.encode(rawRandomPassword);
+
             user = User.builder()
                     .loginId(null)
-                    .password(null)
+                    .password(encodedRandomPassword)
                     .email(kakaoEmail)
                     .name(kakaoName)
                     .phoneNum("PENDING")
