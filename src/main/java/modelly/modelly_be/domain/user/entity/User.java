@@ -59,7 +59,7 @@ public class User extends BaseEntity {
 
     // 일단 permission 넣어둠.
     @Enumerated(EnumType.STRING)
-    @Column(name = "permission")
+    @Column(name = "permission", nullable = false)
     private Permission permission; // USER or ADMIN
 
     /* 비밀번호 변경 */

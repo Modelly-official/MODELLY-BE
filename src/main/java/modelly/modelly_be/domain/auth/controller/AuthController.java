@@ -147,7 +147,7 @@ public class AuthController {
     /* 카카오 회원가입 */
     @Operation(summary = "카카오 회원가입", description = "회원가입 완료 메시지, 이메일, 이름, 닉네임을 반환합니다.")
     @PostMapping("/auth/kakao/signup")
-    public ApiResponse<SignupResponse> signupWithKakao(HttpServletRequest request, @RequestBody SocialSignupRequest req) {
+    public ApiResponse<SignupResponse> signupWithKakao(HttpServletRequest request, @Valid @RequestBody SocialSignupRequest req) {
         SignupResponse result = authService.signupWithKakao(request, req);
         return ApiResponse.onSuccess(result);
     }
