@@ -120,7 +120,15 @@ public class AuthController {
         return ApiResponse.onSuccess(authService.checkEmail(value));
     }
 
-    /* --------- 카카오 로그인, 회원가입 --------- */
+    /* --------- 소셜 로그인, 회원가입 --------- */
+
+    /* 소셜 회원가입 */
+    @Operation(summary = "소셜 회원가입", description = "회원가입 완료 메시지, 이메일, 이름, 닉네임을 반환합니다.")
+    @PostMapping("/auth/social/signup")
+    public ApiResponse<SignupResponse> signupWithKakao(HttpServletRequest request, @RequestBody SocialSignupRequest req) {
+        SignupResponse result = authService.SocialSignup(request, req);
+        return ApiResponse.onSuccess(result);
+    }
 
     /* 카카오 로그인 */
     @Operation(summary = "카카오 로그인", description = "카카오 인가 코드로 로그인합니다. (액세스 토큰, 회원가입 여부 반환)")
@@ -167,12 +175,26 @@ public class AuthController {
         return ApiResponse.onSuccess(result.getLoginResponse());
     }
 
-    /* 소셜 회원가입 */
-    @Operation(summary = "소셜 회원가입", description = "소셜 로그인을 처음한 유저의 정보를 추가로 업데이트 합니다.")
-    @PostMapping("/auth/social/signup")
-    public ApiResponse<SignupResponse> signupWithKakao(HttpServletRequest request, @Valid @RequestBody SocialSignupRequest req) {
-        SignupResponse result = authService.SocialSignup(request, req);
-        return ApiResponse.onSuccess(result);
+    /* 구글 로그인 */
+    @Operation(summary = "구글 로그인", description = "구글 인가 코드로 로그인합니다. (액세스 토큰, 회원가입 여부 반환)")
+    @PostMapping("/auth/google/login")
+    public ApiResponse<SocialLoginResponse> googleLogin(
+            @RequestParam("code") String code,
+            @RequestParam("redirectUri") String redirectUri,
+            HttpServletResponse response
+    ) {
+        SocialLoginResult result = authService.googleLogin(code, redirectUri);
+
+        var cookie = CookieUtil.buildRefreshCookie(
+                result.getRefreshToken(),
+                result.getRefreshTtlSec(),
+                "",
+                refreshCookieSecure,
+                ""
+        );
+        response.addHeader("Set-Cookie", cookie.toString());
+
+        return ApiResponse.onSuccess(result.getLoginResponse());
     }
 
     /* ---------- SMS 전송 및 인증 ---------- */

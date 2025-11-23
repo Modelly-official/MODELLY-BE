@@ -12,6 +12,8 @@ import modelly.modelly_be.domain.user.entity.*;
 import modelly.modelly_be.domain.user.repository.ModelRepository;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.security.entity.TokenStatus;
+import modelly.modelly_be.global.security.google.GoogleDTO;
+import modelly.modelly_be.global.security.google.GoogleUtil;
 import modelly.modelly_be.global.security.kakao.KakaoDTO;
 import modelly.modelly_be.global.security.kakao.KakaoUtil;
 import modelly.modelly_be.global.security.naver.NaverDTO;
@@ -44,6 +46,7 @@ public class AuthService {
     private final RedisService redisService;
     private final KakaoUtil kakaoUtil;
     private final NaverUtil naverUtil;
+    private final GoogleUtil googleUtil;
 
     /* ---------- JWT 회원가입/로그인/로그아웃 ---------- */
 
@@ -447,6 +450,75 @@ public class AuthService {
         SocialLoginResponse loginResponse = registered
                 ? SocialLoginResponse.existing(user.getId(), tokens.getAccessToken())
                 : SocialLoginResponse.newUser(user.getId(), tokens.getAccessToken());
+
+        return SocialLoginResult.of(loginResponse, refreshToken, ttlSec);
+    }
+
+    /* 구글 로그인(토큰, 회원가입 여부 반환) */
+    @Transactional
+    public SocialLoginResult googleLogin(String code, String redirectUri) {
+        // 구글 토큰, 프로필 조회
+        GoogleDTO.OAuthToken oAuthToken = googleUtil.requestToken(code, redirectUri);
+        GoogleDTO.GoogleProfile googleProfile = googleUtil.requestProfile(oAuthToken);
+
+        // 이메일
+        String email = googleProfile.getEmail();
+        Boolean emailVerified = googleProfile.getEmail_verified();
+
+        if (email == null || Boolean.FALSE.equals(emailVerified)) {
+            throw new GeneralException(ErrorStatus.SOCIAL_PROFILE_INCOMPLETE);
+        }
+
+        // 이름
+        String name = googleProfile.getName();
+
+        // 기존 사용자인지 파악
+        var optionalUser = userRepository.findByEmail(email);
+        boolean registered = optionalUser.isPresent();
+        User user;
+
+        if (registered) {
+            user = optionalUser.get();
+
+            // 다른 로그인 타입으로 이미 가입된 경우
+            if (user.getLoginType() != LoginType.GOOGLE) {
+                throw new GeneralException(ErrorStatus.DUPLICATE_USER_REGISTERED);
+            }
+
+        } else {
+            // 회원가입하지 않은 경우, 더미 User 생성
+            String rawRandomPassword = UUID.randomUUID().toString();
+            String encodedRandomPassword = passwordEncoder.encode(rawRandomPassword);
+
+            user = User.builder()
+                    .loginId(null)
+                    .password(encodedRandomPassword)
+                    .email(email)
+                    .name(name)
+                    .phoneNum("PENDING")
+                    .gender(Gender.MALE)
+                    .birth(LocalDate.of(2000, 1, 1))
+                    .imageUrl(null)
+                    .permission(Permission.USER)
+                    .loginType(LoginType.GOOGLE)
+                    .userRole(UserRole.MODEL)
+                    .build();
+
+            userRepository.save(user);
+        }
+
+        // JWT 발급
+        TokenResponse tokens = tokenProvider.createToken(user);
+
+        // Redis에 refresh token 저장
+        String refreshToken = tokens.getRefreshToken();
+        long ttlSec = tokenProvider.getRemainingSeconds(refreshToken);
+        redisService.setRefreshToken(RT_KEY_PREFIX + user.getId(), refreshToken, ttlSec);
+
+        // 응답(액세스 토큰, 회원가입 여부)
+        SocialLoginResponse loginResponse = registered
+                ? SocialLoginResponse.existing(user.getId(), tokens.getAccessToken())  // 기존 회원
+                : SocialLoginResponse.newUser(user.getId(), tokens.getAccessToken());  // 신규 회원
 
         return SocialLoginResult.of(loginResponse, refreshToken, ttlSec);
     }
