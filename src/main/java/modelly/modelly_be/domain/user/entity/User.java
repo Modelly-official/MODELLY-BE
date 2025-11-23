@@ -1,10 +1,13 @@
 package modelly.modelly_be.domain.user.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import modelly.modelly_be.domain.auth.dto.internal.SocialSignupBase;
 import modelly.modelly_be.global.entity.BaseEntity;
 
 import java.time.LocalDate;
@@ -21,10 +24,10 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(name = "login_id", length = 20, nullable = false, unique = true)
+    @Column(name = "login_id", length = 20, unique = true)
     private String loginId;
 
-    @Column(name = "password", length = 255, nullable = false)
+    @Column(name = "password", length = 255)
     private String password;
 
     @Column(name = "email", length = 50, nullable = false, unique = true)
@@ -33,7 +36,7 @@ public class User extends BaseEntity {
     @Column(name = "name", length = 20, nullable = false)
     private String name;
 
-    @Column(name = "phone_num", length = 20, nullable = false, unique = true)
+    @Column(name = "phone_num", length = 20, nullable = false)
     private String phoneNum;
 
     @Enumerated(EnumType.STRING)
@@ -46,13 +49,29 @@ public class User extends BaseEntity {
     @Column(name = "image_url", length = 255)
     private String imageUrl;
 
-    // 일단은 role 넣어둠.
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_role")
-    private UserRole userRole; // USER or ADMIN
+    @Column(name = "login_type", nullable = false)
+    private LoginType loginType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_role", nullable = false)
+    private UserRole userRole;
+
+    // 일단 permission 넣어둠.
+    @Enumerated(EnumType.STRING)
+    @Column(name = "permission")
+    private Permission permission; // USER or ADMIN
 
     /* 비밀번호 변경 */
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
+    }
+
+    public void updateFromSocialSignup(SocialSignupBase base) {
+        this.phoneNum = base.getPhoneNum();
+        this.gender = base.getGender();
+        this.birth = base.getBirth();
+        this.imageUrl = base.getImageUrl();
+        this.userRole = base.getUserRole();
     }
 }

@@ -27,12 +27,11 @@ public class AccountRecoveryService {
 
     // 이메일 인증 완료 플래그(공통)
     private static final String EMAIL_VERIFIED_PREFIX = "email-verified:";  // email-verified:{type}:{email}
-    private static final Duration EMAIL_VERIFY_TTL = Duration.ofMinutes(10); // 유효기간 10분
+    private static final Duration EMAIL_VERIFY_TTL = Duration.ofMinutes(3); // 유효기간 10분
 
     // 비밀번호 재설정용 userId 저장
     private static final String PW_RESET_VERIFIED_PREFIX = "pw-reset-verified:"; // pw-reset-verified:{email}
     private static final Duration PW_RESET_VERIFY_TTL = Duration.ofMinutes(10); // 유효기간 10분
-
 
     // 인증번호 검증 + 인증 완료 플래그 저장
     public void verifyEmailCode(EmailCodeVerifyRequest request) {

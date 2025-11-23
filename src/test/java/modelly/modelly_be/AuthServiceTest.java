@@ -8,7 +8,7 @@ import modelly.modelly_be.domain.auth.dto.response.LoginResponse;
 import modelly.modelly_be.domain.auth.service.AuthService;
 import modelly.modelly_be.domain.user.entity.Gender;
 import modelly.modelly_be.domain.user.entity.User;
-import modelly.modelly_be.domain.user.entity.UserRole;
+import modelly.modelly_be.domain.user.entity.Permission;
 import modelly.modelly_be.domain.user.repository.DesignerRepository;
 import modelly.modelly_be.domain.user.repository.UserRepository;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
@@ -60,7 +60,7 @@ class AuthServiceTest {
                 .nickname("nick")
                 .imageUrl(null)
                 .role(Role.MODEL)
-                .userRole(UserRole.USER)
+                .userRole(Permission.USER)
                 .build();
     }
 
@@ -96,7 +96,7 @@ class AuthServiceTest {
                     .email(u.getEmail())
                     .name(u.getName())
                     .role(u.getRole())
-                    .userRole(u.getUserRole())
+                    .userRole(u.getPermission())
                     .build();
         });
 

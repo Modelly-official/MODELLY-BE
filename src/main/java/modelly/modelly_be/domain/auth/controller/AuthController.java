@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.auth.dto.internal.LoginResult;
 import modelly.modelly_be.domain.auth.dto.internal.NewTokenResult;
+import modelly.modelly_be.domain.auth.dto.internal.SocialLoginResult;
 import modelly.modelly_be.domain.auth.dto.request.*;
 import modelly.modelly_be.domain.auth.dto.response.*;
 import modelly.modelly_be.domain.auth.service.AccountRecoveryService;
@@ -107,16 +108,48 @@ public class AuthController {
 
     /* 로그인 아이디 중복 체크 */
     @Operation(summary = "아이디 중복 체크", description = "available = true면 중복 X")
-    @GetMapping("/check/login-id")
+    @GetMapping("/auth/check/login-id")
     public ApiResponse<DuplicateCheckResponse> checkLoginId(@RequestParam("value") String value) {
         return ApiResponse.onSuccess(authService.checkLoginId(value));
     }
 
     /* 이메일 중복 체크 */
     @Operation(summary = "이메일 중복 체크", description = "available = true면 중복 X")
-    @GetMapping("/check/email")
+    @GetMapping("/auth/check/email")
     public ApiResponse<DuplicateCheckResponse> checkEmail(@RequestParam("value") String value) {
         return ApiResponse.onSuccess(authService.checkEmail(value));
+    }
+
+    /* --------- 카카오 로그인, 회원가입 --------- */
+
+    /* 카카오 로그인 */
+    @Operation(summary = "카카오 로그인", description = "카카오 인가 코드로 로그인합니다. (액세스 토큰, 회원가입 여부 반환)")
+    @PostMapping("/auth/kakao/login")
+    public ApiResponse<SocialLoginResponse> kakaoLogin(
+            @RequestParam("code") String code,
+            @RequestParam("redirectUri") String redirectUri,
+            HttpServletResponse response
+    ) {
+        SocialLoginResult result = authService.kakaoLogin(code, redirectUri);
+
+        var cookie = CookieUtil.buildRefreshCookie(
+                result.getRefreshToken(),
+                result.getRefreshTtlSec(),
+                "",
+                refreshCookieSecure,
+                ""
+        );
+        response.addHeader("Set-Cookie", cookie.toString());
+
+        return ApiResponse.onSuccess(result.getLoginResponse());
+    }
+
+    /* 카카오 회원가입 */
+    @Operation(summary = "카카오 회원가입", description = "회원가입 완료 메시지, 이메일, 이름, 닉네임을 반환합니다.")
+    @PostMapping("/auth/kakao/signup")
+    public ApiResponse<SignupResponse> signupWithKakao(HttpServletRequest request, @RequestBody SocialSignupRequest req) {
+        SignupResponse result = authService.signupWithKakao(request, req);
+        return ApiResponse.onSuccess(result);
     }
 
     /* ---------- SMS 전송 및 인증 ---------- */

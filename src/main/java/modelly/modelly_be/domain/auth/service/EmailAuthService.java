@@ -22,7 +22,7 @@ public class EmailAuthService {
     private final TemplateEngine templateEngine;
 
     private static final String PREFIX = "email-auth:";
-    private static final Duration EXPIRE_TIME = Duration.ofMinutes(5);
+    private static final Duration EXPIRE_TIME = Duration.ofMinutes(3);
 
     /* 인증번호 전송 */
     public void sendEmailCode(String email, EmailAuthType type) {

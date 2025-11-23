@@ -33,6 +33,9 @@ public enum ErrorStatus implements BaseErrorCode {
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "AUTH409", "이미 사용 중인 이메일입니다."),
     SIGNUP_FIELDS_ERROR(HttpStatus.BAD_REQUEST, "AUTH400", "회원가입에 필요한 정보가 유효하지 않습니다."),
     LOGIN_FAIL(HttpStatus.UNAUTHORIZED, "AUTH401", "아이디 또는 비밀번호가 잘못 되었습니다."),
+    SOCIAL_USER_NOT_REGISTERED(HttpStatus.BAD_REQUEST, "A020", "소셜 로그인이지만 아직 회원가입이 완료되지 않은 사용자입니다."),
+    DUPLICATE_USER_REGISTERED(HttpStatus.CONFLICT, "AUTH409", "이미 가입한 사용자입니다. 다른 방법으로 로그인을 시도해주세요."),
+    SOCIAL_PROFILE_INCOMPLETE(HttpStatus.BAD_REQUEST, "USER405", "소셜 로그인 프로필 정보가 충분하지 않습니다."),
 
     // 휴대폰, 이메일 인증
     CODE_SEND_FREQUENT(HttpStatus.BAD_REQUEST, "CODE429", "인증번호는 1분 후에 다시 요청할 수 있습니다."),

@@ -16,7 +16,7 @@ public record AuthDetails(User user) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(user.getUserRole().toString()));
+        return List.of(new SimpleGrantedAuthority(user.getPermission().toString()));
     }
 
     @Override
