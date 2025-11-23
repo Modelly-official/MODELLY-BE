@@ -399,17 +399,23 @@ public class AuthService {
 
         // 기존 유저 조회
         var optionalUser = userRepository.findByEmail(email);
-        boolean registered = optionalUser.isPresent();
+        boolean registered = false;
         User user;
 
-        if (registered) {
+        if (optionalUser.isPresent()) {
             user = optionalUser.get();
 
-            // 다른 로그인 타입으로 이미 가입된 경우
-            if (user.getLoginType() != LoginType.NAVER) {
+            // 네이버 로그인으로 가입한 유저가 아닌 경우
+            if (user.getLoginType() != LoginType.KAKAO) {
                 throw new GeneralException(ErrorStatus.DUPLICATE_USER_REGISTERED);
             }
 
+            // 회원가입 완료 여부 확인(더미 유저인지 아닌지)
+            boolean alreadyCompleted =
+                    designerRepository.existsByUser_Id(user.getId()) ||
+                            modelRepository.existsByUser_Id(user.getId());
+
+            registered = alreadyCompleted;
         } else {
             // 회원가입하지 않은 경우, 더미 User 생성
 
