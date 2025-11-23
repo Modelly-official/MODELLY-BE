@@ -406,7 +406,7 @@ public class AuthService {
             user = optionalUser.get();
 
             // 네이버 로그인으로 가입한 유저가 아닌 경우
-            if (user.getLoginType() != LoginType.KAKAO) {
+            if (user.getLoginType() != LoginType.NAVER) {
                 throw new GeneralException(ErrorStatus.DUPLICATE_USER_REGISTERED);
             }
 
