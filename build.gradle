@@ -41,9 +41,24 @@ dependencies {
 
 	// Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.session:spring-session-data-redis'
 
 	// health 체크용 actuator
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// JWT
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+	//Security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// SMS(Solapi API)
+	implementation 'com.solapi:sdk:1.0.3'
+
+	// EMAIL
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 tasks.named('test') {
