@@ -138,6 +138,7 @@ public class AuthService {
         return LoginResult.of(loginResponse, refreshToken, ttlSec);
     }
 
+    /* 로그아웃 */
     @Transactional
     public SimpleMessageDTO logout(HttpServletRequest request) {
         String accessToken = tokenProvider.resolveToken(request);
@@ -152,6 +153,7 @@ public class AuthService {
     }
 
 
+    /* Access token 재발급 */
     @Transactional(readOnly = true)
     public NewTokenResult newAccessToken(String refreshToken) {
 
@@ -211,7 +213,7 @@ public class AuthService {
         return DuplicateCheckResponse.of("email", value, available);
     }
 
-    // util
+    // Access Token 유효한지 확인
     @Transactional(readOnly = true)
     public TokenValidationResponse isValidAccess(HttpServletRequest request) {
         // 유효성 검사는 JwtAuthenticationFilter에서 처리

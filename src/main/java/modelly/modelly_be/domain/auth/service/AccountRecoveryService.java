@@ -76,7 +76,7 @@ public class AccountRecoveryService {
         User user = userRepository.findByNameAndEmail(request.getName(), request.getEmail())
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
 
-        return new FindIdResponse(user.getName(), user.getLoginId());
+        return new FindIdResponse(user.getLoginType(), user.getName(), user.getLoginId(), user.getEmail());
     }
 
 
