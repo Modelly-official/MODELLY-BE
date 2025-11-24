@@ -334,21 +334,19 @@ public class AuthService {
             registered = alreadyCompleted;
         } else {
             // 회원가입하지 않은 경우, 더미 User 생성
-            String rawRandomPassword = UUID.randomUUID().toString();
-            String encodedRandomPassword = passwordEncoder.encode(rawRandomPassword);
 
             user = User.builder()
                     .loginId(null)
-                    .password(encodedRandomPassword)
+                    .password(null)
                     .email(kakaoEmail)
                     .name(kakaoName)
-                    .phoneNum("PENDING")
-                    .gender(Gender.MALE)
-                    .birth(LocalDate.of(2000, 1, 1))
+                    .phoneNum(null)
+                    .gender(null)
+                    .birth(null)
                     .imageUrl(null)
-                    .permission(Permission.USER)
                     .loginType(LoginType.KAKAO)
-                    .userRole(UserRole.MODEL)
+                    .userRole(null)
+                    .permission(Permission.USER)
                     .build();
 
             userRepository.save(user);

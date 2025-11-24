@@ -27,7 +27,7 @@ public class User extends BaseEntity {
     @Column(name = "login_id", length = 20, unique = true)
     private String loginId;
 
-    @Column(name = "password", length = 255, nullable = false)
+    @Column(name = "password", length = 255)
     private String password;
 
     @Column(name = "email", length = 50, nullable = false, unique = true)
@@ -36,14 +36,14 @@ public class User extends BaseEntity {
     @Column(name = "name", length = 20, nullable = false)
     private String name;
 
-    @Column(name = "phone_num", length = 20, nullable = false)
+    @Column(name = "phone_num", length = 20)
     private String phoneNum;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender", nullable = false)
+    @Column(name = "gender")
     private Gender gender;
 
-    @Column(name = "birth", nullable = false)
+    @Column(name = "birth")
     private LocalDate birth;
 
     @Column(name = "image_url", length = 255)
@@ -54,7 +54,7 @@ public class User extends BaseEntity {
     private LoginType loginType;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_role", nullable = false)
+    @Column(name = "user_role")
     private UserRole userRole;
 
     // 일단 permission 넣어둠.
