@@ -228,9 +228,9 @@ public class AuthService {
         return TokenValidationResponse.of("Access Token의 상태는 다음과 같습니다.", status);
     }
 
-    /* 카카오 회원가입 */
+    /* 소셜 회원가입 */
     @Transactional
-    public SignupResponse signupWithKakao(HttpServletRequest request, SocialSignupRequest req) {
+    public SignupResponse SocialSignup(HttpServletRequest request, SocialSignupRequest req) {
 
         // access token 검증
         String accessToken = tokenProvider.resolveToken(request);

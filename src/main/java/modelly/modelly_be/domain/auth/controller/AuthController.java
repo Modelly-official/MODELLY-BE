@@ -144,17 +144,18 @@ public class AuthController {
         return ApiResponse.onSuccess(result.getLoginResponse());
     }
 
-    /* 카카오 회원가입 */
-    @Operation(summary = "카카오 회원가입", description = "회원가입 완료 메시지, 이메일, 이름, 닉네임을 반환합니다.")
-    @PostMapping("/auth/kakao/signup")
+    /* 소셜 회원가입 */
+    @Operation(summary = "소셜 회원가입", description = "소셜 로그인을 처음한 유저의 정보를 추가로 업데이트 합니다.")
+    @PostMapping("/auth/social/signup")
     public ApiResponse<SignupResponse> signupWithKakao(HttpServletRequest request, @Valid @RequestBody SocialSignupRequest req) {
-        SignupResponse result = authService.signupWithKakao(request, req);
+        SignupResponse result = authService.SocialSignup(request, req);
         return ApiResponse.onSuccess(result);
     }
 
     /* ---------- SMS 전송 및 인증 ---------- */
 
     /* SMS 인증번호 전송 */
+    @Operation(summary = "SMS 인증번호 발송", description = "입력한 전화번호로 SMS 인증번호를 발송합니다.")
     @PostMapping("/auth/sms/send-code")
     public ApiResponse<SimpleMessageDTO> sendAuthCode(@Valid @RequestBody SmsAuthRequest request) {
         smsAuthService.sendAuthCode(request.getPhoneNumber());
@@ -162,6 +163,7 @@ public class AuthController {
     }
 
     /* SMS 인증 */
+    @Operation(summary = "SMS 인증번호 검증", description = "해당 전화번호로 발송한 SMS 인증번호가 맞는지 검증합니다.")
     @PostMapping("/auth/sms/verify")
     public ApiResponse<SimpleMessageDTO> verifyAuthCode(@Valid @RequestBody VerifySmsAuthRequest request) {
         smsAuthService.verifyAuthCode(request.getPhoneNumber(), request.getAuthCode());
