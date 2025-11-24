@@ -12,6 +12,8 @@ import modelly.modelly_be.domain.user.entity.*;
 import modelly.modelly_be.domain.user.repository.ModelRepository;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.security.entity.TokenStatus;
+import modelly.modelly_be.global.security.google.GoogleDTO;
+import modelly.modelly_be.global.security.google.GoogleUtil;
 import modelly.modelly_be.global.security.kakao.KakaoDTO;
 import modelly.modelly_be.global.security.kakao.KakaoUtil;
 import modelly.modelly_be.global.security.naver.NaverDTO;
@@ -27,9 +29,6 @@ import modelly.modelly_be.global.redis.RedisService;
 import modelly.modelly_be.global.security.dto.TokenResponse;
 import modelly.modelly_be.global.security.jwt.TokenProvider;
 
-import java.time.LocalDate;
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -44,6 +43,7 @@ public class AuthService {
     private final RedisService redisService;
     private final KakaoUtil kakaoUtil;
     private final NaverUtil naverUtil;
+    private final GoogleUtil googleUtil;
 
     /* ---------- JWT 회원가입/로그인/로그아웃 ---------- */
 
@@ -323,59 +323,7 @@ public class AuthService {
         String kakaoEmail = kakaoAccount.getEmail();
         String kakaoName = kakaoProfile.getKakao_account().getProfile().getNickname();
 
-        // 기존 사용자인지 파악
-        var optionalUser = userRepository.findByEmail(kakaoEmail);
-        boolean registered = false;
-        User user;
-
-        if (optionalUser.isPresent()) {
-            user = optionalUser.get();
-
-            // 다른 로그인 타입으로 이미 가입된 경우
-            if (user.getLoginType() != LoginType.KAKAO) {
-                throw new GeneralException(ErrorStatus.DUPLICATE_USER_REGISTERED);
-            }
-
-            // 회원가입 완료 여부 확인(더미 유저인지 아닌지)
-            boolean alreadyCompleted =
-                    designerRepository.existsByUser_Id(user.getId()) ||
-                    modelRepository.existsByUser_Id(user.getId());
-
-            registered = alreadyCompleted;
-        } else {
-            // 회원가입하지 않은 경우, 더미 User 생성
-
-            user = User.builder()
-                    .loginId(null)
-                    .password(null)
-                    .email(kakaoEmail)
-                    .name(kakaoName)
-                    .phoneNum(null)
-                    .gender(null)
-                    .birth(null)
-                    .imageUrl(null)
-                    .loginType(LoginType.KAKAO)
-                    .userRole(null)
-                    .permission(Permission.USER)
-                    .build();
-
-            userRepository.save(user);
-        }
-
-        // JWT 발급
-        TokenResponse tokens = tokenProvider.createToken(user);
-
-        // Redis에 refresh token 저장
-        String refreshToken = tokens.getRefreshToken();
-        long ttlSec = tokenProvider.getRemainingSeconds(refreshToken);
-        redisService.setRefreshToken(RT_KEY_PREFIX + user.getId(), refreshToken, ttlSec);
-
-        // 응답(액세스 토큰, 회원가입 여부)
-        SocialLoginResponse loginResponse = registered
-                ? SocialLoginResponse.existing(user.getId(), tokens.getAccessToken()) // 기존 회원
-                : SocialLoginResponse.newUser(user.getId(), tokens.getAccessToken()); // 신규 회원
-
-        return SocialLoginResult.of(loginResponse, refreshToken, ttlSec);
+        return processSocialLogin(kakaoEmail, kakaoName, LoginType.KAKAO);
     }
 
     /* 네이버 로그인(토큰, 회원가입 여부 반환) */
@@ -397,6 +345,32 @@ public class AuthService {
             throw new GeneralException(ErrorStatus.SOCIAL_PROFILE_INCOMPLETE);
         }
 
+        return processSocialLogin(email, name, LoginType.NAVER);
+    }
+
+    /* 구글 로그인(토큰, 회원가입 여부 반환) */
+    @Transactional
+    public SocialLoginResult googleLogin(String code, String redirectUri) {
+        // 구글 토큰, 프로필 조회
+        GoogleDTO.OAuthToken oAuthToken = googleUtil.requestToken(code, redirectUri);
+        GoogleDTO.GoogleProfile googleProfile = googleUtil.requestProfile(oAuthToken);
+
+        // 이메일
+        String email = googleProfile.getEmail();
+        Boolean emailVerified = googleProfile.getEmail_verified();
+
+        if (email == null || Boolean.FALSE.equals(emailVerified)) {
+            throw new GeneralException(ErrorStatus.SOCIAL_PROFILE_INCOMPLETE);
+        }
+
+        // 이름
+        String name = googleProfile.getName();
+
+        return processSocialLogin(email, name, LoginType.GOOGLE);
+    }
+
+    // 소셜 로그인 공통 프로세스
+    private SocialLoginResult processSocialLogin(String email, String name, LoginType loginType) {
         // 기존 유저 조회
         var optionalUser = userRepository.findByEmail(email);
         boolean registered = false;
@@ -405,20 +379,19 @@ public class AuthService {
         if (optionalUser.isPresent()) {
             user = optionalUser.get();
 
-            // 네이버 로그인으로 가입한 유저가 아닌 경우
-            if (user.getLoginType() != LoginType.NAVER) {
+            // 로그인 타입 검증
+            if (user.getLoginType() != loginType) {
                 throw new GeneralException(ErrorStatus.DUPLICATE_USER_REGISTERED);
             }
 
-            // 회원가입 완료 여부 확인(더미 유저인지 아닌지)
+            // 회원가입 완료 여부 확인
             boolean alreadyCompleted =
                     designerRepository.existsByUser_Id(user.getId()) ||
                             modelRepository.existsByUser_Id(user.getId());
 
             registered = alreadyCompleted;
         } else {
-            // 회원가입하지 않은 경우, 더미 User 생성
-
+            // 더미 User 생성
             user = User.builder()
                     .loginId(null)
                     .password(null)
@@ -426,9 +399,9 @@ public class AuthService {
                     .name(name)
                     .phoneNum(null)
                     .gender(null)
-                    .birth(null)  // 더미
+                    .birth(null)
                     .imageUrl(null)
-                    .loginType(LoginType.NAVER)
+                    .loginType(loginType)
                     .userRole(null)
                     .permission(Permission.USER)
                     .build();
@@ -436,14 +409,13 @@ public class AuthService {
             userRepository.save(user);
         }
 
-        //  JWT 발급
+        // JWT 발급 및 Redis 저장
         TokenResponse tokens = tokenProvider.createToken(user);
-
         String refreshToken = tokens.getRefreshToken();
         long ttlSec = tokenProvider.getRemainingSeconds(refreshToken);
         redisService.setRefreshToken(RT_KEY_PREFIX + user.getId(), refreshToken, ttlSec);
 
-        // 응답
+        // 응답 생성
         SocialLoginResponse loginResponse = registered
                 ? SocialLoginResponse.existing(user.getId(), tokens.getAccessToken())
                 : SocialLoginResponse.newUser(user.getId(), tokens.getAccessToken());
