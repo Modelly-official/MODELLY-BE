@@ -14,6 +14,8 @@ import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.security.entity.TokenStatus;
 import modelly.modelly_be.global.security.kakao.KakaoDTO;
 import modelly.modelly_be.global.security.kakao.KakaoUtil;
+import modelly.modelly_be.global.security.naver.NaverDTO;
+import modelly.modelly_be.global.security.naver.NaverUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +43,9 @@ public class AuthService {
     private final TokenProvider tokenProvider;
     private final RedisService redisService;
     private final KakaoUtil kakaoUtil;
+    private final NaverUtil naverUtil;
+
+    /* ---------- JWT 회원가입/로그인/로그아웃 ---------- */
 
     /* 회원가입 */
     @Transactional
@@ -154,6 +159,8 @@ public class AuthService {
     }
 
 
+    /* ---------- Access Token 재발급 및 유효 여부 확인 ---------- */
+
     /* Access token 재발급 */
     @Transactional(readOnly = true)
     public NewTokenResult newAccessToken(String refreshToken) {
@@ -198,7 +205,22 @@ public class AuthService {
         return NewTokenResult.of(AccessTokenResponse.of(newAccess), newRefresh, ttlSec);
     }
 
+    /* Access Token 유효 여부 확인 */
+    @Transactional(readOnly = true)
+    public TokenValidationResponse isValidAccess(HttpServletRequest request) {
+        // 유효성 검사는 JwtAuthenticationFilter에서 처리
+        String accessToken = tokenProvider.resolveToken(request);
 
+        if (accessToken == null || accessToken.isBlank())
+            throw new GeneralException(ErrorStatus.TOKEN_INVALID);
+
+        TokenStatus status = tokenProvider.validateToken(accessToken);
+
+        return TokenValidationResponse.of("Access Token의 상태는 다음과 같습니다.", status);
+    }
+
+
+    /* ---------- 아이디/이메일 중복 체크 ---------- */
 
     /* 로그인 아이디 중복 체크 */
     @Transactional(readOnly = true)
@@ -214,21 +236,9 @@ public class AuthService {
         return DuplicateCheckResponse.of("email", value, available);
     }
 
-    // Access Token 유효한지 확인
-    @Transactional(readOnly = true)
-    public TokenValidationResponse isValidAccess(HttpServletRequest request) {
-        // 유효성 검사는 JwtAuthenticationFilter에서 처리
-        String accessToken = tokenProvider.resolveToken(request);
+    /* ---------- 소셜 로그인/회원가입 ----------*/
 
-        if (accessToken == null || accessToken.isBlank())
-            throw new GeneralException(ErrorStatus.TOKEN_INVALID);
-
-        TokenStatus status = tokenProvider.validateToken(accessToken);
-
-        return TokenValidationResponse.of("Access Token의 상태는 다음과 같습니다.", status);
-    }
-
-    /* 소셜 회원가입 */
+    /* 소셜 로그인 회원가입 */
     @Transactional
     public SignupResponse SocialSignup(HttpServletRequest request, SocialSignupRequest req) {
 
@@ -254,7 +264,7 @@ public class AuthService {
 
         user.updateFromSocialSignup(base);
 
-        // 5) Designer / Model 정보 저장
+        // Designer / Model 정보 저장
         DesignerExtra designerExtra = req.getDesigner();
         ModelExtra modelExtra = req.getModel();
 
@@ -321,7 +331,7 @@ public class AuthService {
         if (optionalUser.isPresent()) {
             user = optionalUser.get();
 
-            // 카카오 로그인으로 가입한 유저가 아닌 경우
+            // 다른 로그인 타입으로 이미 가입된 경우
             if (user.getLoginType() != LoginType.KAKAO) {
                 throw new GeneralException(ErrorStatus.DUPLICATE_USER_REGISTERED);
             }
@@ -364,6 +374,79 @@ public class AuthService {
         SocialLoginResponse loginResponse = registered
                 ? SocialLoginResponse.existing(user.getId(), tokens.getAccessToken()) // 기존 회원
                 : SocialLoginResponse.newUser(user.getId(), tokens.getAccessToken()); // 신규 회원
+
+        return SocialLoginResult.of(loginResponse, refreshToken, ttlSec);
+    }
+
+    /* 네이버 로그인(토큰, 회원가입 여부 반환) */
+    @Transactional
+    public SocialLoginResult naverLogin(String code, String state, String redirectUri) {
+
+        // 네이버 토큰, 프로필 조회
+        NaverDTO.OAuthToken oAuthToken = naverUtil.requestToken(code, state, redirectUri);
+        NaverDTO.NaverProfile profile = naverUtil.requestProfile(oAuthToken);
+        NaverDTO.NaverProfile.Response res = profile.getResponse();
+
+        if (res == null || res.getEmail() == null) {
+            throw new GeneralException(ErrorStatus.SOCIAL_PROFILE_INCOMPLETE);
+        }
+
+        String email = res.getEmail();
+        String name = res.getName() != null ? res.getName() : res.getNickname();
+        if (name == null) {
+            throw new GeneralException(ErrorStatus.SOCIAL_PROFILE_INCOMPLETE);
+        }
+
+        // 기존 유저 조회
+        var optionalUser = userRepository.findByEmail(email);
+        boolean registered = false;
+        User user;
+
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+
+            // 네이버 로그인으로 가입한 유저가 아닌 경우
+            if (user.getLoginType() != LoginType.NAVER) {
+                throw new GeneralException(ErrorStatus.DUPLICATE_USER_REGISTERED);
+            }
+
+            // 회원가입 완료 여부 확인(더미 유저인지 아닌지)
+            boolean alreadyCompleted =
+                    designerRepository.existsByUser_Id(user.getId()) ||
+                            modelRepository.existsByUser_Id(user.getId());
+
+            registered = alreadyCompleted;
+        } else {
+            // 회원가입하지 않은 경우, 더미 User 생성
+
+            user = User.builder()
+                    .loginId(null)
+                    .password(null)
+                    .email(email)
+                    .name(name)
+                    .phoneNum(null)
+                    .gender(null)
+                    .birth(null)  // 더미
+                    .imageUrl(null)
+                    .loginType(LoginType.NAVER)
+                    .userRole(null)
+                    .permission(Permission.USER)
+                    .build();
+
+            userRepository.save(user);
+        }
+
+        //  JWT 발급
+        TokenResponse tokens = tokenProvider.createToken(user);
+
+        String refreshToken = tokens.getRefreshToken();
+        long ttlSec = tokenProvider.getRemainingSeconds(refreshToken);
+        redisService.setRefreshToken(RT_KEY_PREFIX + user.getId(), refreshToken, ttlSec);
+
+        // 응답
+        SocialLoginResponse loginResponse = registered
+                ? SocialLoginResponse.existing(user.getId(), tokens.getAccessToken())
+                : SocialLoginResponse.newUser(user.getId(), tokens.getAccessToken());
 
         return SocialLoginResult.of(loginResponse, refreshToken, ttlSec);
     }

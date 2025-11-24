@@ -144,6 +144,29 @@ public class AuthController {
         return ApiResponse.onSuccess(result.getLoginResponse());
     }
 
+    /* 네이버 로그인 */
+    @Operation(summary = "네이버 로그인", description = "네이버 인가 코드로 로그인합니다. (액세스 토큰, 회원가입 여부 반환)")
+    @PostMapping("/auth/naver/login")
+    public ApiResponse<SocialLoginResponse> naverLogin(
+            @RequestParam("code") String code,
+            @RequestParam("state") String state,
+            @RequestParam("redirectUri") String redirectUri,
+            HttpServletResponse response
+    ) {
+        SocialLoginResult result = authService.naverLogin(code, state, redirectUri);
+
+        var cookie = CookieUtil.buildRefreshCookie(
+                result.getRefreshToken(),
+                result.getRefreshTtlSec(),
+                "",
+                refreshCookieSecure,
+                ""
+        );
+        response.addHeader("Set-Cookie", cookie.toString());
+
+        return ApiResponse.onSuccess(result.getLoginResponse());
+    }
+
     /* 소셜 회원가입 */
     @Operation(summary = "소셜 회원가입", description = "소셜 로그인을 처음한 유저의 정보를 추가로 업데이트 합니다.")
     @PostMapping("/auth/social/signup")
