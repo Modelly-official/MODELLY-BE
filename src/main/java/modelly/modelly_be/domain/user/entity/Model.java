@@ -2,17 +2,18 @@ package modelly.modelly_be.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import modelly.modelly_be.global.entity.BaseEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Model {
+public class Model extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "model_id")
     private Long id;
 
-    @Column(name = "nickname", length = 20, nullable = false)                                     // VARCHAR(20)
+    @Column(name = "nickname", length = 20, nullable = false, unique = true)                                     // VARCHAR(20)
     private String nickname;
 
     @OneToOne(fetch = FetchType.LAZY)

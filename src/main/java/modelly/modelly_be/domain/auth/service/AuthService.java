@@ -3,10 +3,8 @@ package modelly.modelly_be.domain.auth.service;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
-import modelly.modelly_be.domain.auth.dto.internal.DesignerExtra;
-import modelly.modelly_be.domain.auth.dto.internal.LoginResult;
-import modelly.modelly_be.domain.auth.dto.internal.ModelExtra;
-import modelly.modelly_be.domain.auth.dto.internal.NewTokenResult;
+import modelly.modelly_be.domain.auth.dto.internal.*;
+import modelly.modelly_be.domain.auth.dto.request.SocialSignupRequest;
 import modelly.modelly_be.domain.auth.dto.request.LoginRequest;
 import modelly.modelly_be.domain.auth.dto.request.SignupRequest;
 import modelly.modelly_be.domain.auth.dto.response.*;
@@ -14,6 +12,8 @@ import modelly.modelly_be.domain.user.entity.*;
 import modelly.modelly_be.domain.user.repository.ModelRepository;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.security.entity.TokenStatus;
+import modelly.modelly_be.global.security.kakao.KakaoDTO;
+import modelly.modelly_be.global.security.kakao.KakaoUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +24,9 @@ import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.redis.RedisService;
 import modelly.modelly_be.global.security.dto.TokenResponse;
 import modelly.modelly_be.global.security.jwt.TokenProvider;
+
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +40,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
     private final RedisService redisService;
+    private final KakaoUtil kakaoUtil;
 
     /* 회원가입 */
     @Transactional
@@ -60,7 +64,9 @@ public class AuthService {
                 .gender(base.getGender())
                 .birth(base.getBirth())
                 .imageUrl(base.getImageUrl())
-                .userRole(UserRole.USER)
+                .loginType(LoginType.JWT)
+                .userRole(base.getUserRole())
+                .permission(Permission.USER)
                 .build();
 
         userRepository.save(user);
@@ -68,16 +74,16 @@ public class AuthService {
         // Designer, Model 정보 받아옴
         DesignerExtra designerExtra = req.getDesigner();
         ModelExtra modelExtra = req.getModel();
-        String nickname;
+        String nickname = null;
 
-        // Designer, Model 정보가 둘 다 존재하는 경우
-        if (designerExtra != null && modelExtra != null) {
-            System.out.printf("asdf");
-            throw new GeneralException(ErrorStatus.SIGNUP_FIELDS_ERROR);
-        }
+        UserRole role = base.getUserRole();
+        // UserRole에 맞는 입력 정보인지 확인
+        if (role == UserRole.DESIGNER) {
+            // 디자이너인데 model 정보가 오거나, designer 정보가 없으면 에러
+            if (designerExtra == null || modelExtra != null) {
+                throw new GeneralException(ErrorStatus.SIGNUP_FIELDS_ERROR);
+            }
 
-        // Designer 회원가입 정보
-        if (designerExtra != null) {
             Designer designer = Designer.builder()
                     .user(user)
                     .shop(designerExtra.getShop())
@@ -85,18 +91,22 @@ public class AuthService {
                     .category(designerExtra.getCategory())
                     .chemistryScore(0L)
                     .nickname(designerExtra.getNickname())
+                    .instagramId(null)
                     .build();
 
             designerRepository.save(designer);
             nickname = designer.getNickname();
-        }
-        else if (modelExtra != null) { // Model 회원가입 정보
+
+        } else if (role == UserRole.MODEL) {
+            // 모델인데 designer 정보가 오거나, model 정보가 없으면 에러
+            if (modelExtra == null || designerExtra != null) {
+                throw new GeneralException(ErrorStatus.SIGNUP_FIELDS_ERROR);
+            }
+
             Model model = Model.of(user, modelExtra.getNickname());
             modelRepository.save(model);
             nickname = model.getNickname();
-        } else {
-            // Designer, Model 정보 둘 다 존재하지 않는 경우
-            throw new GeneralException(ErrorStatus.SIGNUP_FIELDS_ERROR);
+
         }
 
         return SignupResponse.of("회원가입이 완료되었습니다.", user.getLoginId(), user.getName(), nickname);
@@ -129,6 +139,7 @@ public class AuthService {
         return LoginResult.of(loginResponse, refreshToken, ttlSec);
     }
 
+    /* 로그아웃 */
     @Transactional
     public SimpleMessageDTO logout(HttpServletRequest request) {
         String accessToken = tokenProvider.resolveToken(request);
@@ -143,6 +154,7 @@ public class AuthService {
     }
 
 
+    /* Access token 재발급 */
     @Transactional(readOnly = true)
     public NewTokenResult newAccessToken(String refreshToken) {
 
@@ -186,6 +198,8 @@ public class AuthService {
         return NewTokenResult.of(AccessTokenResponse.of(newAccess), newRefresh, ttlSec);
     }
 
+
+
     /* 로그인 아이디 중복 체크 */
     @Transactional(readOnly = true)
     public DuplicateCheckResponse checkLoginId(String value) {
@@ -200,14 +214,158 @@ public class AuthService {
         return DuplicateCheckResponse.of("email", value, available);
     }
 
-    // util
+    // Access Token 유효한지 확인
     @Transactional(readOnly = true)
     public TokenValidationResponse isValidAccess(HttpServletRequest request) {
         // 유효성 검사는 JwtAuthenticationFilter에서 처리
         String accessToken = tokenProvider.resolveToken(request);
+
+        if (accessToken == null || accessToken.isBlank())
+            throw new GeneralException(ErrorStatus.TOKEN_INVALID);
+
         TokenStatus status = tokenProvider.validateToken(accessToken);
 
-        return TokenValidationResponse.of("Access Token이 유효합니다.", status);
+        return TokenValidationResponse.of("Access Token의 상태는 다음과 같습니다.", status);
+    }
+
+    /* 소셜 회원가입 */
+    @Transactional
+    public SignupResponse SocialSignup(HttpServletRequest request, SocialSignupRequest req) {
+
+        // access token 검증
+        String accessToken = tokenProvider.resolveToken(request);
+        if (accessToken == null || accessToken.isBlank())
+            throw new GeneralException(ErrorStatus.TOKEN_INVALID);
+
+        // 토큰에서 userId 추출
+        String userIdStr = tokenProvider.getUserIdFromToken(accessToken);
+        Long userId = Long.valueOf(userIdStr);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+
+        // 회원가입 중복 호출 방지
+        boolean alreadyCompleted = designerRepository.existsByUser_Id(userId) || modelRepository.existsByUser_Id(userId);
+        if (alreadyCompleted) {
+            throw new GeneralException(ErrorStatus.DUPLICATE_USER_REGISTERED);
+        }
+
+        var base = req.getBase();
+
+        user.updateFromSocialSignup(base);
+
+        // 5) Designer / Model 정보 저장
+        DesignerExtra designerExtra = req.getDesigner();
+        ModelExtra modelExtra = req.getModel();
+
+        if (designerExtra != null && modelExtra != null) {
+            throw new GeneralException(ErrorStatus.SIGNUP_FIELDS_ERROR);
+        }
+
+        String nickname = null;
+        UserRole role = base.getUserRole();
+
+        if (role == UserRole.DESIGNER) {
+            if (designerExtra == null || modelExtra != null) {
+                throw new GeneralException(ErrorStatus.SIGNUP_FIELDS_ERROR);
+            }
+
+            Designer designer = Designer.builder()
+                    .user(user)
+                    .shop(designerExtra.getShop())
+                    .shopAddress(designerExtra.getShopAddress())
+                    .category(designerExtra.getCategory())
+                    .chemistryScore(0L)
+                    .nickname(designerExtra.getNickname())
+                    .instagramId(null)
+                    .build();
+
+            designerRepository.save(designer);
+            nickname = designer.getNickname();
+
+        } else if (role == UserRole.MODEL) {
+            if (modelExtra == null || designerExtra != null) {
+                throw new GeneralException(ErrorStatus.SIGNUP_FIELDS_ERROR);
+            }
+
+            Model model = Model.of(user, modelExtra.getNickname());
+            modelRepository.save(model);
+            nickname = model.getNickname();
+
+        }
+
+        return SignupResponse.of("회원가입이 완료되었습니다.", user.getEmail(), user.getName(), nickname);
+    }
+
+    /* 카카오 로그인(토큰, 회원가입 여부 반환) */
+    @Transactional
+    public SocialLoginResult kakaoLogin(String code, String redirectUri) {
+        // 카카오 토큰으로 프로필 조회
+        KakaoDTO.OAuthToken oAuthToken = kakaoUtil.requestToken(code, redirectUri);
+        KakaoDTO.KakaoProfile kakaoProfile = kakaoUtil.requestProfile(oAuthToken);
+
+        var kakaoAccount = kakaoProfile.getKakao_account();
+        if (kakaoAccount == null || kakaoAccount.getEmail() == null) {
+            throw new GeneralException(ErrorStatus.SOCIAL_PROFILE_INCOMPLETE);
+        }
+
+        // 카카오로부터 이메일, 이름 정보 받아오기
+        String kakaoEmail = kakaoAccount.getEmail();
+        String kakaoName = kakaoProfile.getKakao_account().getProfile().getNickname();
+
+        // 기존 사용자인지 파악
+        var optionalUser = userRepository.findByEmail(kakaoEmail);
+        boolean registered = false;
+        User user;
+
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+
+            // 카카오 로그인으로 가입한 유저가 아닌 경우
+            if (user.getLoginType() != LoginType.KAKAO) {
+                throw new GeneralException(ErrorStatus.DUPLICATE_USER_REGISTERED);
+            }
+
+            // 회원가입 완료 여부 확인(더미 유저인지 아닌지)
+            boolean alreadyCompleted =
+                    designerRepository.existsByUser_Id(user.getId()) ||
+                    modelRepository.existsByUser_Id(user.getId());
+
+            registered = alreadyCompleted;
+        } else {
+            // 회원가입하지 않은 경우, 더미 User 생성
+
+            user = User.builder()
+                    .loginId(null)
+                    .password(null)
+                    .email(kakaoEmail)
+                    .name(kakaoName)
+                    .phoneNum(null)
+                    .gender(null)
+                    .birth(null)
+                    .imageUrl(null)
+                    .loginType(LoginType.KAKAO)
+                    .userRole(null)
+                    .permission(Permission.USER)
+                    .build();
+
+            userRepository.save(user);
+        }
+
+        // JWT 발급
+        TokenResponse tokens = tokenProvider.createToken(user);
+
+        // Redis에 refresh token 저장
+        String refreshToken = tokens.getRefreshToken();
+        long ttlSec = tokenProvider.getRemainingSeconds(refreshToken);
+        redisService.setRefreshToken(RT_KEY_PREFIX + user.getId(), refreshToken, ttlSec);
+
+        // 응답(액세스 토큰, 회원가입 여부)
+        SocialLoginResponse loginResponse = registered
+                ? SocialLoginResponse.existing(user.getId(), tokens.getAccessToken()) // 기존 회원
+                : SocialLoginResponse.newUser(user.getId(), tokens.getAccessToken()); // 신규 회원
+
+        return SocialLoginResult.of(loginResponse, refreshToken, ttlSec);
     }
 }
 

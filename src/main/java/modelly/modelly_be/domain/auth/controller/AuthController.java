@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.auth.dto.internal.LoginResult;
 import modelly.modelly_be.domain.auth.dto.internal.NewTokenResult;
+import modelly.modelly_be.domain.auth.dto.internal.SocialLoginResult;
 import modelly.modelly_be.domain.auth.dto.request.*;
 import modelly.modelly_be.domain.auth.dto.response.*;
 import modelly.modelly_be.domain.auth.service.AccountRecoveryService;
@@ -107,21 +108,54 @@ public class AuthController {
 
     /* 로그인 아이디 중복 체크 */
     @Operation(summary = "아이디 중복 체크", description = "available = true면 중복 X")
-    @GetMapping("/check/login-id")
+    @GetMapping("/auth/check/login-id")
     public ApiResponse<DuplicateCheckResponse> checkLoginId(@RequestParam("value") String value) {
         return ApiResponse.onSuccess(authService.checkLoginId(value));
     }
 
     /* 이메일 중복 체크 */
     @Operation(summary = "이메일 중복 체크", description = "available = true면 중복 X")
-    @GetMapping("/check/email")
+    @GetMapping("/auth/check/email")
     public ApiResponse<DuplicateCheckResponse> checkEmail(@RequestParam("value") String value) {
         return ApiResponse.onSuccess(authService.checkEmail(value));
+    }
+
+    /* --------- 카카오 로그인, 회원가입 --------- */
+
+    /* 카카오 로그인 */
+    @Operation(summary = "카카오 로그인", description = "카카오 인가 코드로 로그인합니다. (액세스 토큰, 회원가입 여부 반환)")
+    @PostMapping("/auth/kakao/login")
+    public ApiResponse<SocialLoginResponse> kakaoLogin(
+            @RequestParam("code") String code,
+            @RequestParam("redirectUri") String redirectUri,
+            HttpServletResponse response
+    ) {
+        SocialLoginResult result = authService.kakaoLogin(code, redirectUri);
+
+        var cookie = CookieUtil.buildRefreshCookie(
+                result.getRefreshToken(),
+                result.getRefreshTtlSec(),
+                "",
+                refreshCookieSecure,
+                ""
+        );
+        response.addHeader("Set-Cookie", cookie.toString());
+
+        return ApiResponse.onSuccess(result.getLoginResponse());
+    }
+
+    /* 소셜 회원가입 */
+    @Operation(summary = "소셜 회원가입", description = "소셜 로그인을 처음한 유저의 정보를 추가로 업데이트 합니다.")
+    @PostMapping("/auth/social/signup")
+    public ApiResponse<SignupResponse> signupWithKakao(HttpServletRequest request, @Valid @RequestBody SocialSignupRequest req) {
+        SignupResponse result = authService.SocialSignup(request, req);
+        return ApiResponse.onSuccess(result);
     }
 
     /* ---------- SMS 전송 및 인증 ---------- */
 
     /* SMS 인증번호 전송 */
+    @Operation(summary = "SMS 인증번호 발송", description = "입력한 전화번호로 SMS 인증번호를 발송합니다.")
     @PostMapping("/auth/sms/send-code")
     public ApiResponse<SimpleMessageDTO> sendAuthCode(@Valid @RequestBody SmsAuthRequest request) {
         smsAuthService.sendAuthCode(request.getPhoneNumber());
@@ -129,6 +163,7 @@ public class AuthController {
     }
 
     /* SMS 인증 */
+    @Operation(summary = "SMS 인증번호 검증", description = "해당 전화번호로 발송한 SMS 인증번호가 맞는지 검증합니다.")
     @PostMapping("/auth/sms/verify")
     public ApiResponse<SimpleMessageDTO> verifyAuthCode(@Valid @RequestBody VerifySmsAuthRequest request) {
         smsAuthService.verifyAuthCode(request.getPhoneNumber(), request.getAuthCode());
@@ -155,7 +190,7 @@ public class AuthController {
     }
 
     /* 아이디 찾기 - 이름, 아이디 반환 */
-    @Operation(summary = "아이디 찾기 - 이름, 아이디 반환", description = "이메일 인증 완료한 사용자의 이름과 아이디를 반환합니다.")
+    @Operation(summary = "아이디 찾기 - 이름, 아이디 반환", description = "이메일 인증 완료한 사용자의 로그인 타입, 이름, 아이디, 이메일을 반환합니다.")
     @PostMapping("/auth/find-id")
     public ApiResponse<FindIdResponse> findId(@Valid @RequestBody FindIdRequest request) {
         FindIdResponse response = accountRecoveryService.findId(request);
