@@ -493,21 +493,19 @@ public class AuthService {
             registered = alreadyCompleted;
         } else {
             // 회원가입하지 않은 경우, 더미 User 생성
-            String rawRandomPassword = UUID.randomUUID().toString();
-            String encodedRandomPassword = passwordEncoder.encode(rawRandomPassword);
 
             user = User.builder()
                     .loginId(null)
-                    .password(encodedRandomPassword)
+                    .password(null)
                     .email(email)
                     .name(name)
-                    .phoneNum("PENDING")
-                    .gender(Gender.MALE)
-                    .birth(LocalDate.of(2000, 1, 1))
+                    .phoneNum(null)
+                    .gender(null)
+                    .birth(null)
                     .imageUrl(null)
                     .permission(Permission.USER)
                     .loginType(LoginType.GOOGLE)
-                    .userRole(UserRole.MODEL)
+                    .userRole(null)
                     .build();
 
             userRepository.save(user);
