@@ -2,7 +2,7 @@ package modelly.modelly_be.domain.like.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import modelly.modelly_be.domain.user.entity.Designer;
+import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.global.entity.BaseEntity;
 
@@ -12,7 +12,7 @@ import modelly.modelly_be.global.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "recruitment_like",
         uniqueConstraints =
-            @UniqueConstraint(columnNames = {"designer_id", "model_id"}))
+            @UniqueConstraint(columnNames = {"recruitment_id", "model_id"}))
 @AllArgsConstructor
 public class RecruitmentLike extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,8 +20,8 @@ public class RecruitmentLike extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "designer_id")
-    private Designer designer;
+    @JoinColumn(name = "recruitment_id")
+    private Recruitment recruitment;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "model_id")
