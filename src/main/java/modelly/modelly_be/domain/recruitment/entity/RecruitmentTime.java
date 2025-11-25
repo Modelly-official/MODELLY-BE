@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.recruitment.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Entity
 @Getter
 @Builder
 @AllArgsConstructor

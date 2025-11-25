@@ -7,8 +7,8 @@ import lombok.Getter;
 @Getter
 @Builder
 public class RecruitmentImage {
-    @Id
-    @Column(name = "recruitment_id", nullable = false)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "recruitment_image_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -16,6 +16,6 @@ public class RecruitmentImage {
     @JoinColumn(name = "recruitment_id")
     private Recruitment recruitment;
 
-    @Column(name = "image_url", nullable = false, length = 255)
+    @Column(name = "image_url", nullable = false, length = 254)
     private String imageUrl;
 }
