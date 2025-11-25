@@ -18,7 +18,7 @@ public class Designer extends BaseEntity {
     @Column(name = "shop", length = 50)
     private String shop;
 
-    @Column(name = "shop_address", length = 255)
+    @Column(name = "shop_address", length = 254)
     private String shopAddress;
 
     @Enumerated(EnumType.STRING)

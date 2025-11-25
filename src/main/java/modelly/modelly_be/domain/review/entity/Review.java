@@ -30,7 +30,7 @@ public class Review extends BaseEntity {
     @JoinColumn(name = "designer_id")
     private Designer designer;
 
-    @OneToOne(orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservation_id")
     private Reservation reservation;
 

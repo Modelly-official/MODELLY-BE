@@ -9,6 +9,9 @@ import modelly.modelly_be.global.entity.BaseEntity;
 @Entity
 @Getter
 @Builder
+@Table(name = "designer_like",
+        uniqueConstraints =
+            @UniqueConstraint(columnNames = {"designer_id", "model_id"}))
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class DesignerLike extends BaseEntity {

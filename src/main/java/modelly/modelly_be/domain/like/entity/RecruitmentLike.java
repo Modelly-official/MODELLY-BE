@@ -10,9 +10,9 @@ import modelly.modelly_be.global.entity.BaseEntity;
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(uniqueConstraints
-        = @UniqueConstraint(columnNames =
-        {"designer_id", "model_id"}))
+@Table(name = "recruitment_like",
+        uniqueConstraints =
+            @UniqueConstraint(columnNames = {"designer_id", "model_id"}))
 @AllArgsConstructor
 public class RecruitmentLike extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

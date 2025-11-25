@@ -23,19 +23,19 @@ public class Recruitment extends BaseEntity {
     @Column(name = "category", nullable = false)
     private Category category;
 
-    @Column(name = "content", nullable = false, length = 255)
+    @Column(name = "content", nullable = false, length = 254)
     private String content;
 
-    @Column(name = "notice", nullable = false, length = 255)
+    @Column(name = "notice", nullable = false, length = 254)
     private String notice;
 
-    @Column(name = "goal1", length = 255)
+    @Column(name = "goal1", length = 254)
     private String goal1;
 
-    @Column(name = "goal2", length = 255)
+    @Column(name = "goal2", length = 254)
     private String goal2;
 
-    @Column(name = "goal3", length = 255)
+    @Column(name = "goal3", length = 254)
     private String goal3;
 
     @Column(name = "agree_video")
