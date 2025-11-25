@@ -29,7 +29,7 @@ public class Reservation extends BaseEntity {
     private String content;
 
     @Column(name = "designer_name", length = 20)
-    private String DesignerName;
+    private String designerName;
 
     @Column(name = "shop", length = 100)
     private String shop;

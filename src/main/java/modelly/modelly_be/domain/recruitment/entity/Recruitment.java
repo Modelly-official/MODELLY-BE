@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.entity.BaseEntity;
+import modelly.modelly_be.global.entity.Category;
 
 @Entity
 @Getter
@@ -46,7 +47,7 @@ public class Recruitment extends BaseEntity {
     @Column(name = "agree_mosaic")
     private boolean agreeMosaic;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "designer_id")
     private Designer designer;
 }

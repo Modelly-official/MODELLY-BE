@@ -17,7 +17,7 @@ public class Reply extends BaseEntity {
     @Column(name = "content", length = 200)
     private String content;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id")
     private Review review;
 }

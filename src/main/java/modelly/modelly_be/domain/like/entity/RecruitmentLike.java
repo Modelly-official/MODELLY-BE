@@ -10,17 +10,20 @@ import modelly.modelly_be.global.entity.BaseEntity;
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(uniqueConstraints
+        = @UniqueConstraint(columnNames =
+        {"designer_id", "model_id"}))
 @AllArgsConstructor
 public class RecruitmentLike extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "recruitment_like_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "designer_id")
     private Designer designer;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "model_id")
     private Model model;
 }

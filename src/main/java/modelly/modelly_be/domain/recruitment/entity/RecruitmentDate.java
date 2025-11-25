@@ -19,7 +19,7 @@ public class RecruitmentDate {
     @Column(name = "date", nullable = false)
     private LocalDate date;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recruitment_id", nullable = false)
     private Recruitment recruitment;
 }

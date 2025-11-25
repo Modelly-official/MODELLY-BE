@@ -15,7 +15,7 @@ import modelly.modelly_be.global.entity.BaseEntity;
 public class Review extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_id")
-    public Long id;
+    private Long id;
 
     @Column(name = "summary", nullable = false, length = 254)
     private String summary;
@@ -26,15 +26,15 @@ public class Review extends BaseEntity {
     @Column(name = "is_fixed", nullable = false)
     private boolean isFixed;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "designer_id")
     private Designer designer;
 
-    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "reservation_id")
     private Reservation reservation;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "model_id")
     private Model model;
 

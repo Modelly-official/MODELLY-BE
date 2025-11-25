@@ -16,7 +16,7 @@ public class ReviewImage {
     @Column(name = "image_url", nullable = false, length = 254)
     private String imageUrl;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id")
     private Review review;
 }

@@ -9,12 +9,10 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RecruitmentTime {
-    @Id
-    @Column(name = "recruitment_date_id", nullable = false)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @MapsId
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recruitment_date_id")
     private RecruitmentDate recruitmentDate;
 

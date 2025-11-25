@@ -2,7 +2,7 @@ package modelly.modelly_be.domain.auth.dto.internal;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
-import modelly.modelly_be.domain.recruitment.entity.Category;
+import modelly.modelly_be.global.entity.Category;
 
 @Getter
 public class DesignerExtra {

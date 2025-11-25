@@ -2,7 +2,8 @@ package modelly.modelly_be.domain.portfolio.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import modelly.modelly_be.domain.recruitment.entity.Category;
+import modelly.modelly_be.global.entity.Category;
+import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.entity.BaseEntity;
 
 @Getter
@@ -25,4 +26,7 @@ public class Portfolio extends BaseEntity {
     @Column(name = "content", columnDefinition = "text")
     private String content;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "designer_id")
+    private Designer designer;
 }

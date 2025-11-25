@@ -17,6 +17,7 @@ public class NotificationSetting extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "user_id")
+    @MapsId
     private User user;
 
     @Builder.Default
