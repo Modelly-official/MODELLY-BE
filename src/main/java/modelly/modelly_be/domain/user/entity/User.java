@@ -1,13 +1,15 @@
 package modelly.modelly_be.domain.user.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import modelly.modelly_be.domain.auth.dto.internal.SocialSignupBase;
+import modelly.modelly_be.domain.user.entity.enums.Gender;
+import modelly.modelly_be.domain.user.entity.enums.LoginType;
+import modelly.modelly_be.domain.user.entity.enums.Permission;
+import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.global.entity.BaseEntity;
 
 import java.time.LocalDate;

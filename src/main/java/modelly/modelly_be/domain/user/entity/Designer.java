@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import modelly.modelly_be.domain.recruitment.entity.Category;
 import modelly.modelly_be.global.entity.BaseEntity;
 
 @Entity

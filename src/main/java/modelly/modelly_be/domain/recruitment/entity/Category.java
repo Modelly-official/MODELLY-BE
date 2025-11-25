@@ -1,4 +1,4 @@
-package modelly.modelly_be.domain.user.entity;
+package modelly.modelly_be.domain.recruitment.entity;
 
 public enum Category {
     HAIR,     // 헤어
