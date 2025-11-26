@@ -1,12 +1,11 @@
 package modelly.modelly_be.domain.auth.dto.internal;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import modelly.modelly_be.domain.user.entity.Gender;
-import modelly.modelly_be.domain.user.entity.UserRole;
+import modelly.modelly_be.domain.user.entity.enums.Gender;
+import modelly.modelly_be.domain.user.entity.enums.UserRole;
 
 import java.time.LocalDate;
 

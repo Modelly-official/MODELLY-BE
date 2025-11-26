@@ -2,7 +2,7 @@ package modelly.modelly_be.domain.auth.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import modelly.modelly_be.domain.user.entity.LoginType;
+import modelly.modelly_be.domain.user.entity.enums.LoginType;
 
 @Getter
 @AllArgsConstructor

@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.entity.BaseEntity;
 
 @Entity
@@ -17,7 +18,7 @@ public class Designer extends BaseEntity {
     @Column(name = "shop", length = 50)
     private String shop;
 
-    @Column(name = "shop_address", length = 255)
+    @Column(name = "shop_address", length = 254)
     private String shopAddress;
 
     @Enumerated(EnumType.STRING)
