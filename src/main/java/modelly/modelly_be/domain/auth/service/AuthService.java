@@ -331,10 +331,10 @@ public class AuthService {
 
     /* 네이버 로그인(토큰, 회원가입 여부 반환) */
     @Transactional
-    public SocialLoginResult naverLogin(String code, String state, String redirectUri) {
+    public SocialLoginResult naverLogin(String code, String state) {
 
         // 네이버 토큰, 프로필 조회
-        NaverDTO.OAuthToken oAuthToken = naverUtil.requestToken(code, state, redirectUri);
+        NaverDTO.OAuthToken oAuthToken = naverUtil.requestToken(code, state);
         NaverDTO.NaverProfile profile = naverUtil.requestProfile(oAuthToken);
         NaverDTO.NaverProfile.Response res = profile.getResponse();
 
