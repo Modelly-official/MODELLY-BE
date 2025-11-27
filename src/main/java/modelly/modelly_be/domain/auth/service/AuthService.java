@@ -353,9 +353,9 @@ public class AuthService {
 
     /* 구글 로그인(토큰, 회원가입 여부 반환) */
     @Transactional
-    public SocialLoginResult googleLogin(String code, String redirectUri) {
+    public SocialLoginResult googleLogin(String code) {
         // 구글 토큰, 프로필 조회
-        GoogleDTO.OAuthToken oAuthToken = googleUtil.requestToken(code, redirectUri);
+        GoogleDTO.OAuthToken oAuthToken = googleUtil.requestToken(code);
         GoogleDTO.GoogleProfile googleProfile = googleUtil.requestProfile(oAuthToken);
 
         // 이메일

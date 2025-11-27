@@ -183,14 +183,17 @@ public class AuthController {
     }
 
     /* 구글 로그인 */
-    @Operation(summary = "구글 로그인", description = "구글 인가 코드로 로그인합니다. (액세스 토큰, 회원가입 여부 반환)")
-    @PostMapping("/auth/google/login")
+    @Operation(
+            summary = "구글 로그인",
+            description = "구글에서 전달한 인가 코드(code)로 소셜 로그인을 처리합니다. " +
+                    "Refresh Token은 쿠키로, Access Token은 바디로 반환합니다."
+    )
+    @GetMapping("/auth/google/login")
     public ApiResponse<SocialLoginResponse> googleLogin(
             @RequestParam("code") String code,
-            @RequestParam("redirectUri") String redirectUri,
             HttpServletResponse response
     ) {
-        SocialLoginResult result = authService.googleLogin(code, redirectUri);
+        SocialLoginResult result = authService.googleLogin(code);
 
         var cookie = CookieUtil.buildRefreshCookie(
                 result.getRefreshToken(),
