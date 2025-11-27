@@ -312,9 +312,9 @@ public class AuthService {
 
     /* 카카오 로그인(토큰, 회원가입 여부 반환) */
     @Transactional
-    public SocialLoginResult kakaoLogin(String code, String redirectUri) {
+    public SocialLoginResult kakaoLogin(String code) {
         // 카카오 토큰으로 프로필 조회
-        KakaoDTO.OAuthToken oAuthToken = kakaoUtil.requestToken(code, redirectUri);
+        KakaoDTO.OAuthToken oAuthToken = kakaoUtil.requestToken(code);
         KakaoDTO.KakaoProfile kakaoProfile = kakaoUtil.requestProfile(oAuthToken);
 
         var kakaoAccount = kakaoProfile.getKakao_account();

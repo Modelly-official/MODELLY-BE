@@ -132,14 +132,17 @@ public class AuthController {
     }
 
     /* 카카오 로그인 */
-    @Operation(summary = "카카오 로그인", description = "카카오 인가 코드로 로그인합니다. (액세스 토큰, 회원가입 여부 반환)")
-    @PostMapping("/auth/kakao/login")
+    @Operation(
+            summary = "카카오 로그인",
+            description = "카카오에서 전달한 인가 코드(code)로 소셜 로그인을 처리합니다. " +
+                    "성공 시 Refresh Token은 쿠키로, Access Token/회원가입 여부는 응답 바디로 반환합니다."
+    )
+    @GetMapping("/auth/kakao/login")
     public ApiResponse<SocialLoginResponse> kakaoLogin(
             @RequestParam("code") String code,
-            @RequestParam("redirectUri") String redirectUri,
             HttpServletResponse response
     ) {
-        SocialLoginResult result = authService.kakaoLogin(code, redirectUri);
+        SocialLoginResult result = authService.kakaoLogin(code);
 
         var cookie = CookieUtil.buildRefreshCookie(
                 result.getRefreshToken(),

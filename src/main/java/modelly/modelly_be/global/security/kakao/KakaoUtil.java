@@ -21,6 +21,9 @@ public class KakaoUtil {
     @Value("${security.oauth2.client.registration.kakao.client-secret}")
     private String clientSecret;
 
+    @Value("${security.oauth2.client.registration.kakao.redirect-uri}")
+    private String redirectUri;
+
     @Value("${security.oauth2.client.provider.kakao.user-info-uri}")
     private String userInfoUri; // 보통 https://kapi.kakao.com/v2/user/me
 
@@ -28,7 +31,7 @@ public class KakaoUtil {
     private final ObjectMapper objectMapper;
 
     // 인가 코드 -> AccessToken
-    public KakaoDTO.OAuthToken requestToken(String code, String redirectUri) {
+    public KakaoDTO.OAuthToken requestToken(String code) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", clientId);
