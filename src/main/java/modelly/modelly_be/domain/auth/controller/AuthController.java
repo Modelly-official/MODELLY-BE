@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.auth.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.auth.dto.internal.LoginResult;
 import modelly.modelly_be.domain.auth.dto.internal.NewTokenResult;
@@ -116,7 +117,7 @@ public class AuthController {
     /* 이메일 중복 체크 */
     @Operation(summary = "이메일 중복 체크", description = "available = true면 중복 X")
     @GetMapping("/auth/check/email")
-    public ApiResponse<DuplicateCheckResponse> checkEmail(@RequestParam("value") String value) {
+    public ApiResponse<DuplicateCheckResponse> checkEmail(@RequestParam("value") @Email String value) {
         return ApiResponse.onSuccess(authService.checkEmail(value));
     }
 
