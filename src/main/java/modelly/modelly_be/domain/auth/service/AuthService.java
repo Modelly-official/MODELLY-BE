@@ -312,9 +312,9 @@ public class AuthService {
 
     /* 카카오 로그인(토큰, 회원가입 여부 반환) */
     @Transactional
-    public SocialLoginResult kakaoLogin(String code, String redirectUri) {
+    public SocialLoginResult kakaoLogin(String code) {
         // 카카오 토큰으로 프로필 조회
-        KakaoDTO.OAuthToken oAuthToken = kakaoUtil.requestToken(code, redirectUri);
+        KakaoDTO.OAuthToken oAuthToken = kakaoUtil.requestToken(code);
         KakaoDTO.KakaoProfile kakaoProfile = kakaoUtil.requestProfile(oAuthToken);
 
         var kakaoAccount = kakaoProfile.getKakao_account();
@@ -331,10 +331,10 @@ public class AuthService {
 
     /* 네이버 로그인(토큰, 회원가입 여부 반환) */
     @Transactional
-    public SocialLoginResult naverLogin(String code, String state, String redirectUri) {
+    public SocialLoginResult naverLogin(String code, String state) {
 
         // 네이버 토큰, 프로필 조회
-        NaverDTO.OAuthToken oAuthToken = naverUtil.requestToken(code, state, redirectUri);
+        NaverDTO.OAuthToken oAuthToken = naverUtil.requestToken(code, state);
         NaverDTO.NaverProfile profile = naverUtil.requestProfile(oAuthToken);
         NaverDTO.NaverProfile.Response res = profile.getResponse();
 
@@ -353,9 +353,9 @@ public class AuthService {
 
     /* 구글 로그인(토큰, 회원가입 여부 반환) */
     @Transactional
-    public SocialLoginResult googleLogin(String code, String redirectUri) {
+    public SocialLoginResult googleLogin(String code) {
         // 구글 토큰, 프로필 조회
-        GoogleDTO.OAuthToken oAuthToken = googleUtil.requestToken(code, redirectUri);
+        GoogleDTO.OAuthToken oAuthToken = googleUtil.requestToken(code);
         GoogleDTO.GoogleProfile googleProfile = googleUtil.requestProfile(oAuthToken);
 
         // 이메일

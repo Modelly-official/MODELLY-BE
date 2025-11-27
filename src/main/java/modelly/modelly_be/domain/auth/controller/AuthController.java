@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.auth.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.auth.dto.internal.LoginResult;
 import modelly.modelly_be.domain.auth.dto.internal.NewTokenResult;
@@ -116,7 +117,7 @@ public class AuthController {
     /* 이메일 중복 체크 */
     @Operation(summary = "이메일 중복 체크", description = "available = true면 중복 X")
     @GetMapping("/auth/check/email")
-    public ApiResponse<DuplicateCheckResponse> checkEmail(@RequestParam("value") String value) {
+    public ApiResponse<DuplicateCheckResponse> checkEmail(@RequestParam("value") @Email String value) {
         return ApiResponse.onSuccess(authService.checkEmail(value));
     }
 
@@ -131,14 +132,17 @@ public class AuthController {
     }
 
     /* 카카오 로그인 */
-    @Operation(summary = "카카오 로그인", description = "카카오 인가 코드로 로그인합니다. (액세스 토큰, 회원가입 여부 반환)")
-    @PostMapping("/auth/kakao/login")
+    @Operation(
+            summary = "카카오 로그인",
+            description = "카카오에서 전달한 인가 코드(code)로 소셜 로그인을 처리합니다. " +
+                    "성공 시 Refresh Token은 쿠키로, Access Token/회원가입 여부는 응답 바디로 반환합니다."
+    )
+    @GetMapping("/auth/kakao/login")
     public ApiResponse<SocialLoginResponse> kakaoLogin(
             @RequestParam("code") String code,
-            @RequestParam("redirectUri") String redirectUri,
             HttpServletResponse response
     ) {
-        SocialLoginResult result = authService.kakaoLogin(code, redirectUri);
+        SocialLoginResult result = authService.kakaoLogin(code);
 
         var cookie = CookieUtil.buildRefreshCookie(
                 result.getRefreshToken(),
@@ -153,15 +157,18 @@ public class AuthController {
     }
 
     /* 네이버 로그인 */
-    @Operation(summary = "네이버 로그인", description = "네이버 인가 코드로 로그인합니다. (액세스 토큰, 회원가입 여부 반환)")
-    @PostMapping("/auth/naver/login")
+    @Operation(
+            summary = "네이버 로그인",
+            description = "네이버에서 전달한 인가 코드(code)와 state로 소셜 로그인을 처리합니다. " +
+                    "성공 시 Refresh Token은 쿠키로, Access Token/회원가입 여부는 응답 바디로 반환합니다."
+    )
+    @GetMapping("/auth/naver/login")
     public ApiResponse<SocialLoginResponse> naverLogin(
             @RequestParam("code") String code,
             @RequestParam("state") String state,
-            @RequestParam("redirectUri") String redirectUri,
             HttpServletResponse response
     ) {
-        SocialLoginResult result = authService.naverLogin(code, state, redirectUri);
+        SocialLoginResult result = authService.naverLogin(code, state);
 
         var cookie = CookieUtil.buildRefreshCookie(
                 result.getRefreshToken(),
@@ -176,14 +183,17 @@ public class AuthController {
     }
 
     /* 구글 로그인 */
-    @Operation(summary = "구글 로그인", description = "구글 인가 코드로 로그인합니다. (액세스 토큰, 회원가입 여부 반환)")
-    @PostMapping("/auth/google/login")
+    @Operation(
+            summary = "구글 로그인",
+            description = "구글에서 전달한 인가 코드(code)로 소셜 로그인을 처리합니다. " +
+                    "Refresh Token은 쿠키로, Access Token은 바디로 반환합니다."
+    )
+    @GetMapping("/auth/google/login")
     public ApiResponse<SocialLoginResponse> googleLogin(
             @RequestParam("code") String code,
-            @RequestParam("redirectUri") String redirectUri,
             HttpServletResponse response
     ) {
-        SocialLoginResult result = authService.googleLogin(code, redirectUri);
+        SocialLoginResult result = authService.googleLogin(code);
 
         var cookie = CookieUtil.buildRefreshCookie(
                 result.getRefreshToken(),

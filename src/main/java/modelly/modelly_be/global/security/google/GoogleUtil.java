@@ -24,6 +24,9 @@ public class GoogleUtil {
     @Value("${security.oauth2.client.provider.google.token-uri}")
     private String tokenUri;
 
+    @Value("${security.oauth2.client.registration.google.redirect-uri}")
+    private String redirectUri;
+
     @Value("${security.oauth2.client.provider.google.user-info-uri}")
     private String userInfoUri;
 
@@ -32,7 +35,7 @@ public class GoogleUtil {
 
 
     // 인가 코드 -> Google OAuth 토큰 요청
-    public GoogleDTO.OAuthToken requestToken(String code, String redirectUri) {
+    public GoogleDTO.OAuthToken requestToken(String code) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", clientId);

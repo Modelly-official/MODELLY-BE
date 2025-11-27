@@ -21,6 +21,9 @@ public class NaverUtil {
     @Value("${security.oauth2.client.registration.naver.client-secret}")
     private String clientSecret;
 
+    @Value("${security.oauth2.client.registration.naver.redirect-uri}")
+    private String redirectUri;
+
     @Value("${security.oauth2.client.provider.naver.user-info-uri}")
     private String userInfoUri;
 
@@ -28,7 +31,7 @@ public class NaverUtil {
     private final RestClient restClient = RestClient.create();
 
     // 인가코드 -> AccessToken
-    public NaverDTO.OAuthToken requestToken(String code, String state, String redirectUri) {
+    public NaverDTO.OAuthToken requestToken(String code, String state) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", clientId);
