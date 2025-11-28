@@ -10,7 +10,7 @@ public record RecruitmentSchedule(
         @Schema(description = "공고 일자", example = "2025-11-28")
         @NotNull(message = "하루 이상은 필수입니다.")
         LocalDate recruitmentDate,
-        @Schema(description = "공고 시간대", example = "[ \"10:30\"],")
+        @Schema(description = "공고 시간대")
         @NotNull(message = "하나 이상은 필수입니다.")
         List<String> recruitmentTimes
 ) {

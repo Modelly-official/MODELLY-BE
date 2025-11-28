@@ -3,15 +3,11 @@ package modelly.modelly_be.domain.reservation.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
-import modelly.modelly_be.domain.recruitment.entity.RecruitmentImage;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
-import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.global.entity.BaseEntity;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
