@@ -1,5 +1,8 @@
 package modelly.modelly_be.domain.recruitment.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.recruitment.dto.RecruitmentRequestDto;
 import modelly.modelly_be.domain.recruitment.dto.RecruitmentResponseDto;
@@ -14,13 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class DesignerRecruitmentController {
+public class DesignerRecruitmentController implements DesignerRecruitmentSwagger{
     
     private final DesignerRecruitmentService designerRecruitmentService;
 
+    //공고 생성
     @PostMapping("/recruitments")
     public ApiResponse<RecruitmentResponseDto> createRecruitment(@AuthenticationPrincipal AuthDetails authDetails,
-                                                                 @RequestBody RecruitmentRequestDto recruitmentRequestDto) {
+                                                                 @RequestBody @Valid RecruitmentRequestDto recruitmentRequestDto) {
         Recruitment recruitment = designerRecruitmentService.createRecruitment(authDetails.user(), recruitmentRequestDto);
 
         RecruitmentResponseDto responseDto = RecruitmentResponseDto.from(recruitment);
