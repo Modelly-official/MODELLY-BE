@@ -1,18 +1,19 @@
 package modelly.modelly_be.domain.recruitment.service;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import modelly.modelly_be.domain.recruitment.dto.RecruitmentRequestDto;
+import modelly.modelly_be.domain.recruitment.dto.request.RecruitmentRequestDto;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentDate;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentImage;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
+import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
-import modelly.modelly_be.global.formatter.TimeFormatter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +25,7 @@ public class DesignerRecruitmentService {
 
     private final RecruitmentService recruitmentService;
     private final DesignerService designerService;
-    private final TimeFormatter timeFormatter;
+    private final ReservationService reservationService;
 
     @Transactional
     public Recruitment createRecruitment(User user, RecruitmentRequestDto recruitmentRequestDto) {
@@ -84,6 +85,34 @@ public class DesignerRecruitmentService {
     public void checkDesigner(User user){
         if (user.getUserRole() != UserRole.DESIGNER){
             throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+    }
+
+    @Transactional
+    public void updateRecruitment(User user, @Valid RecruitmentRequestDto recruitmentRequestDto) {
+        //이미 확정된 예약이 있는 경우 예외처리
+
+        //수정 로직
+    }
+
+    @Transactional
+    public void deleteRecruitment(User user, Long recruitmentId) {
+        checkDesigner(user);
+        Designer designer = designerService.getByUser(user);
+
+        Recruitment recruitment = recruitmentService.getById(recruitmentId);
+
+        isRecruitmentAuthor(designer,recruitment);
+
+        //제약조건 체크
+
+
+        recruitmentService.deleteRecruitment(recruitment);
+    }
+
+    private void isRecruitmentAuthor(Designer designer, Recruitment recruitment) {
+        if (!recruitment.getDesigner().equals(designer)){
+            throw new GeneralException(ErrorStatus.FORBIDDEN_DELETE_RECRUITMENT);
         }
     }
 }

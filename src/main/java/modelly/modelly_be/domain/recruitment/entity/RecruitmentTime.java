@@ -3,7 +3,6 @@ package modelly.modelly_be.domain.recruitment.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Time;
 import java.time.LocalTime;
 
 @Entity

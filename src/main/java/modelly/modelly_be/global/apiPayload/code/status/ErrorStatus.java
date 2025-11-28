@@ -45,8 +45,10 @@ public enum ErrorStatus implements BaseErrorCode {
     CODE_MISMATCH(HttpStatus.BAD_REQUEST, "CODE400", "인증번호가 일치하지 않습니다."),
     CODE_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "CODE500", "인증번호 발송에 실패했습니다."),
 
-
-    ;
+    //Recruitment
+    NOT_FOUND_RECRUITMENT(HttpStatus.NOT_FOUND,"RECRUITMENT404", "공고를 찾을 수 없습니다."),
+    FORBIDDEN_DELETE_RECRUITMENT(HttpStatus.FORBIDDEN, "RECRUITMENT403", "작성자만 공고 삭제가 가능합니다."),
+    CAN_NOT_RECRUITMENT_DELETE(HttpStatus.CONFLICT, "RECRUITMENT409", "현재 진행중이거나 확정된 예약이 있어 삭제가 불가능합니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
