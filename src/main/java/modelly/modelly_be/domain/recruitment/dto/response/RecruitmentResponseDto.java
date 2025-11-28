@@ -1,8 +1,8 @@
-package modelly.modelly_be.domain.recruitment.dto;
+package modelly.modelly_be.domain.recruitment.dto.response;
 
+import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentSchedule;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentImage;
-import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.global.entity.Category;
 
 import java.util.List;
@@ -23,6 +23,7 @@ public record RecruitmentResponseDto(
         boolean agreeMosaic,
         String etc
 ) {
+
     public static RecruitmentResponseDto from(Recruitment recruitment) {
         List<RecruitmentSchedule> schedules = recruitment.getRecruitmentDates().stream()
                 .map(date -> RecruitmentSchedule.of(date.getDate(),
