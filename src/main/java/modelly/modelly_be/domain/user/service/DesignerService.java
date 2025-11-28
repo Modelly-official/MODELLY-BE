@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.repository.DesignerRepository;
@@ -17,4 +18,5 @@ public class DesignerService {
         return designerRepository.findByUser(user)
                 .orElseThrow(()-> new GeneralException(ErrorStatus.NOT_FOUND_DESIGNER));
     }
+
 }

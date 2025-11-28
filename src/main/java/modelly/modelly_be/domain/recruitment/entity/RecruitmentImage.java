@@ -2,13 +2,14 @@ package modelly.modelly_be.domain.recruitment.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import modelly.modelly_be.global.entity.BaseEntity;
 
 @Getter
 @Builder
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class RecruitmentImage {
+public class RecruitmentImage extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "recruitment_image_id")
     private Long id;

@@ -6,8 +6,7 @@ import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.entity.BaseEntity;
 import modelly.modelly_be.global.entity.Category;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Getter
@@ -59,11 +58,12 @@ public class Recruitment extends BaseEntity {
 
     @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<RecruitmentDate> recruitmentDates = new ArrayList<>();
+    private Set<RecruitmentDate> recruitmentDates = new HashSet<>();
 
     @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("createdAt ASC")
     @Builder.Default
-    private List<RecruitmentImage> recruitmentImages = new ArrayList<>();
+    private Set<RecruitmentImage> recruitmentImages = new LinkedHashSet<>();
 
     public void addDate(RecruitmentDate date) {
         recruitmentDates.add(date);
