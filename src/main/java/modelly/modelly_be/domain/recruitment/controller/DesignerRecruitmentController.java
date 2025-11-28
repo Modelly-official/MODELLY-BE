@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.recruitment.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.recruitment.controller.swagger.DesignerRecruitmentSwagger;
 import modelly.modelly_be.domain.recruitment.dto.request.RecruitmentRequestDto;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-public class DesignerRecruitmentController implements DesignerRecruitmentSwagger{
+public class DesignerRecruitmentController implements DesignerRecruitmentSwagger {
     
     private final DesignerRecruitmentService designerRecruitmentService;
 

@@ -1,4 +1,4 @@
-package modelly.modelly_be.domain.recruitment.controller;
+package modelly.modelly_be.domain.recruitment.controller.swagger;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
