@@ -6,6 +6,9 @@ import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.entity.BaseEntity;
 import modelly.modelly_be.global.entity.Category;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Builder
@@ -47,7 +50,26 @@ public class Recruitment extends BaseEntity {
     @Column(name = "agree_mosaic")
     private boolean agreeMosaic;
 
+    @Column(name = "etc", length = 100)
+    private String etc;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "designer_id")
     private Designer designer;
+
+    @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<RecruitmentDate> recruitmentDates = new ArrayList<>();
+
+    @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<RecruitmentImage> recruitmentImages = new ArrayList<>();
+
+    public void addDate(RecruitmentDate date) {
+        recruitmentDates.add(date);
+    }
+
+    public void addImage(RecruitmentImage img) {
+        recruitmentImages.add(img);
+    }
 }

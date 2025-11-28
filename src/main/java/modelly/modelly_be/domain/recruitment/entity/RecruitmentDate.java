@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -22,4 +24,16 @@ public class RecruitmentDate {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recruitment_id", nullable = false)
     private Recruitment recruitment;
+
+    @Column(name = "is_reserved", nullable = false)
+    private boolean isReserved = true;
+
+    @OneToMany(mappedBy = "recruitmentDate", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<RecruitmentTime> recruitmentTimes = new ArrayList<>();
+
+
+    public void addTime(RecruitmentTime time) {
+        recruitmentTimes.add(time);
+    }
 }

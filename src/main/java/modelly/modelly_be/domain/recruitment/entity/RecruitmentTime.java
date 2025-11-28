@@ -3,6 +3,9 @@ package modelly.modelly_be.domain.recruitment.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.Time;
+import java.time.LocalTime;
+
 @Entity
 @Getter
 @Builder
@@ -16,6 +19,9 @@ public class RecruitmentTime {
     @JoinColumn(name = "recruitment_date_id")
     private RecruitmentDate recruitmentDate;
 
-    @Column(name = "start_time", length = 20, nullable = false)
-    private String startTime;
+    @Column(name = "is_reserved", nullable = false)
+    private boolean isReserved = true;
+
+    @Column(name = "start_time", columnDefinition = "TIME", nullable = false)
+    private LocalTime startTime;
 }
