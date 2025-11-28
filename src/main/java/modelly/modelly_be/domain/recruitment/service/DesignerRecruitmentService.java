@@ -105,7 +105,7 @@ public class DesignerRecruitmentService {
         isRecruitmentAuthor(designer,recruitment);
 
         //제약조건 체크
-
+        reservationService.hasPendingOrConfirmedReservation(recruitment);
 
         recruitmentService.deleteRecruitment(recruitment);
     }
