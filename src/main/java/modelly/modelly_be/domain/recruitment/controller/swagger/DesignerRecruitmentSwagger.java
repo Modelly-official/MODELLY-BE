@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import modelly.modelly_be.domain.recruitment.dto.request.RecruitmentRequestDto;
+import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentRequestDto;
+import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentResponseDto;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
@@ -18,10 +20,12 @@ public interface DesignerRecruitmentSwagger {
     ApiResponse<RecruitmentResponseDto> createRecruitment(@AuthenticationPrincipal AuthDetails authDetails, @RequestBody @Valid RecruitmentRequestDto recruitmentRequestDto);
 
     @Operation(summary = "공고 수정하기", description = "디자이너가 공고 수정 시 사용하는 API입니다. (아직 구현 X)")
-    ApiResponse<String> updateRecruitment(@AuthenticationPrincipal AuthDetails authDetails, @RequestBody @Valid RecruitmentRequestDto recruitmentRequestDto);
+    ApiResponse<RecruitmentResponseDto> updateRecruitment(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long recruitmentId, @RequestBody @Valid UpdateRecruitmentRequestDto requestDto);
 
     @Operation(summary = "공고 삭제하기", description = "디자이너가 공고 삭제 시 사용하는 API입니다.")
     ApiResponse<String> deleteRecruitment(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long recruitmentId);
 
+//    @Operation(summary = "내 공고 리스트 조회하기.", description = "디자이너가 자신의 공고리스트를 조회할 때 사용하는 API입니다.")
+//    ApiResponse<DesignerRecruitmentListResponseDto> getMyRecruitments(@AuthenticationPrincipal AuthDetails authDetails);
 
     }

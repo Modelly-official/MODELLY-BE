@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.recruitment.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentRequestDto;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.entity.BaseEntity;
 import modelly.modelly_be.global.entity.Category;
@@ -71,5 +72,19 @@ public class Recruitment extends BaseEntity {
 
     public void addImage(RecruitmentImage img) {
         recruitmentImages.add(img);
+    }
+
+    public void updateRecruitment(UpdateRecruitmentRequestDto dto) {
+        if (dto.title() !=null) this.title = dto.title();
+        if (dto.category() !=null) this.category = dto.category();
+        if (dto.content() !=null) this.content = dto.content();
+        if (dto.notice() !=null) this.notice = dto.notice();
+        if (!dto.goal1().equals(this.goal1)) this.goal1 = dto.goal1();
+        if (!dto.goal1().equals(this.goal2)) this.goal2 = dto.goal2();
+        if (!dto.goal1().equals(this.goal3)) this.goal3 = dto.goal3();
+        this.agreeVideo = dto.agreeVideo();
+        this.agreeInsta = dto.agreeInsta();
+        this.agreeMosaic = dto.agreeMosaic();
+        if (!dto.etc().equals(this.etc)) this.etc = dto.etc();
     }
 }

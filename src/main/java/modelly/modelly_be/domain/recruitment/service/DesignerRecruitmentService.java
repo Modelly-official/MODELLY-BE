@@ -1,8 +1,9 @@
 package modelly.modelly_be.domain.recruitment.service;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.recruitment.dto.request.RecruitmentRequestDto;
+import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentRequestDto;
+import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentDate;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentImage;
@@ -89,10 +90,22 @@ public class DesignerRecruitmentService {
     }
 
     @Transactional
-    public void updateRecruitment(User user, @Valid RecruitmentRequestDto recruitmentRequestDto) {
+    public RecruitmentResponseDto updateRecruitment(User user, Long recruitmentId, UpdateRecruitmentRequestDto requestDto) {
+        checkDesigner(user);
+        Designer designer = designerService.getByUser(user);
+
+        Recruitment recruitment = recruitmentService.getById(recruitmentId);
+
+        isRecruitmentAuthor(designer,recruitment);
+
         //이미 확정된 예약이 있는 경우 예외처리
+        reservationService.hasPendingOrConfirmedReservation(recruitment);
 
         //수정 로직
+        recruitment.updateRecruitment(requestDto);
+        recruitmentService.save(recruitment);
+
+        return RecruitmentResponseDto.from(recruitment);
     }
 
     @Transactional

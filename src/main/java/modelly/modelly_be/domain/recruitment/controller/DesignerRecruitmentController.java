@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.recruitment.controller.swagger.DesignerRecruitmentSwagger;
 import modelly.modelly_be.domain.recruitment.dto.request.RecruitmentRequestDto;
+import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentRequestDto;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.service.DesignerRecruitmentService;
@@ -30,12 +31,10 @@ public class DesignerRecruitmentController implements DesignerRecruitmentSwagger
     }
 
     //공고 수정
-    @PutMapping("/recruitments")
-    public ApiResponse<String> updateRecruitment(@AuthenticationPrincipal AuthDetails authDetails, @RequestBody @Valid RecruitmentRequestDto recruitmentRequestDto){
-        //Recruitment recruitment = designerRecruitmentService.updateRecruitment(authDetails.user(), recruitmentRequestDto);
-
-        //RecruitmentResponseDto responseDto = RecruitmentResponseDto.from(recruitment);
-        return ApiResponse.onSuccess("수정이 완료되었습니다.");
+    @PutMapping("/recruitments/{recruitmentId}")
+    public ApiResponse<RecruitmentResponseDto> updateRecruitment(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long recruitmentId, @RequestBody @Valid UpdateRecruitmentRequestDto requestDto){
+        RecruitmentResponseDto responseDto = designerRecruitmentService.updateRecruitment(authDetails.user(), recruitmentId, requestDto);
+        return ApiResponse.onSuccess(responseDto);
     }
 
     //공고 삭제
@@ -45,6 +44,4 @@ public class DesignerRecruitmentController implements DesignerRecruitmentSwagger
         return ApiResponse.onSuccess("공고가 삭제되었습니다.");
     }
 
-
-    //내 공고 리스트 조회하기
 }

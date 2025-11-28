@@ -10,6 +10,7 @@ import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,10 +19,22 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
 
     public void hasPendingOrConfirmedReservation(Recruitment recruitment) {
-        boolean checkReservation = reservationRepository.existsReservationByRecruitmentAndStatus(recruitment, ReservationStatus.RESERVATION_PENDING)
-                || reservationRepository.existsReservationByRecruitmentAndStatus(recruitment, ReservationStatus.RESERVATION_CONFIRMED);
+        List<Reservation> reservations = reservationRepository.findAllByRecruitment(recruitment);
 
-        if (checkReservation) {
+        LocalDateTime now = LocalDateTime.now();
+
+        boolean hasPending = reservations.stream()
+                .anyMatch(r -> r.getStatus() == ReservationStatus.RESERVATION_PENDING);
+
+        if (hasPending) {
+            throw new GeneralException(ErrorStatus.CAN_NOT_RECRUITMENT_DELETE);
+        }
+
+        boolean hasFutureConfirmed = reservations.stream()
+                .anyMatch(r -> r.getStatus() == ReservationStatus.RESERVATION_CONFIRMED
+                        && r.getStartTime().isAfter(now));
+
+        if (hasFutureConfirmed) {
             throw new GeneralException(ErrorStatus.CAN_NOT_RECRUITMENT_DELETE);
         }
     }
