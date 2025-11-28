@@ -50,7 +50,7 @@ public record GuestRecruitmentResponseDto(
                 recruitment.getGoal2(),
                 recruitment.getGoal3(),
                 imageUrls,
-                recruitment.isAgreeInsta(),
+                recruitment.isAgreeVideo(),
                 recruitment.isAgreeInsta(),
                 recruitment.isAgreeMosaic(),
                 recruitment.getEtc()

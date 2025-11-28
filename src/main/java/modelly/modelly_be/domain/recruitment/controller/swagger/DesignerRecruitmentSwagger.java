@@ -19,7 +19,7 @@ public interface DesignerRecruitmentSwagger {
     @Operation(summary = "공고 생성하기", description = "디자이너가 공고 생성 시 사용하는 API입니다.")
     ApiResponse<RecruitmentResponseDto> createRecruitment(@AuthenticationPrincipal AuthDetails authDetails, @RequestBody @Valid RecruitmentRequestDto recruitmentRequestDto);
 
-    @Operation(summary = "공고 수정하기", description = "디자이너가 공고 수정 시 사용하는 API입니다. (아직 구현 X)")
+    @Operation(summary = "공고 수정하기", description = "디자이너가 공고 수정 시 사용하는 API입니다")
     ApiResponse<RecruitmentResponseDto> updateRecruitment(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long recruitmentId, @RequestBody @Valid UpdateRecruitmentRequestDto requestDto);
 
     @Operation(summary = "공고 삭제하기", description = "디자이너가 공고 삭제 시 사용하는 API입니다.")

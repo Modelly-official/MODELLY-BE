@@ -71,13 +71,17 @@ public class DesignerRecruitmentService {
         }
 
         //공고 이미지 엔티티
-        for (String imageUrl : recruitmentRequestDto.imageUrls()) {
-            RecruitmentImage recruitmentImage = RecruitmentImage.builder()
-                    .recruitment(recruitment)
-                    .imageUrl(imageUrl)
-                    .build();
+        if (recruitmentRequestDto.imageUrls() != null) {
+            for (String imageUrl : recruitmentRequestDto.imageUrls()) {
+                if (imageUrl != null) {
+                    RecruitmentImage recruitmentImage = RecruitmentImage.builder()
+                            .recruitment(recruitment)
+                            .imageUrl(imageUrl)
+                            .build();
 
-            recruitment.addImage(recruitmentImage);
+                    recruitment.addImage(recruitmentImage);
+                }
+            }
         }
 
         return recruitment;

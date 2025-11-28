@@ -29,6 +29,7 @@ public class RecruitmentService {
                 .orElseThrow(()-> new GeneralException(ErrorStatus.NOT_FOUND_RECRUITMENT));
     }
 
+    @Transactional
     public void deleteRecruitment(Recruitment recruitment) {
         //관련된 찜 삭제
         recruitmentLikeService.deleteRecruitmentLike(recruitment);

@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.recruitment.dto.common;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -12,6 +13,7 @@ public record RecruitmentSchedule(
         LocalDate recruitmentDate,
         @Schema(description = "공고 시간대")
         @NotNull(message = "하나 이상은 필수입니다.")
+        @Size(min = 1, message = "하나 이상은 필수입니다.")
         List<String> recruitmentTimes
 ) {
 

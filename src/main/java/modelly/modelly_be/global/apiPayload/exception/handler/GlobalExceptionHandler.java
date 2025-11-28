@@ -119,14 +119,4 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
     }
 
-    @ExceptionHandler(NullPointerException.class)
-    public ResponseEntity<Object> handleNullPointer(NullPointerException e, WebRequest request) {
-        ApiResponse<Object> body = ApiResponse.onFailure(
-                ErrorStatus._UNAUTHORIZED.getCode(),
-                ErrorStatus._UNAUTHORIZED.getMessage(),
-                null
-        );
-        return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
-
-    }
 }
