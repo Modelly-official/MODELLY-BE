@@ -22,6 +22,9 @@ public enum ErrorStatus implements BaseErrorCode {
     // User
     NOT_FOUND_USER(HttpStatus.NOT_FOUND, "USER404", "해당 유저를 찾을 수 없습니다."),
 
+    //Designer
+    NOT_FOUND_DESIGNER(HttpStatus.NOT_FOUND, "DESIGNER404", "해당 디자이너를 찾을 수 없습니다."),
+
     // Token, JWT
     NOT_FOUND_TOKEN(HttpStatus.NOT_FOUND,"TOKEN404","토큰을 찾을 수 없습니다."),
     TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "TOKEN401", "토큰이 유효하지 않습니다."),
@@ -40,7 +43,9 @@ public enum ErrorStatus implements BaseErrorCode {
     CODE_SEND_FREQUENT(HttpStatus.BAD_REQUEST, "CODE429", "인증번호는 1분 후에 다시 요청할 수 있습니다."),
     CODE_EXPIRED(HttpStatus.BAD_REQUEST, "CODE400", "인증번호가 만료되었습니다."),
     CODE_MISMATCH(HttpStatus.BAD_REQUEST, "CODE400", "인증번호가 일치하지 않습니다."),
-    CODE_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "CODE500", "인증번호 발송에 실패했습니다.")
+    CODE_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "CODE500", "인증번호 발송에 실패했습니다."),
+
+
     ;
 
     private final HttpStatus httpStatus;
