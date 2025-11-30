@@ -5,6 +5,7 @@ import modelly.modelly_be.global.security.jwt.JwtAuthenticationFilter;
 import modelly.modelly_be.global.security.jwt.JwtExceptionFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -47,8 +48,12 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                HttpMethod.GET,"/api/recruitments/{recruitmentId}"
+                        ).permitAll()
+                        .requestMatchers(
                                 "/auth/logout",
-                                "/auth/validate"
+                                "/auth/validate",
+                                "/api/recruitments/**"
                         ).authenticated()
                         .anyRequest().permitAll()
                 );

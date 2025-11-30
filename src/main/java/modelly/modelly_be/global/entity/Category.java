@@ -4,8 +4,7 @@ public enum Category {
     HAIR("헤어"),
     NAIL("네일"),
     TATTOO("타투"),
-    SHOOTING("촬영"),
-    MAKEUP("메이크업"),
+    EYELASH("속눈썹"),
     ETC("기타")
     ;
 

@@ -2,9 +2,12 @@ package modelly.modelly_be.domain.recruitment.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentRequestDto;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.entity.BaseEntity;
 import modelly.modelly_be.global.entity.Category;
+
+import java.util.*;
 
 @Entity
 @Getter
@@ -22,6 +25,11 @@ public class Recruitment extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false)
     private Category category;
+
+        //이 후 추가
+//    @Enumerated(EnumType.STRING)
+//    @Column(name = "sub_category", nullable = false)
+//    private SubCategory subCategory;
 
     @Column(name = "content", nullable = false, length = 254)
     private String content;
@@ -47,7 +55,41 @@ public class Recruitment extends BaseEntity {
     @Column(name = "agree_mosaic")
     private boolean agreeMosaic;
 
+    @Column(name = "etc", length = 100)
+    private String etc;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "designer_id")
     private Designer designer;
+
+    @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<RecruitmentDate> recruitmentDates = new HashSet<>();
+
+    @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("createdAt ASC")
+    @Builder.Default
+    private Set<RecruitmentImage> recruitmentImages = new LinkedHashSet<>();
+
+    public void addDate(RecruitmentDate date) {
+        recruitmentDates.add(date);
+    }
+
+    public void addImage(RecruitmentImage img) {
+        recruitmentImages.add(img);
+    }
+
+    public void updateRecruitment(UpdateRecruitmentRequestDto dto) {
+        if (dto.title() != null) this.title = dto.title();
+        if (dto.category() != null) this.category = dto.category();
+        if (dto.content() != null) this.content = dto.content();
+        if (dto.notice() != null) this.notice = dto.notice();
+        this.goal1 = dto.goal1();
+        this.goal2 = dto.goal2();
+        this.goal3 = dto.goal3();
+        this.agreeVideo = dto.agreeVideo();
+        this.agreeInsta = dto.agreeInsta();
+        this.agreeMosaic = dto.agreeMosaic();
+        this.etc = dto.etc();
+    }
 }
