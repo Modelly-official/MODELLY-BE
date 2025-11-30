@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
+import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.global.entity.BaseEntity;
 
 @Entity
@@ -39,5 +40,12 @@ public class ChatRoom extends BaseEntity {
     /* 정적 팩토리 메서드 */
     public static ChatRoom of(Designer designer, Model model) {
         return new ChatRoom(designer, model);
+    }
+
+    /* 특정 유저가 채팅방의 참여자인지 확인 */
+    public boolean isParticipant(User user) {
+        // UserId가 모델 id와 일치 or 디자이너 id와 일치하는지 확인
+        return (this.model != null && this.model.getUser().getId().equals(user.getId()))
+                || (this.designer != null && this.designer.getUser().getId().equals(user.getId()));
     }
 }

@@ -51,7 +51,8 @@ public enum ErrorStatus implements BaseErrorCode {
     CAN_NOT_RECRUITMENT_DELETE_OR_MODIFY(HttpStatus.CONFLICT, "RECRUITMENT409", "현재 진행중이거나 확정된 예약이 있어 삭제 및 수정이 불가능합니다."),
 
     // 채팅
-    INVALID_CHATROOM(HttpStatus.BAD_REQUEST, "CHAT400", "채팅방 생성이 불가능합니다.")
+    INVALID_CHATROOM(HttpStatus.BAD_REQUEST, "CHAT400", "채팅방 생성이 불가능합니다."),
+    NOT_FOUND_CHAT_ROOM(HttpStatus.NOT_FOUND, "CHAT404", "채팅방이 존재하지 않습니다."),
     ;
 
     private final HttpStatus httpStatus;
