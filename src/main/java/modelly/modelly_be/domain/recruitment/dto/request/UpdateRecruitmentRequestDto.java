@@ -13,6 +13,8 @@ public record UpdateRecruitmentRequestDto(
         List<RecruitmentSchedule> recruitmentSchedule,
         @Schema(description = "카테고리", example = "HAIR, NAIL, TATTOO, MAKEUP, ETC 중 택1")
         Category category,
+        @Schema(description = "세부 카테고리")
+        Category subCategory,
         @Schema(description = "공고 내용", example = "시스루펌, 레이어드펌을 공짜로 받으실 헤어모델 모집합니다!")
         String content,
         @Schema(description = "전달사항", example = "머리 길이 어깨위로 올라오시는 분만 구합니다.")

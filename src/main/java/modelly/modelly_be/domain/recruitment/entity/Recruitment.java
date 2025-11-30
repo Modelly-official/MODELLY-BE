@@ -26,10 +26,9 @@ public class Recruitment extends BaseEntity {
     @Column(name = "category", nullable = false)
     private Category category;
 
-        //이 후 추가
-//    @Enumerated(EnumType.STRING)
-//    @Column(name = "sub_category", nullable = false)
-//    private SubCategory subCategory;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sub_category", nullable = false)
+    private SubCategory subCategory;
 
     @Column(name = "content", nullable = false, length = 254)
     private String content;
