@@ -4,9 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.chat.dto.request.OpenRoomRequest;
 import modelly.modelly_be.domain.chat.dto.request.SendMessageRequest;
-import modelly.modelly_be.domain.chat.dto.response.ChatRoomListResponse;
-import modelly.modelly_be.domain.chat.dto.response.OpenRoomResponse;
-import modelly.modelly_be.domain.chat.dto.response.SendMessageResponse;
+import modelly.modelly_be.domain.chat.dto.response.*;
 import modelly.modelly_be.domain.chat.entity.Chatting;
 import modelly.modelly_be.domain.chat.service.ChatRoomService;
 import modelly.modelly_be.domain.chat.service.ChattingService;
@@ -50,6 +48,22 @@ public class ChatController {
         Long currentUserId = currentUser.user().getId();
         List<ChatRoomListResponse> rooms = chatRoomService.getMyChatRoomList(currentUserId);
         return ApiResponse.onSuccess(rooms);
+    }
+
+    @Operation(
+            summary = "채팅 내역 조회",
+            description = "특정 채팅방 정보(상대 유저)와 메시지 히스토리를 함께 반환합니다."
+    )
+    @GetMapping("/chat/rooms/{roomId}/messages")
+    public ApiResponse<ChatRoomDetailResponse> getChatRoomDetail(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long roomId
+    ) {
+        Long currentUserId = auth.user().getId();
+        ChatRoomDetailResponse response =
+                chattingService.getChatRoomDetail(currentUserId, roomId);
+
+        return ApiResponse.onSuccess(response);
     }
 }
 
