@@ -27,7 +27,7 @@ public class ReservationService {
                 .anyMatch(r -> r.getStatus() == ReservationStatus.RESERVATION_PENDING);
 
         if (hasPending) {
-            throw new GeneralException(ErrorStatus.CAN_NOT_RECRUITMENT_DELETE);
+            throw new GeneralException(ErrorStatus.CAN_NOT_RECRUITMENT_DELETE_OR_MODIFY);
         }
 
         boolean hasFutureConfirmed = reservations.stream()
@@ -35,12 +35,8 @@ public class ReservationService {
                         && r.getStartTime().isAfter(now));
 
         if (hasFutureConfirmed) {
-            throw new GeneralException(ErrorStatus.CAN_NOT_RECRUITMENT_DELETE);
+            throw new GeneralException(ErrorStatus.CAN_NOT_RECRUITMENT_DELETE_OR_MODIFY);
         }
-    }
-
-    public void deleteReservation(Recruitment recruitment) {
-        reservationRepository.deleteAllByRecruitment(recruitment);
     }
 
     @Transactional

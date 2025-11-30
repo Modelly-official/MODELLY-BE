@@ -129,7 +129,7 @@ public class DesignerRecruitmentService {
 
     private void isRecruitmentAuthor(Designer designer, Recruitment recruitment) {
         if (!recruitment.getDesigner().equals(designer)){
-            throw new GeneralException(ErrorStatus.FORBIDDEN_DELETE_RECRUITMENT);
+            throw new GeneralException(ErrorStatus.FORBIDDEN_DELETE_OR_MODIFY_RECRUITMENT);
         }
     }
 }
