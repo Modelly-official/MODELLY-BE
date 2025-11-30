@@ -26,6 +26,11 @@ public class Recruitment extends BaseEntity {
     @Column(name = "category", nullable = false)
     private Category category;
 
+        //이 후 추가
+//    @Enumerated(EnumType.STRING)
+//    @Column(name = "sub_category", nullable = false)
+//    private SubCategory subCategory;
+
     @Column(name = "content", nullable = false, length = 254)
     private String content;
 
@@ -75,16 +80,16 @@ public class Recruitment extends BaseEntity {
     }
 
     public void updateRecruitment(UpdateRecruitmentRequestDto dto) {
-        if (dto.title() !=null) this.title = dto.title();
-        if (dto.category() !=null) this.category = dto.category();
-        if (dto.content() !=null) this.content = dto.content();
-        if (dto.notice() !=null) this.notice = dto.notice();
-        if (!dto.goal1().equals(this.goal1)) this.goal1 = dto.goal1();
-        if (!dto.goal1().equals(this.goal2)) this.goal2 = dto.goal2();
-        if (!dto.goal1().equals(this.goal3)) this.goal3 = dto.goal3();
+        if (dto.title() != null) this.title = dto.title();
+        if (dto.category() != null) this.category = dto.category();
+        if (dto.content() != null) this.content = dto.content();
+        if (dto.notice() != null) this.notice = dto.notice();
+        this.goal1 = dto.goal1();
+        this.goal2 = dto.goal2();
+        this.goal3 = dto.goal3();
         this.agreeVideo = dto.agreeVideo();
         this.agreeInsta = dto.agreeInsta();
         this.agreeMosaic = dto.agreeMosaic();
-        if (!dto.etc().equals(this.etc)) this.etc = dto.etc();
+        this.etc = dto.etc();
     }
 }
