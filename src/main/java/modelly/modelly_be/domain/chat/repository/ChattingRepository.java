@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface ChattingRepository extends JpaRepository<Chatting, Long> {
+
+    Chatting findTopByChatRoomOrderByCreatedAtDesc(ChatRoom chatRoom);
 }
