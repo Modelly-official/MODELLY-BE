@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.chat.service;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.chat.dto.response.ChatRoomListResponse;
 import modelly.modelly_be.domain.chat.dto.response.OpenRoomResponse;
+import modelly.modelly_be.domain.chat.dto.response.OpponentInfoResponse;
 import modelly.modelly_be.domain.chat.entity.ChatRoom;
 import modelly.modelly_be.domain.chat.entity.Chatting;
 import modelly.modelly_be.domain.chat.repository.ChatRoomRepository;
@@ -127,52 +128,22 @@ public class ChatRoomService {
                         Function.identity()
                 ));
 
-
         /* 응답 생성 */
         List<ChatRoomListResponse> result = new ArrayList<>();
 
         for (ChatRoom room : rooms) {
+            OpponentInfoResponse opponent = getOpponentInfo(room, currentUserId);
 
-            Model model = room.getModel();
-            Designer designer = room.getDesigner();
-
-            boolean iAmModel = isModel && model != null
-                    && model.getUser().getId().equals(currentUserId);
-
-            Long opponentUserId;
-            String opponentName;
-            String opponentProfileImageUrl;
-            UserRole opponentRole;
-
-            // 현재 유저가 모델인 경우
-            if (iAmModel) {
-                User designerUser = designer.getUser();
-                opponentUserId = designerUser.getId();
-                opponentName = designer.getNickname();
-                opponentProfileImageUrl = designerUser.getImageUrl();
-                opponentRole = UserRole.DESIGNER;
-            }
-            // 현재 유저가 디자이너인 경우
-            else {
-                User modelUser = model.getUser();
-                opponentUserId = modelUser.getId();
-                opponentName = modelUser.getName();
-                opponentProfileImageUrl = modelUser.getImageUrl();
-                opponentRole = UserRole.MODEL;
-            }
-
-            // 채팅방의 마지막 메세지
-            Long roomId = room.getId();
-            Chatting last = lastMessageMap.get(roomId);
+            Chatting last = lastMessageMap.get(room.getId());
 
             result.add(ChatRoomListResponse.builder()
                     .roomId(room.getId())
-                    .otherUserId(opponentUserId)
-                    .name(opponentName)
-                    .profileImageUrl(opponentProfileImageUrl)
+                    .otherUserId(opponent.getUserId())
+                    .name(opponent.getName())
+                    .profileImageUrl(opponent.getProfileImageUrl())
                     .lastMessage(last != null ? last.getMessage() : null)
                     .lastMessageTime(last != null ? last.getCreatedAt() : null)
-                    .role(opponentRole)
+                    .role(opponent.getRole())
                     .build());
         }
 
@@ -188,5 +159,42 @@ public class ChatRoomService {
             return t2.compareTo(t1); // 내림차순
         });
         return result;
+    }
+
+    public OpponentInfoResponse getOpponentInfo(ChatRoom room, Long currentUserId) {
+        Model model = room.getModel();
+        Designer designer = room.getDesigner();
+
+        boolean iAmModel = model != null
+                && model.getUser().getId().equals(currentUserId);
+
+        Long opponentUserId;
+        String opponentName;
+        String opponentProfileImageUrl;
+        UserRole opponentRole;
+
+        // 현재 유저가 모델인 경우 → 상대는 디자이너
+        if (iAmModel) {
+            User designerUser = designer.getUser();
+            opponentUserId = designerUser.getId();
+            opponentName = designer.getNickname();          // 활동명
+            opponentProfileImageUrl = designerUser.getImageUrl();
+            opponentRole = UserRole.DESIGNER;
+        }
+        // 현재 유저가 디자이너인 경우 → 상대는 모델
+        else {
+            User modelUser = model.getUser();
+            opponentUserId = modelUser.getId();
+            opponentName = modelUser.getName();             // 이름
+            opponentProfileImageUrl = modelUser.getImageUrl();
+            opponentRole = UserRole.MODEL;
+        }
+
+        return OpponentInfoResponse.builder()
+                .userId(opponentUserId)
+                .name(opponentName)
+                .profileImageUrl(opponentProfileImageUrl)
+                .role(opponentRole)
+                .build();
     }
 }

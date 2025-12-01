@@ -28,6 +28,7 @@ public class ChattingService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChattingRepository chattingRepository;
     private final UserRepository userRepository;
+    private final ChatRoomService chatRoomService;
 
     // 메세지 보내기(DB 저장)
     @Transactional
@@ -74,42 +75,7 @@ public class ChattingService {
             throw new GeneralException(ErrorStatus._FORBIDDEN);
         }
 
-        // 현재 유저가 모델인지 디자이너인지 구분
-        Model model = room.getModel();
-        Designer designer = room.getDesigner();
-
-        boolean iAmModel = model != null
-                && model.getUser().getId().equals(currentUserId);
-
-        /* --- 상대 정보 저장 관련 코드 ---- */
-        Long opponentUserId;
-        String opponentName;
-        String opponentProfileImageUrl;
-        UserRole opponentRole;
-
-        // 현재 유저가 모델인 경우
-        if (iAmModel) {
-            User designerUser = designer.getUser();
-            opponentUserId = designerUser.getId();
-            opponentName = designer.getNickname();          // 활동명
-            opponentProfileImageUrl = designerUser.getImageUrl();
-            opponentRole = UserRole.DESIGNER;
-        }
-        // 현재 유저가 디자이너인 경우
-        else {
-            User modelUser = model.getUser();
-            opponentUserId = modelUser.getId();
-            opponentName = modelUser.getName();             // 이름
-            opponentProfileImageUrl = modelUser.getImageUrl();
-            opponentRole = UserRole.MODEL;
-        }
-
-        OpponentInfoResponse opponent = OpponentInfoResponse.builder()
-                .userId(opponentUserId)
-                .name(opponentName)
-                .profileImageUrl(opponentProfileImageUrl)
-                .role(opponentRole)
-                .build();
+        OpponentInfoResponse opponent = chatRoomService.getOpponentInfo(room, currentUserId);
 
         /* --- 메세지 히스토리 관련 코드 ---- */
 
