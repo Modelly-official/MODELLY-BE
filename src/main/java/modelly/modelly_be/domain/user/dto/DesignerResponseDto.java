@@ -13,7 +13,7 @@ public record DesignerResponseDto(
                 designer.getUser().getId(),
                 designer.getId(),
                 designer.getShop(),
-                designer.getShopAddress()
+                designer.getAddressLine1()+designer.getAddressLine2()
         );
     }
 }

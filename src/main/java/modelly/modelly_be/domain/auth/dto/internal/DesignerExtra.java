@@ -1,5 +1,6 @@
 package modelly.modelly_be.domain.auth.dto.internal;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import modelly.modelly_be.global.entity.Category;
@@ -9,7 +10,9 @@ public class DesignerExtra {
 
     private String shop;
 
-    private String shopAddress;
+    private String addressLine1;
+
+    private String addressLine2;
 
     @NotNull(message = "카테고리는 필수입니다.")
     private Category category;

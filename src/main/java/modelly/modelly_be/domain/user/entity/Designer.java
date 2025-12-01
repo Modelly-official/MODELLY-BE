@@ -18,8 +18,11 @@ public class Designer extends BaseEntity {
     @Column(name = "shop", length = 50)
     private String shop;
 
-    @Column(name = "shop_address", length = 254)
-    private String shopAddress;
+    @Column(name = "address_line1", length = 50)
+    private String addressLine1;
+
+    @Column(name = "address_line2", length = 50)
+    private String addressLine2;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false)
@@ -39,9 +42,10 @@ public class Designer extends BaseEntity {
     private User user;
 
     @Builder
-    public Designer(String shop, String shopAddress, Category category, Long chemistryScore, String nickname, String instagramId, User user) {
+    public Designer(String shop, String addressLine1, String addressLine2,Category category, Long chemistryScore, String nickname, String instagramId, User user) {
         this.shop = shop;
-        this.shopAddress = shopAddress;
+        this.addressLine1 = addressLine1;
+        this.addressLine2 = addressLine2;
         this.category = category;
         this.chemistryScore = chemistryScore;
         this.nickname = nickname;
