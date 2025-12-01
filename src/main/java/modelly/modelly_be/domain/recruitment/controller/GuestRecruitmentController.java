@@ -64,7 +64,17 @@ public class GuestRecruitmentController implements GuestRecruitmentSwagger {
 
 
     @GetMapping("/designers")
-    public ApiResponse<ScrollResponse<DesignerListResponseDto>> getDesignerList(AuthDetails authDetails, Category category,String keyword, SortOption sortOption, Long cursorId, Long cursorReviewCount, Double cursorDistance, int size, Double userLatitude, Double userLongitude) {
+    public ApiResponse<ScrollResponse<DesignerListResponseDto>> getDesignerList(
+            @AuthenticationPrincipal AuthDetails authDetails, //찜 여부를 위해서
+            @RequestParam(required = false) Category category,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "NEWEST")SortOption sortOption,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(required = false) Long cursorReviewCount,
+            @RequestParam(required = false) Double cursorDistance,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) Double userLatitude,
+            @RequestParam(required = false) Double userLongitude) {
         SearchCondition searchCondition = new SearchCondition(category,null,keyword);
         CursorInformation cursorInformation = new CursorInformation(cursorId,cursorReviewCount,cursorDistance);
         Coordinate coordinate = new Coordinate(userLatitude, userLongitude);

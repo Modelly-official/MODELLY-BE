@@ -1,6 +1,5 @@
 package modelly.modelly_be.domain.auth.dto.internal;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import modelly.modelly_be.global.entity.Category;

@@ -10,10 +10,7 @@ import modelly.modelly_be.global.security.AuthDetails;
 import modelly.modelly_be.global.utils.ScrollResponse;
 import modelly.modelly_be.global.utils.ScrollUtil;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,7 +28,10 @@ public class LikeController implements LikeSwagger {
     }
 
     @GetMapping("/likes/recruitments")
-    public ApiResponse<ScrollResponse<LikeRecruitmentListResponseDto>> getLikeRecruitmentList(AuthDetails authDetails, Category category, Long cursorId, int size) {
+    public ApiResponse<ScrollResponse<LikeRecruitmentListResponseDto>> getLikeRecruitmentList(@AuthenticationPrincipal AuthDetails authDetails,
+                                                                                              @RequestParam(required = false) Category category,
+                                                                                              @RequestParam(required = false) Long cursorId,
+                                                                                              @RequestParam(defaultValue = "20") int size) {
 
         List<LikeRecruitmentListResponseDto> likeList = likeService.getLikeRecruitmentList(authDetails.user(), category, cursorId, size);
 

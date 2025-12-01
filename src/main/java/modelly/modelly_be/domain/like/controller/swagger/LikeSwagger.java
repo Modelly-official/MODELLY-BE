@@ -22,5 +22,5 @@ public interface LikeSwagger {
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam(required = false) Category category,
             @RequestParam(required = false) Long cursorId,
-            @RequestParam(defaultValue = "10") int size);
+            @RequestParam(defaultValue = "20") int size);
 }

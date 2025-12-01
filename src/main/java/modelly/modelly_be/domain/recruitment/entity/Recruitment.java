@@ -28,7 +28,7 @@ public class Recruitment extends BaseEntity {
     private Category category;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "sub_category", nullable = false)
+    @Column(name = "sub_category")
     private SubCategory subCategory;
 
     @Column(name = "content", nullable = false, length = 254)
@@ -85,6 +85,7 @@ public class Recruitment extends BaseEntity {
     public void updateRecruitment(UpdateRecruitmentRequestDto dto) {
         if (dto.title() != null) this.title = dto.title();
         if (dto.category() != null) this.category = dto.category();
+        if (dto.subCategory() != null) this.subCategory = dto.subCategory();
         if (dto.content() != null) this.content = dto.content();
         if (dto.notice() != null) this.notice = dto.notice();
         this.goal1 = dto.goal1();

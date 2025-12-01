@@ -56,7 +56,7 @@ public enum ErrorStatus implements BaseErrorCode {
     //무한스크롤 관련 에러
     SCROLL_ERROR(HttpStatus.BAD_REQUEST, "SCROLL400", "무한스크롤 변환을 지원하지않는 엔티티입니다. ScrollUtil에 엔티티를 추가해주세요"),
 
-    ;
+    GEOCODING_FAILED(HttpStatus.BAD_REQUEST, "GEOCODING400", "지오코딩에 실패하였습니다. 주소를 정확히 입력해주세요.");
 
     private final HttpStatus httpStatus;
     private final String code;

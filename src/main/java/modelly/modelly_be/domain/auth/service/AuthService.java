@@ -95,7 +95,11 @@ public class AuthService {
                 throw new GeneralException(ErrorStatus.SIGNUP_FIELDS_ERROR);
             }
 
-            LatLng shopLocation = geoCodingService.getLatLngRes(designerExtra.getAddressLine1()+designerExtra.getAddressLine2());
+            LatLng shopLocation = geoCodingService.getLatLngRes(designerExtra.getAddressLine1()+" "+designerExtra.getAddressLine2());
+
+            if (shopLocation == null) {
+                throw new GeneralException(ErrorStatus.GEOCODING_FAILED);
+            }
 
             Designer designer = Designer.builder()
                     .user(user)
@@ -291,7 +295,11 @@ public class AuthService {
                 throw new GeneralException(ErrorStatus.SIGNUP_FIELDS_ERROR);
             }
 
-            LatLng shopLocation = geoCodingService.getLatLngRes(designerExtra.getAddressLine1()+designerExtra.getAddressLine2());
+            LatLng shopLocation = geoCodingService.getLatLngRes(designerExtra.getAddressLine1()+" "+designerExtra.getAddressLine2());
+
+            if (shopLocation == null) {
+                throw new GeneralException(ErrorStatus.GEOCODING_FAILED);
+            }
 
             Designer designer = Designer.builder()
                     .user(user)
