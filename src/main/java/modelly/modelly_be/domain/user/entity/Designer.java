@@ -24,6 +24,10 @@ public class Designer extends BaseEntity {
     @Column(name = "address_line2", length = 50)
     private String addressLine2;
 
+    private Double latitude;
+
+    private Double longitude;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false)
     private Category category;
@@ -42,10 +46,12 @@ public class Designer extends BaseEntity {
     private User user;
 
     @Builder
-    public Designer(String shop, String addressLine1, String addressLine2,Category category, Long chemistryScore, String nickname, String instagramId, User user) {
+    public Designer(String shop, String addressLine1, String addressLine2,Double latitude, Double longitude,Category category, Long chemistryScore, String nickname, String instagramId, User user) {
         this.shop = shop;
         this.addressLine1 = addressLine1;
         this.addressLine2 = addressLine2;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.category = category;
         this.chemistryScore = chemistryScore;
         this.nickname = nickname;

@@ -31,9 +31,6 @@ public class Recruitment extends BaseEntity {
     @Column(name = "sub_category", nullable = false)
     private SubCategory subCategory;
 
-    @Column(columnDefinition = "POINT SRID 4326")
-    private Point location;
-
     @Column(name = "content", nullable = false, length = 254)
     private String content;
 

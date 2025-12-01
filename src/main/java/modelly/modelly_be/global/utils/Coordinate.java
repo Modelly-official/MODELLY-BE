@@ -2,10 +2,10 @@ package modelly.modelly_be.global.utils;
 
 import jakarta.annotation.Nullable;
 
-public record UserCoordinate(
+public record Coordinate(
         @Nullable
-        Double userLat,
+        Double latitude,
         @Nullable
-        Double userLng
+        Double longitude
 ) {
 }
