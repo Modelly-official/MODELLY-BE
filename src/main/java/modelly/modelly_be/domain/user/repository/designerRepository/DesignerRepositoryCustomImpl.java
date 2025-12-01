@@ -1,0 +1,214 @@
+package modelly.modelly_be.domain.user.repository.designerRepository;
+
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.*;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.like.entity.QDesignerLike;
+import modelly.modelly_be.domain.portfolio.entity.QPortfolio;
+import modelly.modelly_be.domain.review.entity.QReview;
+import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
+import modelly.modelly_be.domain.user.entity.QDesigner;
+import modelly.modelly_be.global.utils.Coordinate;
+import modelly.modelly_be.global.utils.SearchCondition;
+
+import java.util.List;
+
+@RequiredArgsConstructor
+public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
+
+    private final JPAQueryFactory queryFactory;
+
+    @Override
+    public List<DesignerListResponseDto> findDesignersByCreatedAt(Long userId, SearchCondition searchCondition, Long cursorId, int size) {
+        QDesigner qDesigner = QDesigner.designer;
+        QPortfolio qPortfolio = QPortfolio.portfolio;
+        QDesignerLike qDesignerLike = QDesignerLike.designerLike;
+
+        StringPath thumbnail = Expressions.stringPath("thumbnail");
+        JPQLQuery<String> firstImgSub = JPAExpressions
+                .select(qPortfolio.imageUrl)
+                .from(qPortfolio)
+                .where(qPortfolio.designer.eq(qDesigner))
+                .orderBy(qPortfolio.createdAt.desc())
+                .limit(1);
+
+        StringExpression portfolio = Expressions.asString(ExpressionUtils.as(firstImgSub, thumbnail));
+        BooleanBuilder booleanBuilder = buildCommonWhere(searchCondition);
+
+        //기획에게 디자이너 최신 가입순관련 논의 후 수정하기
+        if (cursorId != null) {
+            booleanBuilder.and(qDesigner.id.lt(cursorId));
+        }
+
+        List<DesignerListResponseDto> dtos = queryFactory
+                .select(Projections.constructor(
+                        DesignerListResponseDto.class,
+                        qDesigner.id,
+                        qDesigner.nickname,
+                        qDesigner.shop,
+                        qDesigner.addressLine1,
+                        portfolio,
+                        qDesigner.category,
+                        Expressions.nullExpression(Long.class),
+                        Expressions.nullExpression(Double.class),
+                        qDesignerLike.id.isNotNull(),
+                        qDesigner.createdAt
+                ))
+                .from(qDesigner)
+                .leftJoin(qDesignerLike).on(qDesignerLike.designer.id.eq(qDesigner.id)
+                        .and(userId !=null ? qDesignerLike.model.id.eq(userId) : null))
+                .where(booleanBuilder)
+                .orderBy(qDesigner.createdAt.desc(), qDesigner.id.desc())
+                .limit(size+1)
+                .fetch();
+
+        return dtos;
+    }
+
+    @Override
+    public List<DesignerListResponseDto> findDesignersByReviews(Long userId, SearchCondition searchCondition, Long cursorId, Long cursorReviewCount, int size) {
+        QDesigner qDesigner = QDesigner.designer;
+        QPortfolio qPortfolio = QPortfolio.portfolio;
+        QDesignerLike qDesignerLike = QDesignerLike.designerLike;
+        QReview qReview = QReview.review;
+
+        BooleanBuilder booleanBuilder = buildCommonWhere(searchCondition);
+
+        StringPath thumbnail = Expressions.stringPath("thumbnail");
+        JPQLQuery<String> firstImgSub = JPAExpressions
+                .select(qPortfolio.imageUrl)
+                .from(qPortfolio)
+                .where(qPortfolio.designer.eq(qDesigner))
+                .orderBy(qPortfolio.createdAt.desc())
+                .limit(1);
+
+        StringExpression portfolio = Expressions.asString(ExpressionUtils.as(firstImgSub, thumbnail));
+
+        NumberPath<Long> reviewCount = Expressions.numberPath(Long.class, "reviewCount");
+        JPQLQuery<Long> reviewCountSubQuery = JPAExpressions
+                .select(qReview.count())
+                .from(qReview)
+                .where(qReview.designer.eq(qDesigner));
+
+        NumberExpression<Long> reviewCountExpression = Expressions.asNumber(ExpressionUtils.as(reviewCountSubQuery, reviewCount));
+
+        if (cursorId != null && cursorReviewCount != null) {
+            booleanBuilder.and(
+                    reviewCount.lt(cursorReviewCount)
+                            .or(reviewCount.eq(cursorReviewCount)
+                                    .and(qDesigner.id.lt(cursorId)))
+            );
+        }
+
+        List<DesignerListResponseDto> dtos = queryFactory
+                .select(Projections.constructor(
+                        DesignerListResponseDto.class,
+                        qDesigner.id,
+                        qDesigner.nickname,
+                        qDesigner.shop,
+                        qDesigner.addressLine1,
+                        portfolio,
+                        qDesigner.category,
+                        reviewCountExpression,
+                        Expressions.nullExpression(Double.class),
+                        qDesignerLike.id.isNotNull(),
+                        qDesigner.createdAt
+                ))
+                .from(qDesigner)
+                .leftJoin(qDesignerLike).on(qDesignerLike.designer.id.eq(qDesigner.id)
+                        .and(userId !=null ? qDesignerLike.model.id.eq(userId) : null))
+                .where(booleanBuilder)
+                .orderBy(qDesigner.createdAt.desc(), qDesigner.id.desc())
+                .limit(size+1)
+                .fetch();
+
+        return dtos;
+    }
+
+    @Override
+    public List<DesignerListResponseDto> findDesignersByDistance(Long userId, SearchCondition searchCondition, Long cursorId, Double cursorDistance, int size, Coordinate userCoordinate) {
+        QDesigner qDesigner = QDesigner.designer;
+        QPortfolio qPortfolio = QPortfolio.portfolio;
+        QDesignerLike qDesignerLike = QDesignerLike.designerLike;
+
+        StringPath thumbnail = Expressions.stringPath("thumbnail");
+        JPQLQuery<String> firstImgSub = JPAExpressions
+                .select(qPortfolio.imageUrl)
+                .from(qPortfolio)
+                .where(qPortfolio.designer.eq(qDesigner))
+                .orderBy(qPortfolio.createdAt.desc())
+                .limit(1);
+
+        StringExpression portfolio = Expressions.asString(ExpressionUtils.as(firstImgSub, thumbnail));
+
+        BooleanBuilder booleanBuilder = buildCommonWhere(searchCondition);
+
+        if (userCoordinate == null || userCoordinate.latitude() == null || userCoordinate.longitude() == null) {
+            throw new IllegalArgumentException("거리 정렬 시 사용자 좌표 필요");
+        }
+
+        // 기준점: WGS-84 + SRID 4326
+        String pointWkt = String.format("POINT(%f %f)",
+                userCoordinate.latitude(), userCoordinate.longitude());
+
+        NumberExpression<Double> distance = Expressions.numberTemplate(Double.class,
+                "ST_Distance_Sphere(ST_GeomFromText(CONCAT('POINT(', {0}, ' ', {1}, ')'), 4326), ST_GeomFromText({2}, 4326))",
+                qDesigner.longitude,
+                qDesigner.latitude,
+                Expressions.constant(pointWkt)
+        );
+
+        if (cursorId != null && cursorDistance != null) {
+            booleanBuilder.and(
+                    distance.gt(cursorDistance)
+                            .or(distance.eq(cursorDistance)
+                                    .and(qDesigner.id.lt(cursorId)))
+            );
+        }
+
+        List<DesignerListResponseDto> dtos = queryFactory
+                .select(Projections.constructor(
+                        DesignerListResponseDto.class,
+                        qDesigner.id,
+                        qDesigner.nickname,
+                        qDesigner.shop,
+                        qDesigner.addressLine1,
+                        portfolio,
+                        qDesigner.category,
+                        Expressions.nullExpression(Long.class),
+                        distance,
+                        qDesignerLike.id.isNotNull(),
+                        qDesigner.createdAt
+                ))
+                .from(qDesigner)
+                .leftJoin(qDesignerLike).on(qDesignerLike.designer.id.eq(qDesigner.id)
+                        .and(userId !=null ? qDesignerLike.model.id.eq(userId) : null))
+                .where(booleanBuilder)
+                .orderBy(qDesigner.createdAt.desc(), qDesigner.id.desc())
+                .limit(size+1)
+                .fetch();
+
+        return dtos;
+    }
+
+    private BooleanBuilder buildCommonWhere(SearchCondition searchCondition) {
+        QDesigner qDesigner = QDesigner.designer;
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+
+        if (searchCondition.keyword() != null && !searchCondition.keyword().isEmpty()) {
+            booleanBuilder.and(qDesigner.nickname.eq(searchCondition.keyword())
+                    .or(qDesigner.shop.eq(searchCondition.keyword())));
+        }
+
+        if (searchCondition.category() != null) {
+            booleanBuilder.and(qDesigner.category.eq(searchCondition.category()));
+        }
+
+        return booleanBuilder;
+    }
+}

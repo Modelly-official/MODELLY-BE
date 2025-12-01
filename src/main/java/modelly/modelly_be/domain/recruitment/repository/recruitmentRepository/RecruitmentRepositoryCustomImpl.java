@@ -163,7 +163,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                 Expressions.constant(pointWkt)
         );
 
-        if (cursorId != null) {
+        if (cursorId != null && cursorDistance != null) {
             booleanBuilder.and(
                     distance.gt(cursorDistance)
                             .or(distance.eq(cursorDistance)
