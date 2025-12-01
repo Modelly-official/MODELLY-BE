@@ -3,7 +3,9 @@ package modelly.modelly_be.domain.recruitment.controller.swagger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
+import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentCursor;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.GuestRecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.SubCategory;
@@ -33,12 +35,15 @@ public interface GuestRecruitmentSwagger {
             ✅ 필터링 : 카테고리, 세부카테고리별로 가능
             """)
     ApiResponse<ScrollResponse<RecruitmentListResponseDto>> getRecruitmentList(
-            @AuthenticationPrincipal AuthDetails authDetails,
+            @AuthenticationPrincipal AuthDetails authDetails, //찜 여부를 위해서
             @RequestParam(required = false) Category category,
             @RequestParam(required = false) SubCategory subCategory,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "NEWEST")SortOption sortOption,
             @RequestParam(required = false) Long cursorId,
+            @RequestParam(required = false) Long cursorReviewCount,
+            @RequestParam(required = false) Double cursorDistance,
             @RequestParam(defaultValue = "20") int size,
-            @RequestBody(required = false)@Valid UserCoordinate userCoordinate);
+            @RequestParam(required = false) Double userLatitude,
+            @RequestParam(required = false) Double userLongitude);
 }

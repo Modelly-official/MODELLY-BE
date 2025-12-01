@@ -15,6 +15,8 @@ public record RecruitmentListResponseDto(
         String shopAddress,
         Category category,
         SubCategory subCategory,
+        Long reviewCount,
+        Double distance,
         boolean isLiked,
         LocalDateTime createdAt
 ) {

@@ -61,6 +61,9 @@ public class Recruitment extends BaseEntity {
     @Column(name = "etc", length = 100)
     private String etc;
 
+    @Column(name = "thumbnail", length = 100)
+    private String thumbnail;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "designer_id")
     private Designer designer;

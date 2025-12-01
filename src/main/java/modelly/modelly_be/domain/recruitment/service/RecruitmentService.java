@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.recruitment.service;
 
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.like.service.RecruitmentLikeService;
+import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentCursor;
 import modelly.modelly_be.domain.recruitment.dto.response.GuestRecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
@@ -57,8 +58,26 @@ public class RecruitmentService {
         );
     }
 
-    public Slice<RecruitmentListResponseDto> getRecruitmensList(Long userId, SearchCondition searchCondition, SortOption sortOption, Long cursorId, int size, UserCoordinate userCoordinate) {
-        Slice<RecruitmentListResponseDto> recruitmentListResponseDtoList = recruitmentRepository.findRecruitmentsByConditions(userId,searchCondition,sortOption,cursorId,size,userCoordinate);
+    public List<RecruitmentListResponseDto> getRecruitmensList(Long userId, SearchCondition searchCondition, SortOption sortOption, RecruitmentCursor recruitmentCursor, int size, UserCoordinate userCoordinate) {
+        List<RecruitmentListResponseDto> recruitmentListResponseDtoList;
+        Long cursorId = recruitmentCursor.cursorId() == null || recruitmentCursor.cursorId() == 0 ? null : recruitmentCursor.cursorId();
+
+        switch (sortOption){
+            case NEWEST:
+                recruitmentListResponseDtoList = recruitmentRepository.findRecruitmentsByCreatedAt(userId,searchCondition, cursorId,size);
+                break;
+            case MOST_REVIEWS:
+                Long cursorReviewCount = recruitmentCursor.cursorReviewCount() == null ? null : recruitmentCursor.cursorReviewCount();
+                recruitmentListResponseDtoList = recruitmentRepository.findRecruitmentsByReviews(userId,searchCondition, cursorId, cursorReviewCount,size);
+                break;
+            case DISTANCE:
+                Double cursorDistance = recruitmentCursor.cursorDistance() == null ? null : recruitmentCursor.cursorDistance();
+                recruitmentListResponseDtoList = recruitmentRepository.findRecruitmentsByDistance(userId,searchCondition, cursorId, cursorDistance,size,userCoordinate);
+                break;
+            default:
+               recruitmentListResponseDtoList = recruitmentRepository.findRecruitmentsByCreatedAt(userId,searchCondition, cursorId,size);
+               break;
+        }
 
         return recruitmentListResponseDtoList;
     }

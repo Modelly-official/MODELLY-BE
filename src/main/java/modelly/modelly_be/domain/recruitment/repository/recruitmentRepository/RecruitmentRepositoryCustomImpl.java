@@ -2,20 +2,18 @@ package modelly.modelly_be.domain.recruitment.repository.recruitmentRepository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.like.entity.QRecruitmentLike;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitment;
-import modelly.modelly_be.domain.recruitment.entity.QRecruitmentImage;
 import modelly.modelly_be.domain.review.entity.QReview;
 import modelly.modelly_be.domain.user.entity.QDesigner;
-import modelly.modelly_be.global.entity.SortOption;
 import modelly.modelly_be.global.utils.SearchCondition;
 import modelly.modelly_be.global.utils.UserCoordinate;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 
 import java.util.List;
 
@@ -23,119 +21,176 @@ import java.util.List;
 public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
+    private BooleanBuilder buildCommonWhere(SearchCondition cond) {
+        QRecruitment r = QRecruitment.recruitment;
+        BooleanBuilder b = new BooleanBuilder();
+
+        if (cond.keyword() != null && !cond.keyword().isBlank()) {
+            b.and(r.title.contains(cond.keyword())
+                    .or(r.content.contains(cond.keyword())));
+        }
+        if (cond.category() != null) {
+            b.and(r.category.eq(cond.category()));
+            if (cond.subCategory() != null) {
+                b.and(r.subCategory.eq(cond.subCategory()));
+            }
+        }
+
+        // 기타 조건 추가: 날짜 필터 등
+
+        return b;
+    }
+
     @Override
-    public Slice<RecruitmentListResponseDto> findRecruitmentsByConditions(Long userId, SearchCondition searchCondition, SortOption sortOption, Long cursorId, int size, UserCoordinate userCoordinate) {
+    public List<RecruitmentListResponseDto> findRecruitmentsByCreatedAt(Long userId, SearchCondition searchCondition, Long cursorId, int size) {
         QRecruitment qRecruitment = QRecruitment.recruitment;
         QDesigner qDesigner = QDesigner.designer;
-        QRecruitmentImage qRecruitmentImage = QRecruitmentImage.recruitmentImage;
+        QRecruitmentLike qRecruitmentLike = QRecruitmentLike.recruitmentLike;
+
+        BooleanBuilder booleanBuilder = buildCommonWhere(searchCondition);
+        if (cursorId != null) {
+            booleanBuilder.and(qRecruitment.id.lt(cursorId));
+        }
+
+        List<RecruitmentListResponseDto> dtos = queryFactory
+                .select(Projections.constructor(
+                        RecruitmentListResponseDto.class,
+                        qRecruitment.id,
+                        qRecruitment.title,
+                        qDesigner.user.imageUrl,
+                        qDesigner.nickname,
+                        qRecruitment.thumbnail,
+                        qDesigner.shop,
+                        qDesigner.addressLine1,
+                        qRecruitment.category,
+                        qRecruitment.subCategory,
+                        Expressions.nullExpression(Long.class),
+                        Expressions.nullExpression(Double.class),
+                        qRecruitmentLike.id.isNotNull(),
+                        qRecruitment.createdAt
+                ))
+                .from(qRecruitment)
+                .join(qRecruitment.designer, qDesigner)
+                .leftJoin(qRecruitmentLike).on(qRecruitmentLike.recruitment.id.eq(qRecruitment.id)
+                        .and(userId != null ? qRecruitmentLike.model.id.eq(userId) : null)) //userId가 not null일때만
+                .where(booleanBuilder)
+                .orderBy(qRecruitment.createdAt.desc(), qRecruitment.id.desc())
+                .limit(size+1)
+                .fetch();
+
+        return dtos;
+    }
+
+    @Override
+    public List<RecruitmentListResponseDto> findRecruitmentsByReviews(Long userId, SearchCondition searchCondition, Long cursorId, Long cursorReviewCount, int size) {
+        QRecruitment qRecruitment = QRecruitment.recruitment;
+        QDesigner qDesigner = QDesigner.designer;
         QRecruitmentLike qRecruitmentLike = QRecruitmentLike.recruitmentLike;
         QReview qReview = QReview.review;
-        BooleanBuilder booleanBuilder = new BooleanBuilder();
 
-        //검색
-        if (searchCondition.keyword() != null && !searchCondition.keyword().isBlank()) {
-            booleanBuilder.and(
-                    qRecruitment.title.contains(searchCondition.keyword())
-                            .or(qRecruitment.content.contains(searchCondition.keyword()))
-            );
-        } //추후 띄어쓰기, 오타 등 유연하게 처리해야함
+        BooleanBuilder booleanBuilder = buildCommonWhere(searchCondition);
 
-        //카테고리
-        if (searchCondition.category() != null) {
-            booleanBuilder.and(qRecruitment.category.eq(searchCondition.category()));
-            if (searchCondition.subCategory() != null) {
-                booleanBuilder.and(qRecruitment.subCategory.eq(searchCondition.subCategory()));
-            }
-        }
-        //cursorId
+        NumberExpression<Long> reviewCount = (NumberExpression<Long>) JPAExpressions
+                .select(qReview.count())
+                .from(qReview)
+                .where(qReview.designer.eq(qRecruitment.designer));
+
         if (cursorId != null) {
-            if (sortOption != null) {
-                switch (sortOption) {
-                    case NEWEST:
-                        booleanBuilder.and(qRecruitment.id.lt(cursorId));
-                    case DISTANCE:
-                        //query.orderBy(qRecruitment.createdAt.desc()); //추후 거리순으로 수정
-                        break;
-                    case MOST_REVIEWS:
-//                    JPAQuery<Long> reviewCountSubQuery = JPAExpressions
-//                            .select(qReview.count())
-//                            .from(qReview
-//                            ).where(qReview.designer.id.eq(qDesigner.id));
-//
-//                    query.orderBy(reviewCountSubQuery.desc(), qRecruitment.id.desc()); //추후 리뷰 많은순으로 수정
-                        break;
-                }
-            } else {
-                booleanBuilder.and(qRecruitment.id.lt(cursorId));
-            }
+            booleanBuilder.and(
+                    reviewCount.lt(cursorReviewCount)
+                            .or(reviewCount.eq(cursorReviewCount)
+                                    .and(qRecruitment.id.lt(cursorId)))
+            );
         }
 
-        //날짜 필터링
 
-        //공고 썸네일 (대표이미지) 서브쿼리로 불러오기
-        QRecruitmentImage subImage = new QRecruitmentImage(qRecruitmentImage);
 
-        var query = queryFactory.select(
+        List<RecruitmentListResponseDto> dtos = queryFactory
+                .select(Projections.constructor(
+                        RecruitmentListResponseDto.class,
+                        qRecruitment.id,
+                        qRecruitment.title,
+                        qDesigner.user.imageUrl,
+                        qDesigner.nickname,
+                        qRecruitment.thumbnail,
+                        qDesigner.shop,
+                        qDesigner.addressLine1,
+                        qRecruitment.category,
+                        qRecruitment.subCategory,
+                        reviewCount,
+                        Expressions.nullExpression(Double.class),
+                        qRecruitmentLike.id.isNotNull(),
+                        qRecruitment.createdAt
+                ))
+                .from(qRecruitment)
+                .join(qRecruitment.designer, qDesigner)
+                .leftJoin(qRecruitmentLike).on(qRecruitmentLike.recruitment.id.eq(qRecruitment.id)
+                        .and(userId != null ? qRecruitmentLike.model.id.eq(userId) : null)) //userId가 not null일때만
+                .where(booleanBuilder)
+                .orderBy(reviewCount.desc(), qRecruitment.id.desc())
+                .limit(size+1)
+                .fetch();
+
+        return dtos;
+    }
+
+    @Override
+    public List<RecruitmentListResponseDto> findRecruitmentsByDistance(Long userId, SearchCondition searchCondition, Long cursorId, Double cursorDistance, int size, UserCoordinate userCoordinate) {
+        QRecruitment qRecruitment = QRecruitment.recruitment;
+        QDesigner qDesigner = QDesigner.designer;
+        QRecruitmentLike qRecruitmentLike = QRecruitmentLike.recruitmentLike;
+
+        BooleanBuilder booleanBuilder = buildCommonWhere(searchCondition);
+
+        if (userCoordinate == null || userCoordinate.userLat() == null || userCoordinate.userLng() == null) {
+            throw new IllegalArgumentException("거리 정렬 시 사용자 좌표 필요");
+        }
+
+        // 기준점: WGS-84 + SRID 4326
+        String pointWkt = String.format("POINT(%f %f)",
+                userCoordinate.userLat(), userCoordinate.userLng());
+
+        NumberExpression<Double> distance = Expressions.numberTemplate(Double.class,
+                "ST_Distance_Sphere({0}, ST_GeomFromText({1}, 4326))",
+                qRecruitment.location,
+                Expressions.constant(pointWkt)
+        );
+
+        if (cursorId != null) {
+            booleanBuilder.and(
+                    distance.gt(cursorDistance)
+                            .or(distance.eq(cursorDistance)
+                                    .and(qRecruitment.id.lt(cursorId)))
+            );
+        }
+
+        List<RecruitmentListResponseDto> dtos = queryFactory
+                .select(
                         Projections.constructor(
                                 RecruitmentListResponseDto.class,
                                 qRecruitment.id,
                                 qRecruitment.title,
                                 qDesigner.user.imageUrl,
                                 qDesigner.nickname,
-                                qRecruitmentImage.imageUrl, //썸네이 문제 어떻게 할지
+                                qRecruitment.thumbnail,
                                 qDesigner.shop,
                                 qDesigner.addressLine1,
                                 qRecruitment.category,
                                 qRecruitment.subCategory,
+                                Expressions.nullExpression(Long.class),
+                                distance,
                                 qRecruitmentLike.id.isNotNull(),
                                 qRecruitment.createdAt
                         ))
                 .from(qRecruitment)
-                .join(qRecruitment.designer,qDesigner)
-                .leftJoin(qRecruitment.recruitmentImages, qRecruitmentImage)
-                .leftJoin(qRecruitmentLike)
-                .on(qRecruitmentLike.recruitment.id.eq(qRecruitment.id))
+                .join(qRecruitment.designer, qDesigner)
+                .leftJoin(qRecruitmentLike).on(qRecruitmentLike.recruitment.id.eq(qRecruitment.id)
+                        .and(userId != null ? qRecruitmentLike.model.id.eq(userId) : null)) //userId가 not null일때만
                 .where(booleanBuilder)
-                .distinct();
-
-
-        //정렬
-        if (sortOption != null) {
-            switch (sortOption) {
-                case NEWEST :
-                    query.orderBy(qRecruitment.createdAt.desc());
-                    break;
-                case DISTANCE:
-                    query.orderBy(qRecruitment.createdAt.desc()); //추후 거리순으로 수정
-
-
-                    break;
-                case MOST_REVIEWS:
-//                    JPAQuery<Long> reviewCountSubQuery = JPAExpressions
-//                            .select(qReview.count())
-//                            .from(qReview
-//                            ).where(qReview.designer.id.eq(qDesigner.id));
-//
-//                    query.orderBy(reviewCountSubQuery.desc(), qRecruitment.id.desc()); //추후 리뷰 많은순으로 수정
-                    break;
-            }
-        } else {
-            // 기본 정렬: 최신순
-            query.orderBy(qRecruitment.createdAt.desc());
-        }
-
-
-
-        List<RecruitmentListResponseDto> dtos = query
+                .orderBy(distance.asc(), qRecruitment.id.desc())
                 .limit(size+1)
                 .fetch();
 
-        boolean hasNext = dtos.size() > size;
-
-        List<RecruitmentListResponseDto> sliceContent = hasNext
-                ? dtos.subList(0, size)
-                : dtos;
-
-        return new SliceImpl<>(sliceContent, PageRequest.of(0, size), hasNext);
+        return dtos;
     }
 }
