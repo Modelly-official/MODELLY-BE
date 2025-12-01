@@ -6,6 +6,7 @@ import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentReques
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.entity.BaseEntity;
 import modelly.modelly_be.global.entity.Category;
+import org.springframework.data.geo.Point;
 
 import java.util.*;
 
@@ -29,6 +30,9 @@ public class Recruitment extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "sub_category", nullable = false)
     private SubCategory subCategory;
+
+    @Column(columnDefinition = "POINT SRID 4326")
+    private Point location;
 
     @Column(name = "content", nullable = false, length = 254)
     private String content;

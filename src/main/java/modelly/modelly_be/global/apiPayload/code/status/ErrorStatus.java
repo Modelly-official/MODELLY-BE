@@ -48,7 +48,12 @@ public enum ErrorStatus implements BaseErrorCode {
     //Recruitment
     NOT_FOUND_RECRUITMENT(HttpStatus.NOT_FOUND,"RECRUITMENT404", "공고를 찾을 수 없습니다."),
     FORBIDDEN_DELETE_OR_MODIFY_RECRUITMENT(HttpStatus.FORBIDDEN, "RECRUITMENT403", "작성자만 공고 삭제 및 수정이 가능합니다."),
-    CAN_NOT_RECRUITMENT_DELETE_OR_MODIFY(HttpStatus.CONFLICT, "RECRUITMENT409", "현재 진행중이거나 확정된 예약이 있어 삭제 및 수정이 불가능합니다.");
+    CAN_NOT_RECRUITMENT_DELETE_OR_MODIFY(HttpStatus.CONFLICT, "RECRUITMENT409", "현재 진행중이거나 확정된 예약이 있어 삭제 및 수정이 불가능합니다."),
+
+    //무한스크롤 관련 에러
+    SCROLL_ERROR(HttpStatus.BAD_REQUEST, "SCROLL400", "무한스크롤 변환을 지원하지않는 엔티티입니다. ScrollUtil에 엔티티를 추가해주세요"),
+
+    ;
 
     private final HttpStatus httpStatus;
     private final String code;
