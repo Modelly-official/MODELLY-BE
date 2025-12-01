@@ -1,8 +1,10 @@
 package modelly.modelly_be.domain.recruitment.repository.recruitmentRepository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.core.types.dsl.NumberPath;
@@ -57,6 +59,17 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
             booleanBuilder.and(qRecruitment.id.lt(cursorId));
         }
 
+        BooleanExpression likedCondition = userId != null
+                ? QRecruitmentLike.recruitmentLike.model.user.id.eq(userId)
+                .and(QRecruitmentLike.recruitmentLike.recruitment.id.eq(qRecruitment.id))
+                : null;
+
+        Expression<Boolean> isLiked = JPAExpressions
+                .select()
+                .from(QRecruitmentLike.recruitmentLike)
+                .where(likedCondition)
+                .exists();
+
         List<RecruitmentListResponseDto> dtos = queryFactory
                 .select(Projections.constructor(
                         RecruitmentListResponseDto.class,
@@ -71,13 +84,11 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                         qRecruitment.subCategory,
                         Expressions.nullExpression(Long.class),
                         Expressions.nullExpression(Double.class),
-                        qRecruitmentLike.id.isNotNull(),
+                        isLiked,
                         qRecruitment.createdAt
                 ))
                 .from(qRecruitment)
                 .join(qRecruitment.designer, qDesigner)
-                .leftJoin(qRecruitmentLike).on(qRecruitmentLike.recruitment.id.eq(qRecruitment.id)
-                        .and(userId != null ? qRecruitmentLike.model.id.eq(userId) : null)) //userId가 not null일때만
                 .where(booleanBuilder)
                 .orderBy(qRecruitment.createdAt.desc(), qRecruitment.id.desc())
                 .limit(size+1)
@@ -131,7 +142,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                 .from(qRecruitment)
                 .join(qRecruitment.designer, qDesigner)
                 .leftJoin(qRecruitmentLike).on(qRecruitmentLike.recruitment.id.eq(qRecruitment.id)
-                        .and(userId != null ? qRecruitmentLike.model.id.eq(userId) : null)) //userId가 not null일때만
+                        .and(userId != null ? qRecruitmentLike.model.user.id.eq(userId) : null)) //userId가 not null일때만
                 .where(booleanBuilder)
                 .orderBy(reviewCount.desc(), qRecruitment.id.desc())
                 .limit(size+1)
@@ -192,7 +203,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                 .from(qRecruitment)
                 .join(qRecruitment.designer, qDesigner)
                 .leftJoin(qRecruitmentLike).on(qRecruitmentLike.recruitment.id.eq(qRecruitment.id)
-                        .and(userId != null ? qRecruitmentLike.model.id.eq(userId) : null)) //userId가 not null일때만
+                        .and(userId != null ? qRecruitmentLike.model.user.id.eq(userId) : null)) //userId가 not null일때만
                 .where(booleanBuilder)
                 .orderBy(distance.asc(), qRecruitment.id.desc())
                 .limit(size+1)
