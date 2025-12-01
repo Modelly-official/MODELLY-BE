@@ -4,6 +4,10 @@ import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
+import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -12,24 +16,36 @@ public class GeoCodingService {
     @Value("${google.maps.api.key}")
     private String googleApiKey;
 
+    private GeoApiContext context;
+
+    @PostConstruct
+    public void init() {
+        this.context = new GeoApiContext.Builder()
+                .apiKey(googleApiKey)
+                .build();
+        }
+
+    @PreDestroy
+    public void cleanup() {
+        if (context != null) {
+            context.shutdown();
+        }
+    }
+
     public LatLng getLatLngRes(String address) {
         try{
-            GeoApiContext context = new GeoApiContext.Builder()
-                    .apiKey(googleApiKey)
-                    .build();
-
             GeocodingResult[] results = GeocodingApi.geocode(context, address)
                     .region("kr")
                     .await();
 
-            if ( results.length>0) {
+            if (results != null && results.length>0) {
                 LatLng coordinate = results[0].geometry.location;
                 return coordinate;
             }
 
             return null;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new GeneralException(ErrorStatus.GEOCODING_FAILED);
         }
     }
 }
