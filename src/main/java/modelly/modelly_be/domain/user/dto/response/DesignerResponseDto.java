@@ -1,4 +1,4 @@
-package modelly.modelly_be.domain.user.dto;
+package modelly.modelly_be.domain.user.dto.response;
 
 import modelly.modelly_be.domain.user.entity.Designer;
 

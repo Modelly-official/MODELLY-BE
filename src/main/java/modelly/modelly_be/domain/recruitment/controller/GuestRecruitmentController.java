@@ -2,11 +2,13 @@ package modelly.modelly_be.domain.recruitment.controller;
 
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.recruitment.controller.swagger.GuestRecruitmentSwagger;
-import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentCursor;
+import modelly.modelly_be.domain.recruitment.dto.common.CursorInformation;
 import modelly.modelly_be.domain.recruitment.dto.response.GuestRecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.SubCategory;
 import modelly.modelly_be.domain.recruitment.service.RecruitmentService;
+import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
+import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.entity.SortOption;
@@ -24,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GuestRecruitmentController implements GuestRecruitmentSwagger {
     private final RecruitmentService recruitmentService;
+    private final DesignerService designerService;
 
     @GetMapping("/recruitments/{recruitmentId}")
     public ApiResponse<GuestRecruitmentResponseDto> getRecruitment(@PathVariable Long recruitmentId){
@@ -48,13 +51,28 @@ public class GuestRecruitmentController implements GuestRecruitmentSwagger {
             @RequestParam(required = false) Double userLongitude){
 
         SearchCondition searchCondition = new SearchCondition(category,subCategory,keyword);
-        RecruitmentCursor recruitmentCursor = new RecruitmentCursor(cursorId,cursorReviewCount,cursorDistance);
+        CursorInformation cursorInformation = new CursorInformation(cursorId,cursorReviewCount,cursorDistance);
         Coordinate coordinate = new Coordinate(userLatitude, userLongitude);
         Long userId = (authDetails != null ? authDetails.user().getId() : null);
 
-        List<RecruitmentListResponseDto> recruitments = recruitmentService.getRecruitmensList(userId, searchCondition, sortOption, recruitmentCursor, size, coordinate);
+        List<RecruitmentListResponseDto> recruitments = recruitmentService.getRecruitmensList(userId, searchCondition, sortOption, cursorInformation, size, coordinate);
 
         ScrollResponse<RecruitmentListResponseDto> responseDtos = ScrollUtil.paginate(recruitments,size);
+
+        return ApiResponse.onSuccess(responseDtos);
+    }
+
+
+    @GetMapping("/designers")
+    public ApiResponse<ScrollResponse<DesignerListResponseDto>> getDesignerList(AuthDetails authDetails, Category category,String keyword, SortOption sortOption, Long cursorId, Long cursorReviewCount, Double cursorDistance, int size, Double userLatitude, Double userLongitude) {
+        SearchCondition searchCondition = new SearchCondition(category,null,keyword);
+        CursorInformation cursorInformation = new CursorInformation(cursorId,cursorReviewCount,cursorDistance);
+        Coordinate coordinate = new Coordinate(userLatitude, userLongitude);
+        Long userId = (authDetails != null ? authDetails.user().getId() : null);
+
+        List<DesignerListResponseDto> designers = designerService.getDesignerList(userId, searchCondition, sortOption, cursorInformation, size, coordinate);
+
+        ScrollResponse<DesignerListResponseDto> responseDtos = ScrollUtil.paginate(designers,size);
 
         return ApiResponse.onSuccess(responseDtos);
     }
