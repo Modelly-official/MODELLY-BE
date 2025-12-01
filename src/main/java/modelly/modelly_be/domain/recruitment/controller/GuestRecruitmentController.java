@@ -1,7 +1,5 @@
 package modelly.modelly_be.domain.recruitment.controller;
 
-import jakarta.annotation.Nullable;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.recruitment.controller.swagger.GuestRecruitmentSwagger;
 import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentCursor;
@@ -16,7 +14,7 @@ import modelly.modelly_be.global.security.AuthDetails;
 import modelly.modelly_be.global.utils.ScrollResponse;
 import modelly.modelly_be.global.utils.ScrollUtil;
 import modelly.modelly_be.global.utils.SearchCondition;
-import modelly.modelly_be.global.utils.UserCoordinate;
+import modelly.modelly_be.global.utils.Coordinate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,10 +49,10 @@ public class GuestRecruitmentController implements GuestRecruitmentSwagger {
 
         SearchCondition searchCondition = new SearchCondition(category,subCategory,keyword);
         RecruitmentCursor recruitmentCursor = new RecruitmentCursor(cursorId,cursorReviewCount,cursorDistance);
-        UserCoordinate userCoordinate = new UserCoordinate(userLatitude, userLongitude);
+        Coordinate coordinate = new Coordinate(userLatitude, userLongitude);
         Long userId = (authDetails != null ? authDetails.user().getId() : null);
 
-        List<RecruitmentListResponseDto> recruitments = recruitmentService.getRecruitmensList(userId, searchCondition, sortOption, recruitmentCursor, size, userCoordinate);
+        List<RecruitmentListResponseDto> recruitments = recruitmentService.getRecruitmensList(userId, searchCondition, sortOption, recruitmentCursor, size, coordinate);
 
         ScrollResponse<RecruitmentListResponseDto> responseDtos = ScrollUtil.paginate(recruitments,size);
 

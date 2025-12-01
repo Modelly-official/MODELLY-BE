@@ -1,13 +1,11 @@
 package modelly.modelly_be.domain.recruitment.repository.recruitmentRepository;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.core.types.dsl.NumberPath;
-import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -19,7 +17,7 @@ import modelly.modelly_be.domain.recruitment.entity.QRecruitment;
 import modelly.modelly_be.domain.review.entity.QReview;
 import modelly.modelly_be.domain.user.entity.QDesigner;
 import modelly.modelly_be.global.utils.SearchCondition;
-import modelly.modelly_be.global.utils.UserCoordinate;
+import modelly.modelly_be.global.utils.Coordinate;
 
 import java.util.List;
 
@@ -105,7 +103,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
 
         NumberExpression<Long> reviewCountExpression = Expressions.asNumber(ExpressionUtils.as(reviewCountSubQuery, reviewCount));
 
-        if (cursorId != null) {
+        if (cursorId != null && cursorReviewCount != null) {
             booleanBuilder.and(
                     reviewCount.lt(cursorReviewCount)
                             .or(reviewCount.eq(cursorReviewCount)
@@ -143,24 +141,25 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
     }
 
     @Override
-    public List<RecruitmentListResponseDto> findRecruitmentsByDistance(Long userId, SearchCondition searchCondition, Long cursorId, Double cursorDistance, int size, UserCoordinate userCoordinate) {
+    public List<RecruitmentListResponseDto> findRecruitmentsByDistance(Long userId, SearchCondition searchCondition, Long cursorId, Double cursorDistance, int size, Coordinate userCoordinate) {
         QRecruitment qRecruitment = QRecruitment.recruitment;
         QDesigner qDesigner = QDesigner.designer;
         QRecruitmentLike qRecruitmentLike = QRecruitmentLike.recruitmentLike;
 
         BooleanBuilder booleanBuilder = buildCommonWhere(searchCondition);
 
-        if (userCoordinate == null || userCoordinate.userLat() == null || userCoordinate.userLng() == null) {
+        if (userCoordinate == null || userCoordinate.latitude() == null || userCoordinate.longitude() == null) {
             throw new IllegalArgumentException("거리 정렬 시 사용자 좌표 필요");
         }
 
         // 기준점: WGS-84 + SRID 4326
         String pointWkt = String.format("POINT(%f %f)",
-                userCoordinate.userLat(), userCoordinate.userLng());
+                userCoordinate.latitude(), userCoordinate.longitude());
 
         NumberExpression<Double> distance = Expressions.numberTemplate(Double.class,
-                "ST_Distance_Sphere({0}, ST_GeomFromText({1}, 4326))",
-                qRecruitment.location,
+                "ST_Distance_Sphere(ST_GeomFromText(CONCAT('POINT(', {0}, ' ', {1}, ')'), 4326), ST_GeomFromText({2}, 4326))",
+                qRecruitment.designer.longitude,
+                qRecruitment.designer.latitude,
                 Expressions.constant(pointWkt)
         );
 

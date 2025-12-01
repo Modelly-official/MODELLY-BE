@@ -13,8 +13,7 @@ import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.SortOption;
 import modelly.modelly_be.global.utils.SearchCondition;
-import modelly.modelly_be.global.utils.UserCoordinate;
-import org.springframework.data.domain.Slice;
+import modelly.modelly_be.global.utils.Coordinate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,7 +57,7 @@ public class RecruitmentService {
         );
     }
 
-    public List<RecruitmentListResponseDto> getRecruitmensList(Long userId, SearchCondition searchCondition, SortOption sortOption, RecruitmentCursor recruitmentCursor, int size, UserCoordinate userCoordinate) {
+    public List<RecruitmentListResponseDto> getRecruitmensList(Long userId, SearchCondition searchCondition, SortOption sortOption, RecruitmentCursor recruitmentCursor, int size, Coordinate userCoordinate) {
         List<RecruitmentListResponseDto> recruitmentListResponseDtoList;
         Long cursorId = recruitmentCursor.cursorId() == null || recruitmentCursor.cursorId() == 0 ? null : recruitmentCursor.cursorId();
 
@@ -72,7 +71,7 @@ public class RecruitmentService {
                 break;
             case DISTANCE:
                 Double cursorDistance = recruitmentCursor.cursorDistance() == null ? null : recruitmentCursor.cursorDistance();
-                recruitmentListResponseDtoList = recruitmentRepository.findRecruitmentsByDistance(userId,searchCondition, cursorId, cursorDistance,size,userCoordinate);
+                recruitmentListResponseDtoList = recruitmentRepository.findRecruitmentsByDistance(userId,searchCondition, cursorId, cursorDistance,size, userCoordinate);
                 break;
             default:
                recruitmentListResponseDtoList = recruitmentRepository.findRecruitmentsByCreatedAt(userId,searchCondition, cursorId,size);

@@ -3,9 +3,6 @@ package modelly.modelly_be.domain.recruitment.controller.swagger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import jakarta.annotation.Nullable;
-import jakarta.validation.Valid;
-import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentCursor;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.GuestRecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.SubCategory;
@@ -14,11 +11,8 @@ import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.entity.SortOption;
 import modelly.modelly_be.global.security.AuthDetails;
 import modelly.modelly_be.global.utils.ScrollResponse;
-import modelly.modelly_be.global.utils.UserCoordinate;
-import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
