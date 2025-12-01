@@ -25,6 +25,9 @@ public enum ErrorStatus implements BaseErrorCode {
     //Designer
     NOT_FOUND_DESIGNER(HttpStatus.NOT_FOUND, "DESIGNER404", "해당 디자이너를 찾을 수 없습니다."),
 
+    //Model
+    NOT_FOUND_MODEL(HttpStatus.NOT_FOUND, "MODEL404", "해당 모델을 찾을 수 없습니다."),
+
     // Token, JWT
     NOT_FOUND_TOKEN(HttpStatus.NOT_FOUND,"TOKEN404","토큰을 찾을 수 없습니다."),
     TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "TOKEN401", "토큰이 유효하지 않습니다."),
