@@ -1,12 +1,18 @@
 package modelly.modelly_be.domain.recruitment.repository.recruitmentRepository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import modelly.modelly_be.domain.like.entity.QRecruitmentLike;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitment;
@@ -17,6 +23,7 @@ import modelly.modelly_be.global.utils.UserCoordinate;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCustom {
     private final JPAQueryFactory queryFactory;
@@ -90,10 +97,13 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
 
         BooleanBuilder booleanBuilder = buildCommonWhere(searchCondition);
 
-        NumberExpression<Long> reviewCount = (NumberExpression<Long>) JPAExpressions
+        NumberPath<Long> reviewCount = Expressions.numberPath(Long.class, "reviewCount");
+        JPQLQuery<Long> reviewCountSubQuery=JPAExpressions
                 .select(qReview.count())
                 .from(qReview)
                 .where(qReview.designer.eq(qRecruitment.designer));
+
+        NumberExpression<Long> reviewCountExpression = Expressions.asNumber(ExpressionUtils.as(reviewCountSubQuery, reviewCount));
 
         if (cursorId != null) {
             booleanBuilder.and(
@@ -102,8 +112,6 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                                     .and(qRecruitment.id.lt(cursorId)))
             );
         }
-
-
 
         List<RecruitmentListResponseDto> dtos = queryFactory
                 .select(Projections.constructor(
@@ -117,7 +125,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                         qDesigner.addressLine1,
                         qRecruitment.category,
                         qRecruitment.subCategory,
-                        reviewCount,
+                        reviewCountExpression,
                         Expressions.nullExpression(Double.class),
                         qRecruitmentLike.id.isNotNull(),
                         qRecruitment.createdAt
