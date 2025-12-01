@@ -123,7 +123,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
                 .leftJoin(qDesignerLike).on(qDesignerLike.designer.id.eq(qDesigner.id)
                         .and(userId !=null ? qDesignerLike.model.user.id.eq(userId) : null))
                 .where(booleanBuilder)
-                .orderBy(qDesigner.createdAt.desc(), qDesigner.id.desc())
+                .orderBy(reviewCount.desc(), qDesigner.id.desc())
                 .limit(size+1)
                 .fetch();
 
@@ -154,7 +154,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
 
         // 기준점: WGS-84 + SRID 4326
         String pointWkt = String.format("POINT(%f %f)",
-                userCoordinate.latitude(), userCoordinate.longitude());
+                userCoordinate.longitude(), userCoordinate.latitude());
 
         NumberExpression<Double> distance = Expressions.numberTemplate(Double.class,
                 "ST_Distance_Sphere(ST_GeomFromText(CONCAT('POINT(', {0}, ' ', {1}, ')'), 4326), ST_GeomFromText({2}, 4326))",
@@ -189,7 +189,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
                 .leftJoin(qDesignerLike).on(qDesignerLike.designer.id.eq(qDesigner.id)
                         .and(userId !=null ? qDesignerLike.model.user.id.eq(userId) : null))
                 .where(booleanBuilder)
-                .orderBy(qDesigner.createdAt.desc(), qDesigner.id.desc())
+                .orderBy(distance.asc(), qDesigner.id.desc())
                 .limit(size+1)
                 .fetch();
 

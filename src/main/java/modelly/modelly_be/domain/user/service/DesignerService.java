@@ -40,6 +40,7 @@ public class DesignerService {
             case DISTANCE:
                 Double cursorDistance = cursorInformation.cursorDistance();
                 designerListResponseDtoList = designerRepository.findDesignersByDistance(userId, searchCondition, cursorId, cursorDistance, size, userCoordinate);
+                break;
             default:
                 designerListResponseDtoList = designerRepository.findDesignersByCreatedAt(userId,searchCondition, cursorId, size);
                 break;

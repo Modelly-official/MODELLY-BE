@@ -165,7 +165,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
 
         // 기준점: WGS-84 + SRID 4326
         String pointWkt = String.format("POINT(%f %f)",
-                userCoordinate.latitude(), userCoordinate.longitude());
+                userCoordinate.longitude(), userCoordinate.latitude());
 
         NumberExpression<Double> distance = Expressions.numberTemplate(Double.class,
                 "ST_Distance_Sphere(ST_GeomFromText(CONCAT('POINT(', {0}, ' ', {1}, ')'), 4326), ST_GeomFromText({2}, 4326))",
