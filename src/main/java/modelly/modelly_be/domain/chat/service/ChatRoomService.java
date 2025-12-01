@@ -16,11 +16,15 @@ import modelly.modelly_be.domain.user.repository.ModelRepository;
 import modelly.modelly_be.domain.user.repository.UserRepository;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,17 +51,17 @@ public class ChatRoomService {
         if (me.getUserRole() == UserRole.DESIGNER && target.getUserRole() == UserRole.MODEL) {
 
             designer = designerRepository.findByUser_Id(me.getId())
-                    .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+                    .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_DESIGNER));
 
             model = modelRepository.findByUser_Id(target.getId())
-                    .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+                    .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_MODEL));
         }
         // current = 모델, target = 디자이너
         else if (me.getUserRole() == UserRole.MODEL && target.getUserRole() == UserRole.DESIGNER) {
             designer = designerRepository.findByUser_Id(target.getId())
-                    .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+                    .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_DESIGNER));
             model = modelRepository.findByUser_Id(me.getId())
-                    .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+                    .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_MODEL));
         }
         else {
             throw new GeneralException(ErrorStatus.INVALID_CHATROOM);
@@ -65,9 +69,20 @@ public class ChatRoomService {
 
         // 디자이너-모델쌍 채팅방 반환, 존재하지 않으면 새로운 채팅방 생성
         ChatRoom chatRoom = chatRoomRepository.findByDesignerAndModel(designer, model)
-                .orElseGet(() -> chatRoomRepository.save(ChatRoom.of(designer, model)));
+                .orElseGet(() -> createChatRoomSafely(designer, model));
 
         return OpenRoomResponse.of(chatRoom.getId());
+    }
+
+    /* 동시에 채팅방 생성 요청 들어온 경우를 처리하는 핸들러 */
+    private ChatRoom createChatRoomSafely(Designer designer, Model model) {
+        try {
+            return chatRoomRepository.save(ChatRoom.of(designer, model));
+        } catch (DataIntegrityViolationException e) {
+            // 이미 다른 트랜잭션이 먼저 채팅방을 생성한 경우, 이미 만들어진 채팅방 반환
+            return chatRoomRepository.findByDesignerAndModel(designer, model)
+                    .orElseThrow(() -> new GeneralException(ErrorStatus._INTERNAL_SERVER_ERROR));
+        }
     }
 
     /* 채팅방 리스트 조회 */
@@ -92,15 +107,26 @@ public class ChatRoomService {
         List<ChatRoom> rooms = new ArrayList<>();
 
         // 현재 유저가 모델인 경우
-        if (isModel && !isDesigner) {
+        if (isModel) {
             Long modelId = modelOpt.get().getId();
             rooms = chatRoomRepository.findAllByModelIdWithDesigner(modelId);
         }
         // 현재 유저가 디자이너인 경우
-        else if (!isModel && isDesigner) {
+        else if (isDesigner) {
             Long designerId = designerOpt.get().getId();
             rooms = chatRoomRepository.findAllByDesignerIdWithModel(designerId);
         }
+
+        // 모든 채팅방에 대한 마지막 메시지를 한 번에 조회
+        List<Chatting> lastMessages = chattingRepository.findLastMessagesByChatRooms(rooms);
+
+        // 채팅방 ID와 Chatting 매핑
+        Map<Long, Chatting> lastMessageMap = lastMessages.stream()
+                .collect(Collectors.toMap(
+                        c -> c.getChatRoom().getId(),
+                        Function.identity()
+                ));
+
 
         /* 응답 생성 */
         List<ChatRoomListResponse> result = new ArrayList<>();
@@ -135,11 +161,13 @@ public class ChatRoomService {
                 opponentRole = UserRole.MODEL;
             }
 
-            Chatting last = chattingRepository.findTopByChatRoomOrderByCreatedAtDesc(room);
+            // 채팅방의 마지막 메세지
+            Long roomId = room.getId();
+            Chatting last = lastMessageMap.get(roomId);
 
             result.add(ChatRoomListResponse.builder()
                     .roomId(room.getId())
-                    .userId(opponentUserId)
+                    .otherUserId(opponentUserId)
                     .name(opponentName)
                     .profileImageUrl(opponentProfileImageUrl)
                     .lastMessage(last != null ? last.getMessage() : null)

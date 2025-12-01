@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class ChatRoomListResponse {
     private Long roomId;
 
-    private Long userId;
+    private Long otherUserId;
     private String name;
     private String profileImageUrl;
 
@@ -24,7 +24,7 @@ public class ChatRoomListResponse {
 
     public static ChatRoomListResponse of(
             ChatRoom room,
-            Long userId,
+            Long otherUserId,
             String name,
             String profileImageUrl,
             Chatting lastChatting,
@@ -32,7 +32,7 @@ public class ChatRoomListResponse {
     ) {
         return ChatRoomListResponse.builder()
                 .roomId(room.getId())
-                .userId(userId)
+                .otherUserId(otherUserId)
                 .name(name)
                 .profileImageUrl(profileImageUrl)
                 .lastMessage(lastChatting != null ? lastChatting.getMessage() : null)

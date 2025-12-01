@@ -1,6 +1,8 @@
 package modelly.modelly_be.domain.chat.repository;
 
+import io.lettuce.core.dynamic.annotation.Param;
 import modelly.modelly_be.domain.chat.entity.ChatRoom;
+import modelly.modelly_be.domain.chat.entity.Chatting;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,4 +33,5 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
         where cr.designer.id = :designerId
         """)
     List<ChatRoom> findAllByDesignerIdWithModel(Long designerId);
+
 }

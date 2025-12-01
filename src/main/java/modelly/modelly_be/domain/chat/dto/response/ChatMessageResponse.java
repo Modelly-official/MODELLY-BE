@@ -14,7 +14,7 @@ public class ChatMessageResponse {
     private String message;
     private LocalDateTime createdAt;
 
-    public static ChatMessageResponse of(Chatting chatting, Long currentUserId) {
+    public static ChatMessageResponse of(Chatting chatting) {
         return ChatMessageResponse.builder()
                 .messageId(chatting.getId())
                 .senderUserId(chatting.getSenderId())

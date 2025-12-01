@@ -31,9 +31,6 @@ public class ChatStompController {
             @DestinationVariable Long roomId,
             SendMessageRequest request
     ) {
-        if (authentication == null || authentication.getPrincipal() == null) {
-            throw new GeneralException(ErrorStatus._UNAUTHORIZED);
-        }
 
         AuthDetails auth = (AuthDetails) authentication.getPrincipal();
         Long currentUserId = auth.user().getId();

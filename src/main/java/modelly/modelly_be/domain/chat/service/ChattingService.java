@@ -119,7 +119,7 @@ public class ChattingService {
         // 메세지 응답 (isMine 계산 포함)
         List<ChatMessageResponse> messageResponses = new ArrayList<>();
         for (Chatting chatting : messages) {
-            messageResponses.add(ChatMessageResponse.of(chatting, currentUserId));
+            messageResponses.add(ChatMessageResponse.of(chatting));
         }
 
         /* 전체 응답 반환 */
