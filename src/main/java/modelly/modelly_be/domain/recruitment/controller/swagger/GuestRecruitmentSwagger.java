@@ -50,7 +50,7 @@ public interface GuestRecruitmentSwagger {
             1. 최신순 + cursor 이용 시 : cursorId에 응답값에 있는 nextCursor값을 넣어주세요. \n
             2. 후기 많은 순 + cursor 이용 시 : cursorId에 응답값에 있는 nextCursor값을, 커서에 해당하는 reviewCount를 cursorReviewCount에 넣어주세요. \n
             3. 거리순 이용 시 : user의 위도, 경도 값을 꼭 입력해주세요. \n
-                + cursor 이용 시 : cursorId에 응답값에 있는 nextCursor값을, 커서에 해당하는 reviewDistance를 cursorReviewDistance에 넣어주세요. \n
+                + cursor 이용 시 : cursorId에 응답값에 있는 nextCursor값을, 커서에 해당하는 distance를 cursorDistance에 넣어주세요. \n
             """)
     ApiResponse<ScrollResponse<RecruitmentListResponseDto>> getRecruitmentList(
             @AuthenticationPrincipal AuthDetails authDetails, //찜 여부를 위해서
@@ -92,7 +92,7 @@ public interface GuestRecruitmentSwagger {
             1. 최신순 + cursor 이용 시 : cursorId에 응답값에 있는 nextCursor값을 넣어주세요. \n
             2. 후기 많은 순 + cursor 이용 시 : cursorId에 응답값에 있는 nextCursor값을, 커서에 해당하는 reviewCount를 cursorReviewCount에 넣어주세요. \n
             3. 거리순 이용 시 : user의 위도, 경도 값을 꼭 입력해주세요. \n
-                + cursor 이용 시 : cursorId에 응답값에 있는 nextCursor값을, 커서에 해당하는 reviewDistance를 cursorReviewDistance에 넣어주세요. \n
+                + cursor 이용 시 : cursorId에 응답값에 있는 nextCursor값을, 커서에 해당하는 distance를 cursorDistance에 넣어주세요. \n
             """)
     ApiResponse<ScrollResponse<DesignerListResponseDto>> getDesignerList(
             @AuthenticationPrincipal AuthDetails authDetails, //찜 여부를 위해서
