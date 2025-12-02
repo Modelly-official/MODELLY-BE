@@ -12,7 +12,7 @@ import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.entity.enums.UserRole;
-import modelly.modelly_be.domain.user.repository.DesignerRepository;
+import modelly.modelly_be.domain.user.repository.designerRepository.DesignerRepository;
 import modelly.modelly_be.domain.user.repository.ModelRepository;
 import modelly.modelly_be.domain.user.repository.UserRepository;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;

@@ -36,7 +36,7 @@ public class AuthController {
     /* ---------- 회원가입/로그인/로그아웃 ----------*/
     @Operation(summary = "회원가입", description = "회원가입 완료 메시지, loginId, 이름, 닉네임을 반환합니다.")
     @PostMapping("/auth/signup")
-    public ApiResponse<SignupResponse> signup(@RequestBody @Valid SignupRequest request) {
+    public ApiResponse<SignupResponse> signup(@RequestBody @Valid SignupRequest request){
         return ApiResponse.of(SuccessStatus.CREATED,authService.signup(request));
     }
 

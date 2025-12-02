@@ -3,7 +3,6 @@ package modelly.modelly_be.domain.recruitment.dto.response;
 import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentSchedule;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentImage;
-import modelly.modelly_be.global.entity.Category;
 
 import java.util.List;
 
@@ -11,7 +10,8 @@ public record RecruitmentResponseDto(
         Long recruitmentId,
         String title,
         List<RecruitmentSchedule> recruitmentSchedule,
-        Category category,
+        String category,
+        String subCategory,
         String content,
         String notice,
         String goal1,
@@ -41,7 +41,8 @@ public record RecruitmentResponseDto(
                 recruitment.getId(),
                 recruitment.getTitle(),
                 schedules,
-                recruitment.getCategory(),
+                recruitment.getCategory().getDescription(),
+                recruitment.getSubCategory().getDescription(),
                 recruitment.getContent(),
                 recruitment.getNotice(),
                 recruitment.getGoal1(),

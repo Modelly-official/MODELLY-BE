@@ -6,6 +6,7 @@ import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentReques
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.entity.BaseEntity;
 import modelly.modelly_be.global.entity.Category;
+import org.springframework.data.geo.Point;
 
 import java.util.*;
 
@@ -26,10 +27,9 @@ public class Recruitment extends BaseEntity {
     @Column(name = "category", nullable = false)
     private Category category;
 
-        //이 후 추가
-//    @Enumerated(EnumType.STRING)
-//    @Column(name = "sub_category", nullable = false)
-//    private SubCategory subCategory;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sub_category")
+    private SubCategory subCategory;
 
     @Column(name = "content", nullable = false, length = 254)
     private String content;
@@ -58,6 +58,9 @@ public class Recruitment extends BaseEntity {
     @Column(name = "etc", length = 100)
     private String etc;
 
+    @Column(name = "thumbnail", length = 100)
+    private String thumbnail;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "designer_id")
     private Designer designer;
@@ -82,6 +85,7 @@ public class Recruitment extends BaseEntity {
     public void updateRecruitment(UpdateRecruitmentRequestDto dto) {
         if (dto.title() != null) this.title = dto.title();
         if (dto.category() != null) this.category = dto.category();
+        if (dto.subCategory() != null) this.subCategory = dto.subCategory();
         if (dto.content() != null) this.content = dto.content();
         if (dto.notice() != null) this.notice = dto.notice();
         this.goal1 = dto.goal1();

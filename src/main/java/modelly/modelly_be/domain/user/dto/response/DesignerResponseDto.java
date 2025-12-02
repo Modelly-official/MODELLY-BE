@@ -1,4 +1,4 @@
-package modelly.modelly_be.domain.user.dto;
+package modelly.modelly_be.domain.user.dto.response;
 
 import modelly.modelly_be.domain.user.entity.Designer;
 
@@ -13,7 +13,7 @@ public record DesignerResponseDto(
                 designer.getUser().getId(),
                 designer.getId(),
                 designer.getShop(),
-                designer.getShopAddress()
+                designer.getAddressLine1()+designer.getAddressLine2()
         );
     }
 }

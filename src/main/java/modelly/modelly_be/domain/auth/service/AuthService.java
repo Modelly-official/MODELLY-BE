@@ -1,5 +1,6 @@
 package modelly.modelly_be.domain.auth.service;
 
+import com.google.maps.model.LatLng;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -14,6 +15,7 @@ import modelly.modelly_be.domain.user.entity.enums.Permission;
 import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.domain.user.repository.ModelRepository;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
+import modelly.modelly_be.global.geocoding.GeoCodingService;
 import modelly.modelly_be.global.security.entity.TokenStatus;
 import modelly.modelly_be.global.security.google.GoogleDTO;
 import modelly.modelly_be.global.security.google.GoogleUtil;
@@ -24,7 +26,7 @@ import modelly.modelly_be.global.security.naver.NaverUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import modelly.modelly_be.domain.user.repository.DesignerRepository;
+import modelly.modelly_be.domain.user.repository.designerRepository.DesignerRepository;
 import modelly.modelly_be.domain.user.repository.UserRepository;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
@@ -47,6 +49,7 @@ public class AuthService {
     private final KakaoUtil kakaoUtil;
     private final NaverUtil naverUtil;
     private final GoogleUtil googleUtil;
+    private final GeoCodingService geoCodingService;
 
     /* ---------- JWT 회원가입/로그인/로그아웃 ---------- */
 
@@ -92,10 +95,19 @@ public class AuthService {
                 throw new GeneralException(ErrorStatus.SIGNUP_FIELDS_ERROR);
             }
 
+            LatLng shopLocation = geoCodingService.getLatLngRes(designerExtra.getAddressLine1()+" "+designerExtra.getAddressLine2());
+
+            if (shopLocation == null) {
+                throw new GeneralException(ErrorStatus.GEOCODING_FAILED);
+            }
+
             Designer designer = Designer.builder()
                     .user(user)
                     .shop(designerExtra.getShop())
-                    .shopAddress(designerExtra.getShopAddress())
+                    .addressLine1(designerExtra.getAddressLine1())
+                    .addressLine2(designerExtra.getAddressLine2())
+                    .latitude(shopLocation.lat)
+                    .longitude(shopLocation.lng)
                     .category(designerExtra.getCategory())
                     .chemistryScore(0L)
                     .nickname(designerExtra.getNickname())
@@ -283,10 +295,19 @@ public class AuthService {
                 throw new GeneralException(ErrorStatus.SIGNUP_FIELDS_ERROR);
             }
 
+            LatLng shopLocation = geoCodingService.getLatLngRes(designerExtra.getAddressLine1()+" "+designerExtra.getAddressLine2());
+
+            if (shopLocation == null) {
+                throw new GeneralException(ErrorStatus.GEOCODING_FAILED);
+            }
+
             Designer designer = Designer.builder()
                     .user(user)
                     .shop(designerExtra.getShop())
-                    .shopAddress(designerExtra.getShopAddress())
+                    .addressLine1(designerExtra.getAddressLine1())
+                    .addressLine2(designerExtra.getAddressLine2())
+                    .latitude(shopLocation.lat)
+                    .longitude(shopLocation.lng)
                     .category(designerExtra.getCategory())
                     .chemistryScore(0L)
                     .nickname(designerExtra.getNickname())

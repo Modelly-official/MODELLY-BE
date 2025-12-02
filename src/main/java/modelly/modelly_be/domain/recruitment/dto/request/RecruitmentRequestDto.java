@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentSchedule;
+import modelly.modelly_be.domain.recruitment.entity.SubCategory;
 import modelly.modelly_be.global.entity.Category;
 
 import java.util.List;
@@ -18,6 +19,8 @@ public record RecruitmentRequestDto(
         @Schema(description = "카테고리", example = "HAIR, NAIL, TATTOO, MAKEUP, ETC 중 택1")
         @NotBlank(message = "카테고리는 필수입니다.")
         Category category,
+        @Schema(description = "세부 카테고리")
+        SubCategory subCategory,
         @Schema(description = "공고 내용", example = "시스루펌, 레이어드펌을 공짜로 받으실 헤어모델 모집합니다!")
         @NotBlank(message = "공고 내용은 필수입니다.")
         String content,

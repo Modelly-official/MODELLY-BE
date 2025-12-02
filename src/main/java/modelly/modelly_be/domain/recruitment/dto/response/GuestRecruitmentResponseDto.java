@@ -3,7 +3,7 @@ package modelly.modelly_be.domain.recruitment.dto.response;
 import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentSchedule;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentImage;
-import modelly.modelly_be.domain.user.dto.DesignerResponseDto;
+import modelly.modelly_be.domain.user.dto.response.DesignerResponseDto;
 
 import java.util.List;
 
@@ -13,6 +13,7 @@ public record GuestRecruitmentResponseDto(
     String title,
     List<RecruitmentSchedule> recruitmentSchedule,
     String category,
+    String subCategory,
     String content,
     String notice,
     String goal1,
@@ -44,6 +45,7 @@ public record GuestRecruitmentResponseDto(
                 recruitment.getTitle(),
                 schedules,
                 recruitment.getCategory().getDescription(),
+                recruitment.getSubCategory().getDescription(),
                 recruitment.getContent(),
                 recruitment.getNotice(),
                 recruitment.getGoal1(),
