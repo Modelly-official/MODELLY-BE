@@ -18,4 +18,8 @@ public class ChatRoomDetailResponse {
     private List<ChatMessageResponse> messages;
 
     // 예약 정보(예약 도메인 기능 개발 이후 추가)
+
+    //무한 스크롤용 추가 필드
+    private Long nextCursorMessageId;  // 다음 요청 시 cursorMessageId로 사용할 값 (가장 오래된 메시지의 id)
+    private boolean hasNext;           // 더 불러올 메시지가 있는지 여부
 }

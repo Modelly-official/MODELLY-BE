@@ -5,6 +5,8 @@ import modelly.modelly_be.domain.chat.entity.ChatRoom;
 import modelly.modelly_be.domain.chat.entity.Chatting;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -14,24 +16,31 @@ import java.util.Optional;
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     Optional<ChatRoom> findByDesignerAndModel(Designer designer, Model model);
 
-    /* 모델 ID로 채팅방 조회 */
-    @Query("""
-        select cr
-        from ChatRoom cr
-        join fetch cr.designer d
-        join fetch d.user du
-        where cr.model.id = :modelId
-        """)
-    List<ChatRoom> findAllByModelIdWithDesigner(Long modelId);
+    /* 채팅방 조회: 마지막 메세지 시간을 기준으로 정렬 + 페이징 */
 
-    /* 디자이너 ID로 채팅방 조회 */
+    // 모델 ID로 조회
     @Query("""
-        select cr
-        from ChatRoom cr
-        join fetch cr.model m
-        join fetch m.user mu
-        where cr.designer.id = :designerId
+        SELECT r FROM ChatRoom r
+        LEFT JOIN Chatting c ON c.chatRoom = r
+        WHERE r.model.id = :modelId
+        GROUP BY r
+        ORDER BY COALESCE(MAX(c.createdAt), r.createdAt) DESC
         """)
-    List<ChatRoom> findAllByDesignerIdWithModel(Long designerId);
+    Page<ChatRoom> findAllByModelIdOrderByLastMessageTimeDesc(
+            @Param("modelId") Long modelId,
+            Pageable pageable
+    );
 
+    // 디자이너 ID로 조회
+    @Query("""
+        SELECT r FROM ChatRoom r
+        LEFT JOIN Chatting c ON c.chatRoom = r
+        WHERE r.designer.id = :designerId
+        GROUP BY r
+        ORDER BY COALESCE(MAX(c.createdAt), r.createdAt) DESC
+        """)
+    Page<ChatRoom> findAllByDesignerIdOrderByLastMessageTimeDesc(
+            @Param("designerId") Long designerId,
+            Pageable pageable
+    );
 }

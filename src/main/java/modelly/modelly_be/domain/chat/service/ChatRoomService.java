@@ -18,6 +18,8 @@ import modelly.modelly_be.domain.user.repository.UserRepository;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,7 +90,7 @@ public class ChatRoomService {
 
     /* 채팅방 리스트 조회 */
     @Transactional(readOnly = true)
-    public List<ChatRoomListResponse> getMyChatRoomList(Long currentUserId) {
+    public List<ChatRoomListResponse> getMyChatRoomList(Long currentUserId, int page, int size) {
 
         var modelOpt = modelRepository.findByUser_Id(currentUserId);
         var designerOpt = designerRepository.findByUser_Id(currentUserId);
@@ -107,15 +109,25 @@ public class ChatRoomService {
         /* 채팅방 수집 */
         List<ChatRoom> rooms = new ArrayList<>();
 
+        Pageable pageable = PageRequest.of(page, size);
+
         // 현재 유저가 모델인 경우
         if (isModel) {
             Long modelId = modelOpt.get().getId();
-            rooms = chatRoomRepository.findAllByModelIdWithDesigner(modelId);
+            rooms = chatRoomRepository
+                    .findAllByModelIdOrderByLastMessageTimeDesc(modelId, pageable) // 페이지 단위로 채팅방 수집
+                    .getContent();
         }
         // 현재 유저가 디자이너인 경우
         else if (isDesigner) {
             Long designerId = designerOpt.get().getId();
-            rooms = chatRoomRepository.findAllByDesignerIdWithModel(designerId);
+            rooms = chatRoomRepository
+                    .findAllByDesignerIdOrderByLastMessageTimeDesc(designerId, pageable) // 페이지 단위로 채팅방 수집
+                    .getContent();
+        }
+
+        if (rooms.isEmpty()) {
+            return List.of();
         }
 
         // 모든 채팅방에 대한 마지막 메시지를 한 번에 조회
@@ -147,17 +159,6 @@ public class ChatRoomService {
                     .build());
         }
 
-        // 마지막 메세지 시간 기준으로 채팅방 응답 정렬(최신이 위로)
-        result.sort((a, b) -> {
-            var t1 = a.getLastMessageTime();
-            var t2 = b.getLastMessageTime();
-
-            if (t1 == null && t2 == null) return 0;
-            if (t1 == null) return 1;
-            if (t2 == null) return -1;
-
-            return t2.compareTo(t1); // 내림차순
-        });
         return result;
     }
 
