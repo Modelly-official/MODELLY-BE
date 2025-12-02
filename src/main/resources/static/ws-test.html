@@ -67,6 +67,7 @@
     document.getElementById('connectBtn').onclick = () => {
         const token = document.getElementById('jwt').value.trim();
 
+        // ★ SockJS 엔드포인트: context-path 포함해서 http URL
         const socket = new SockJS('http://localhost:8080/api/ws/chat');
         stompClient = Stomp.over(socket);
 
@@ -130,7 +131,6 @@
         });
     };
 
-    // ---------- SEND TEXT MESSAGE ----------
     document.getElementById('sendBtn').onclick = () => {
         if (!stompClient) {
             return log('⚠️ 아직 CONNECT 안 됨');
