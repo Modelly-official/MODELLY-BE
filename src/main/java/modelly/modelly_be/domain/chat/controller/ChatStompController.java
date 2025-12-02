@@ -35,7 +35,7 @@ public class ChatStompController {
         AuthDetails auth = (AuthDetails) authentication.getPrincipal();
         Long currentUserId = auth.user().getId();
 
-        Chatting saved = chattingService.sendMessage(
+        SendMessageResponse response = chattingService.sendMessage(
                 currentUserId,
                 roomId,
                 request
@@ -43,7 +43,7 @@ public class ChatStompController {
 
         messagingTemplate.convertAndSend(
                 "/sub/chat/rooms/" + roomId,
-                SendMessageResponse.from(saved)
+                response
         );
 
     }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import modelly.modelly_be.domain.chat.entity.enums.MessageType;
 import modelly.modelly_be.global.entity.BaseEntity;
 
 @Entity
@@ -25,20 +26,25 @@ public class Chatting extends BaseEntity {
     @Column(name = "is_read")
     private Boolean isRead;
 
+    @Column(name = "message_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private MessageType messageType;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_room_id", nullable = false)
     private ChatRoom chatRoom;
 
     /* constructor */
-    public Chatting(Long senderId, String message, Boolean isRead, ChatRoom chatRoom) {
+    public Chatting(Long senderId, String message, Boolean isRead, MessageType messageType, ChatRoom chatRoom) {
         this.senderId = senderId;
         this.message = message;
         this.isRead = isRead;
+        this.messageType = messageType;
         this.chatRoom = chatRoom;
     }
 
     /* 정적 팩토리 메서드 */
-    public static Chatting of(Long senderId, String message, Boolean isRead, ChatRoom chatRoom) {
-        return new Chatting(senderId, message, isRead, chatRoom);
+    public static Chatting of(Long senderId, String message, Boolean isRead, MessageType messageType, ChatRoom chatRoom) {
+        return new Chatting(senderId, message, isRead, messageType, chatRoom);
     }
 }

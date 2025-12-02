@@ -10,9 +10,11 @@ import modelly.modelly_be.domain.chat.entity.Chatting;
 import modelly.modelly_be.domain.chat.service.ChatRoomService;
 import modelly.modelly_be.domain.chat.service.ChattingService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
+import modelly.modelly_be.global.s3.S3Uploader;
 import modelly.modelly_be.global.security.AuthDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,6 +25,7 @@ public class ChatController {
 
     private final ChatRoomService chatRoomService;
     private final ChattingService chattingService;
+    private final S3Uploader s3Uploader;
 
     @Operation(
             summary = "채팅방 생성 또는 기존 채팅방 조회",
@@ -107,6 +110,25 @@ public class ChatController {
                 chattingService.getChatRoomDetail(currentUserId, roomId, cursorMessageId, size);
 
         return ApiResponse.onSuccess(response);
+    }
+
+    @PostMapping("/chat/rooms/{roomId}/images")
+    public ApiResponse<List<String>> uploadChatImages(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long roomId,
+            @RequestPart("files") List<MultipartFile> files
+    ) {
+        Long currentUserId = auth.user().getId();
+
+        // 방에 유저가 참여 중인지 검증
+        chatRoomService.validateParticipation(currentUserId, roomId);
+
+        // chat 폴더 아래 저장
+        List<String> urls = files.stream()
+                .map(file -> s3Uploader.upload(file, "chat"))
+                .toList();
+
+        return ApiResponse.onSuccess(urls);
     }
 }
 

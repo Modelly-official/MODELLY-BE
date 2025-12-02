@@ -33,14 +33,18 @@
 <p><b>2. 방 ID</b></p>
 <input id="roomId" value="1">
 
-<p><b>메시지 내용</b></p>
+<p><b>텍스트 메시지 내용</b></p>
 <input id="message" value="SockJS + JWT 테스트입니다">
+
+<p><b>이미지 파일 (여러 장 선택 가능)</b></p>
+<input id="images" type="file" accept="image/*" multiple>
 
 <br>
 <button id="connectBtn">CONNECT</button>
 <button id="disconnectBtn" disabled>DISCONNECT</button>
 <button id="subscribeBtn" disabled>SUBSCRIBE</button>
-<button id="sendBtn" disabled>SEND MESSAGE</button>
+<button id="sendBtn" disabled>SEND TEXT MESSAGE</button>
+<button id="sendImageBtn" disabled>SEND IMAGE MESSAGE</button>
 
 <h3>로그</h3>
 <div id="log"></div>
@@ -55,10 +59,10 @@
         console.log(msg);
     }
 
+    // ---------- CONNECT ----------
     document.getElementById('connectBtn').onclick = () => {
         const token = document.getElementById('jwt').value.trim();
 
-        // ★ SockJS 엔드포인트: context-path 포함해서 http URL
         const socket = new SockJS('http://localhost:8080/api/ws/chat');
         stompClient = Stomp.over(socket);
 
@@ -72,6 +76,7 @@
                 document.getElementById('disconnectBtn').disabled = false;
                 document.getElementById('subscribeBtn').disabled = false;
                 document.getElementById('sendBtn').disabled = false;
+                document.getElementById('sendImageBtn').disabled = false;
             },
             error => {
                 log('❌ CONNECTION ERROR');
@@ -80,6 +85,7 @@
         );
     };
 
+    // ---------- DISCONNECT ----------
     document.getElementById('disconnectBtn').onclick = () => {
         if (stompClient) {
             stompClient.disconnect(() => {
@@ -89,8 +95,10 @@
         document.getElementById('disconnectBtn').disabled = true;
         document.getElementById('subscribeBtn').disabled = true;
         document.getElementById('sendBtn').disabled = true;
+        document.getElementById('sendImageBtn').disabled = true;
     };
 
+    // ---------- SUBSCRIBE ----------
     document.getElementById('subscribeBtn').onclick = () => {
         if (!stompClient) {
             return log('⚠️ 아직 CONNECT 안 됨');
@@ -105,6 +113,7 @@
         });
     };
 
+    // ---------- SEND TEXT MESSAGE ----------
     document.getElementById('sendBtn').onclick = () => {
         if (!stompClient) {
             return log('⚠️ 아직 CONNECT 안 됨');
@@ -113,11 +122,83 @@
         const dest = '/pub/chat/rooms/' + roomId;
         const msg = document.getElementById('message').value;
 
-        const payload = JSON.stringify({ message: msg });
+        // 텍스트 전용 payload (messageType = TEXT 가정)
+        const payload = JSON.stringify({
+            messageType: 'TEXT',
+            message: msg
+        });
 
-        log('📤 SEND to ' + dest + ': ' + payload);
+        log('📤 SEND TEXT to ' + dest + ': ' + payload);
 
         stompClient.send(dest, { 'content-type': 'application/json' }, payload);
+    };
+
+    // ---------- SEND IMAGE MESSAGE ----------
+    // ---------- SEND IMAGE MESSAGE ----------
+    document.getElementById('sendImageBtn').onclick = async () => {
+        if (!stompClient) {
+            return log('⚠️ 아직 CONNECT 안 됨');
+        }
+
+        const filesInput = document.getElementById('images');
+        const files = filesInput.files;
+        if (!files || files.length === 0) {
+            return log('⚠️ 선택된 이미지가 없음');
+        }
+
+        const token = document.getElementById('jwt').value.trim();
+        const roomId = document.getElementById('roomId').value.trim();
+        const dest = '/pub/chat/rooms/' + roomId;
+
+        try {
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+
+            const uploadUrl = 'http://localhost:8080/api/chat/rooms/' + roomId + '/images';
+
+            log('⬆️ 업로드 요청: POST ' + uploadUrl + ' (' + files.length + ' files)');
+
+            const headers = {};
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
+            }
+
+            const res = await fetch(uploadUrl, {
+                method: 'POST',
+                headers,          // ✅ 여기에 Content-Type 넣지 않기!!
+                body: formData    // ✅ FormData면 브라우저가 multipart/form-data로 설정해줌
+            });
+
+            if (!res.ok) {
+                log('❌ 이미지 업로드 실패: HTTP ' + res.status);
+                return;
+            }
+
+            const resJson = await res.json();
+            const imageUrls = resJson.result;
+
+            log('✅ 업로드 성공, imageUrls = ' + JSON.stringify(imageUrls));
+
+            if (!imageUrls || imageUrls.length === 0) {
+                log('⚠️ 서버 응답에 imageUrls 없음');
+                return;
+            }
+
+            const payload = JSON.stringify({
+                messageType: 'IMAGE',
+                imageUrls: imageUrls
+            });
+
+            log('📤 SEND IMAGE to ' + dest + ': ' + payload);
+
+            stompClient.send(dest, { 'content-type': 'application/json' }, payload);
+
+        } catch (e) {
+            console.error(e);
+            log('❌ 이미지 업로드/전송 중 에러: ' + e);
+        }
     };
 </script>
 

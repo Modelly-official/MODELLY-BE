@@ -153,6 +153,7 @@ public class ChatRoomService {
                     .otherUserId(opponent.getUserId())
                     .name(opponent.getName())
                     .profileImageUrl(opponent.getProfileImageUrl())
+                    .messageType(last != null ? last.getMessageType() : null)
                     .lastMessage(last != null ? last.getMessage() : null)
                     .lastMessageTime(last != null ? last.getCreatedAt() : null)
                     .role(opponent.getRole())
@@ -197,5 +198,18 @@ public class ChatRoomService {
                 .profileImageUrl(opponentProfileImageUrl)
                 .role(opponentRole)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public void validateParticipation(Long userId, Long roomId) {
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_CHAT_ROOM));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+
+        if (!room.isParticipant(user)) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
     }
 }
