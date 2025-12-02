@@ -22,6 +22,9 @@ public enum ErrorStatus implements BaseErrorCode {
     // User
     NOT_FOUND_USER(HttpStatus.NOT_FOUND, "USER404", "해당 유저를 찾을 수 없습니다."),
 
+    // Model
+    NOT_FOUND_MODEL(HttpStatus.NOT_FOUND, "MODEL404", "해당 모델을 찾을 수 없습니다."),
+
     //Designer
     NOT_FOUND_DESIGNER(HttpStatus.NOT_FOUND, "DESIGNER404", "해당 디자이너를 찾을 수 없습니다."),
 
@@ -48,7 +51,12 @@ public enum ErrorStatus implements BaseErrorCode {
     //Recruitment
     NOT_FOUND_RECRUITMENT(HttpStatus.NOT_FOUND,"RECRUITMENT404", "공고를 찾을 수 없습니다."),
     FORBIDDEN_DELETE_OR_MODIFY_RECRUITMENT(HttpStatus.FORBIDDEN, "RECRUITMENT403", "작성자만 공고 삭제 및 수정이 가능합니다."),
-    CAN_NOT_RECRUITMENT_DELETE_OR_MODIFY(HttpStatus.CONFLICT, "RECRUITMENT409", "현재 진행중이거나 확정된 예약이 있어 삭제 및 수정이 불가능합니다.");
+    CAN_NOT_RECRUITMENT_DELETE_OR_MODIFY(HttpStatus.CONFLICT, "RECRUITMENT409", "현재 진행중이거나 확정된 예약이 있어 삭제 및 수정이 불가능합니다."),
+
+    // 채팅
+    INVALID_CHATROOM(HttpStatus.BAD_REQUEST, "CHAT400", "채팅방 생성이 불가능합니다."),
+    NOT_FOUND_CHAT_ROOM(HttpStatus.NOT_FOUND, "CHAT404", "채팅방이 존재하지 않습니다."),
+    ;
 
     private final HttpStatus httpStatus;
     private final String code;
