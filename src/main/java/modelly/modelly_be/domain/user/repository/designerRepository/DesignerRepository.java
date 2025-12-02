@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface DesignerRepository extends JpaRepository<Designer, Long>, DesignerRepositoryCustom {
     boolean existsByUser_Id(Long userId);
 
+    Optional<Designer> findByUser_Id(Long userId);
+
     Optional<Designer> findByUser(User user);
 
 

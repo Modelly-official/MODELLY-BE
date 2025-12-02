@@ -62,6 +62,9 @@ dependencies {
 	// EMAIL
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
+	// WebSocket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
 	//QueryDSL
 	implementation("io.github.openfeign.querydsl:querydsl-core:${queryDslVersion}")
 	implementation("io.github.openfeign.querydsl:querydsl-jpa:$queryDslVersion")
