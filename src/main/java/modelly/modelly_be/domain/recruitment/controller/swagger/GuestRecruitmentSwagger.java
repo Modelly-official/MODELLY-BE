@@ -30,7 +30,7 @@ public interface GuestRecruitmentSwagger {
             ✅ 필터링 : 카테고리, 세부카테고리별로 가능 \n
             ---
             ### Request Param \n
-            `category` : HAIR, NAIL, TATTOO, MAKEUP, ETC 중 택1 \n
+            `category` : HAIR, NAIL, TATTOO, EYELASH, ETC 중 택1 \n
             `subCategory` : 세부 카테고리입니다. \n
             - 헤어 관련: HAIR_CUT, HAIR_PERM, HAIR_COLORING \s
             - 네일 관련: ONE_COLOR, ART, PEDICURE \s
@@ -72,7 +72,7 @@ public interface GuestRecruitmentSwagger {
             ✅ 필터링 : 카테고리, 세부카테고리별로 가능 \n
             ---
             ### Request Param \n
-            `category` : HAIR, NAIL, TATTOO, MAKEUP, ETC 중 택1 \n
+            `category` : HAIR, NAIL, TATTOO, EYELASH, ETC 중 택1 \n
             `subCategory` : 세부 카테고리입니다. \n
             - 헤어 관련: HAIR_CUT, HAIR_PERM, HAIR_COLORING \s
             - 네일 관련: ONE_COLOR, ART, PEDICURE \s

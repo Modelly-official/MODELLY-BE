@@ -7,10 +7,13 @@ import modelly.modelly_be.global.entity.Category;
 @Getter
 public class DesignerExtra {
 
+    @NotNull(message = "샵 이름은 필수입니다.")
     private String shop;
 
+    @NotNull(message = "기본 주소는 필수입니다.")
     private String addressLine1;
 
+    @NotNull(message = "상세 주소는 필수입니다.")
     private String addressLine2;
 
     @NotNull(message = "카테고리는 필수입니다.")

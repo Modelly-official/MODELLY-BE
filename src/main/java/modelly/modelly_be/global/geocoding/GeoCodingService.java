@@ -41,9 +41,10 @@ public class GeoCodingService {
             if (results != null && results.length>0) {
                 LatLng coordinate = results[0].geometry.location;
                 return coordinate;
+            } else {
+                throw new GeneralException(ErrorStatus.GEOCODING_FAILED);
             }
 
-            return null;
         } catch (Exception e) {
             throw new GeneralException(ErrorStatus.GEOCODING_FAILED);
         }

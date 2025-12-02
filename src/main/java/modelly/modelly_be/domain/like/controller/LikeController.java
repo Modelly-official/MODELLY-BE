@@ -20,7 +20,7 @@ public class LikeController implements LikeSwagger {
 
     private final LikeService likeService;
 
-    @PostMapping("/likes/{recruitmentId}")
+    @PostMapping("/likes/recruitments/{recruitmentId}")
     public ApiResponse<String> recruitmentLikeOrLikeCancel(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long recruitmentId) {
         likeService.recruitmentLikeOrLikeCancel(authDetails.user(), recruitmentId);
 

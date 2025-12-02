@@ -59,17 +59,6 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
             booleanBuilder.and(qRecruitment.id.lt(cursorId));
         }
 
-        BooleanExpression likedCondition = userId != null
-                ? QRecruitmentLike.recruitmentLike.model.user.id.eq(userId)
-                .and(QRecruitmentLike.recruitmentLike.recruitment.id.eq(qRecruitment.id))
-                : null;
-
-        Expression<Boolean> isLiked = JPAExpressions
-                .select()
-                .from(QRecruitmentLike.recruitmentLike)
-                .where(likedCondition)
-                .exists();
-
         List<RecruitmentListResponseDto> dtos = queryFactory
                 .select(Projections.constructor(
                         RecruitmentListResponseDto.class,
@@ -84,11 +73,13 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                         qRecruitment.subCategory,
                         Expressions.nullExpression(Long.class),
                         Expressions.nullExpression(Double.class),
-                        isLiked,
+                        qRecruitmentLike.id.isNotNull(),
                         qRecruitment.createdAt
                 ))
                 .from(qRecruitment)
                 .join(qRecruitment.designer, qDesigner)
+                .leftJoin(qRecruitmentLike).on(qRecruitmentLike.recruitment.id.eq(qRecruitment.id)
+                        .and(userId != null ? qRecruitmentLike.model.user.id.eq(userId) : null)) //userId가 not null일때만
                 .where(booleanBuilder)
                 .orderBy(qRecruitment.createdAt.desc(), qRecruitment.id.desc())
                 .limit(size+1)
