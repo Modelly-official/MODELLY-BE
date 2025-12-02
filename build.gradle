@@ -7,6 +7,8 @@ plugins {
 group = 'modelly'
 version = '0.0.1-SNAPSHOT'
 description = 'Modelly Project'
+def queryDslVersion = "6.11"
+
 
 java {
 	toolchain {
@@ -61,10 +63,14 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
 	//QueryDSL
-	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-	annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
-	annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
-	annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+	implementation("io.github.openfeign.querydsl:querydsl-core:${queryDslVersion}")
+	implementation("io.github.openfeign.querydsl:querydsl-jpa:$queryDslVersion")
+	annotationProcessor("io.github.openfeign.querydsl:querydsl-apt:$queryDslVersion:jpa")
+
+//	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+//	annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
+//	annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+//	annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
 
 	//google geocoding
 	implementation group: 'com.google.maps', name: 'google-maps-services', version: '2.2.0'

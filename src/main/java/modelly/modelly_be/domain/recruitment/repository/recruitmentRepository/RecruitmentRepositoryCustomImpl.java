@@ -10,6 +10,7 @@ import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.jpa.JPQLSubQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -98,7 +99,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
         BooleanBuilder booleanBuilder = buildCommonWhere(searchCondition);
 
         NumberPath<Long> reviewCount = Expressions.numberPath(Long.class, "reviewCount");
-        JPQLQuery<Long> reviewCountSubQuery=JPAExpressions
+        JPQLSubQuery<Long> reviewCountSubQuery=JPAExpressions
                 .select(qReview.count())
                 .from(qReview)
                 .where(qReview.designer.eq(qRecruitment.designer));

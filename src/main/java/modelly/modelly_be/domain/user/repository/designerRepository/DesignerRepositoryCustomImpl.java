@@ -6,6 +6,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.jpa.JPQLSubQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.like.entity.QDesignerLike;
@@ -30,7 +31,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
         QDesignerLike qDesignerLike = QDesignerLike.designerLike;
 
         StringPath thumbnail = Expressions.stringPath("thumbnail");
-        JPQLQuery<String> firstImgSub = JPAExpressions
+        JPQLSubQuery<String> firstImgSub = JPAExpressions
                 .select(qPortfolio.imageUrl)
                 .from(qPortfolio)
                 .where(qPortfolio.designer.eq(qDesigner))
@@ -80,7 +81,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
         BooleanBuilder booleanBuilder = buildCommonWhere(searchCondition);
 
         StringPath thumbnail = Expressions.stringPath("thumbnail");
-        JPQLQuery<String> firstImgSub = JPAExpressions
+        JPQLSubQuery<String> firstImgSub = JPAExpressions
                 .select(qPortfolio.imageUrl)
                 .from(qPortfolio)
                 .where(qPortfolio.designer.eq(qDesigner))
@@ -90,7 +91,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
         StringExpression portfolio = Expressions.asString(ExpressionUtils.as(firstImgSub, thumbnail));
 
         NumberPath<Long> reviewCount = Expressions.numberPath(Long.class, "reviewCount");
-        JPQLQuery<Long> reviewCountSubQuery = JPAExpressions
+        JPQLSubQuery<Long> reviewCountSubQuery = JPAExpressions
                 .select(qReview.count())
                 .from(qReview)
                 .where(qReview.designer.eq(qDesigner));
@@ -137,7 +138,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
         QDesignerLike qDesignerLike = QDesignerLike.designerLike;
 
         StringPath thumbnail = Expressions.stringPath("thumbnail");
-        JPQLQuery<String> firstImgSub = JPAExpressions
+        JPQLSubQuery<String> firstImgSub = JPAExpressions
                 .select(qPortfolio.imageUrl)
                 .from(qPortfolio)
                 .where(qPortfolio.designer.eq(qDesigner))
