@@ -15,8 +15,7 @@ public class CronScheduler {
 
     private final RecruitmentService recruitmentService;
 
-    @Scheduled(fixedRate = 5000)
-    //@Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     public void updatePostStatus(){
         try{
             LocalDate today = LocalDate.now();
