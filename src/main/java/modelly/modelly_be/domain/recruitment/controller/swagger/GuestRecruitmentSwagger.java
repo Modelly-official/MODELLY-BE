@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.GuestRecruitmentResponseDto;
-import modelly.modelly_be.domain.recruitment.entity.SubCategory;
+import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
 import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.entity.Category;

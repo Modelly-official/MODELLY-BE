@@ -17,6 +17,7 @@ import modelly.modelly_be.global.utils.Coordinate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -79,5 +80,10 @@ public class RecruitmentService {
         }
 
         return recruitmentListResponseDtoList;
+    }
+
+    @Transactional
+    public int updateStatusToClosed(LocalDate today) {
+        return recruitmentRepository.updateStatusToClosed(today);
     }
 }

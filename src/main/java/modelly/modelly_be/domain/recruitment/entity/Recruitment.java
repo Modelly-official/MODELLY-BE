@@ -3,11 +3,13 @@ package modelly.modelly_be.domain.recruitment.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentRequestDto;
+import modelly.modelly_be.domain.recruitment.entity.enums.RecruitmentStatus;
+import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.entity.BaseEntity;
 import modelly.modelly_be.global.entity.Category;
-import org.springframework.data.geo.Point;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Entity
@@ -73,6 +75,12 @@ public class Recruitment extends BaseEntity {
     @OrderBy("createdAt ASC")
     @Builder.Default
     private Set<RecruitmentImage> recruitmentImages = new LinkedHashSet<>();
+
+    @Column(name = "deadline")
+    private LocalDate deadline;
+
+    @Enumerated(EnumType.STRING)
+    private RecruitmentStatus recruitmentStatus=RecruitmentStatus.OPEN;
 
     public void addDate(RecruitmentDate date) {
         recruitmentDates.add(date);

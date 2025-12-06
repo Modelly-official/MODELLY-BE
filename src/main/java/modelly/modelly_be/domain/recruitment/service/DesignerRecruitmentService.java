@@ -8,6 +8,7 @@ import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentDate;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentImage;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
+import modelly.modelly_be.domain.recruitment.entity.enums.RecruitmentStatus;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.User;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
+import java.util.Comparator;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +40,7 @@ public class DesignerRecruitmentService {
                 .designer(designer)
                 .title(recruitmentRequestDto.title())
                 .category(recruitmentRequestDto.category())
+                .subCategory(recruitmentRequestDto.subCategory())
                 .notice(recruitmentRequestDto.notice())
                 .content(recruitmentRequestDto.content())
                 .goal1(recruitmentRequestDto.goal1())
@@ -47,6 +50,13 @@ public class DesignerRecruitmentService {
                 .agreeMosaic(recruitmentRequestDto.agreeMosaic())
                 .agreeVideo(recruitmentRequestDto.agreeVideo())
                 .etc(recruitmentRequestDto.etc())
+                .deadline(
+                        recruitmentRequestDto.recruitmentSchedule().stream()
+                                .map(rs -> rs.recruitmentDate())
+                                .max(Comparator.naturalOrder())
+                                .orElseThrow(() -> new IllegalArgumentException("schedule is required"))
+                )
+                .recruitmentStatus(RecruitmentStatus.OPEN)
                 .build();
 
         recruitmentService.save(recruitment);

@@ -2,7 +2,7 @@ package modelly.modelly_be.domain.recruitment.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentSchedule;
-import modelly.modelly_be.domain.recruitment.entity.SubCategory;
+import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
 import modelly.modelly_be.global.entity.Category;
 
 import java.util.List;
