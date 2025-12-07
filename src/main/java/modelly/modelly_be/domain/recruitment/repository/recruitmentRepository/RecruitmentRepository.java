@@ -24,4 +24,5 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
             "SET r.recruitmentStatus = 'CLOSED' " +
             "WHERE r.deadline < :today AND r.recruitmentStatus = 'OPEN'")
     int updateStatusToClosed(LocalDate today);
+
 }
