@@ -147,11 +147,11 @@ public class DesignerRecruitmentService {
         }
     }
 
-    public List<DesignerRecruitmentListResponseDto> getDesginerRecruitments(User user, String month, int size) {
+    public List<DesignerRecruitmentListResponseDto> getDesginerRecruitments(User user, String month, int size, LocalDate cursorEarliestDate, Long cursorId) {
         checkDesigner(user);
         Designer designer = designerService.getByUser(user);
 
-        List<DesignerRecruitmentListResponseDto> responseDtos = recruitmentService.getByDesignerAndRecruitmentDate(designer, month, size);
+        List<DesignerRecruitmentListResponseDto> responseDtos = recruitmentService.getByDesignerAndRecruitmentDate(designer, month, size,cursorEarliestDate,cursorId);
 
         return responseDtos;
     }

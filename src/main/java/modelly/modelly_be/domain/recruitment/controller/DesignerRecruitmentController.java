@@ -16,6 +16,7 @@ import modelly.modelly_be.global.utils.ScrollUtil;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -53,9 +54,11 @@ public class DesignerRecruitmentController implements DesignerRecruitmentSwagger
     public ApiResponse<ScrollResponse<DesignerRecruitmentListResponseDto>> getMyRecruitments(
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam String month,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) LocalDate cursorEarliestDate,
+            @RequestParam(required = false) Long cursorId
     ) {
-        List<DesignerRecruitmentListResponseDto> listDtos = designerRecruitmentService.getDesginerRecruitments(authDetails.user(),month, size);
+        List<DesignerRecruitmentListResponseDto> listDtos = designerRecruitmentService.getDesginerRecruitments(authDetails.user(),month, size, cursorEarliestDate, cursorId);
 
         ScrollResponse<DesignerRecruitmentListResponseDto> responseDtos = ScrollUtil.paginate(listDtos,size);
 

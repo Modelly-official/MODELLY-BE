@@ -1,12 +1,10 @@
 package modelly.modelly_be.domain.recruitment.repository.recruitmentRepository;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.JPQLSubQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +17,6 @@ import modelly.modelly_be.domain.recruitment.entity.QRecruitmentDate;
 import modelly.modelly_be.domain.review.entity.QReview;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.QDesigner;
-import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.global.utils.SearchCondition;
 import modelly.modelly_be.global.utils.Coordinate;
 
@@ -209,7 +206,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
     }
 
     @Override
-    public List<DesignerRecruitmentListResponseDto> findRecruitmentsByDesignerAndDate(Designer designer, String month, int size) {
+    public List<DesignerRecruitmentListResponseDto> findRecruitmentsByDesignerAndDate(Designer designer, String month, int size, LocalDate cursorEarliestDate, Long cursorId) {
         QRecruitment qRecruitment = QRecruitment.recruitment;
         QRecruitmentDate qRecruitmentDate = QRecruitmentDate.recruitmentDate;
 
@@ -221,6 +218,8 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
         booleanBuilder.and(qRecruitmentDate.date.year().eq(yearMonth.getYear())
                 .and(qRecruitmentDate.date.month().eq(yearMonth.getMonthValue())));
 
+
+
         DatePath<LocalDate> earliestRecruitmentDate = Expressions.datePath(LocalDate.class, "earliestRecruitmentDate");
 
         JPQLSubQuery<LocalDate> earliestDate = JPAExpressions.select(qRecruitmentDate.date.min())
@@ -231,6 +230,12 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
 
         DateExpression<LocalDate> earliestDateExpression = Expressions.asDate(ExpressionUtils.as(earliestDate, earliestRecruitmentDate));
 
+        if (cursorEarliestDate != null && cursorId != null) {
+            booleanBuilder.and(earliestDate.gt(cursorEarliestDate)
+                    .or(earliestDate.eq(cursorEarliestDate)
+                            .and(qRecruitmentDate.recruitment.id.lt(cursorId))));
+        }
+
         return queryFactory.select(Projections.constructor(
                 DesignerRecruitmentListResponseDto.class,
                 qRecruitment.id,
@@ -240,6 +245,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                 .from(qRecruitment)
                 .join(qRecruitment.recruitmentDates, qRecruitmentDate)
                 .where(booleanBuilder)
+                .groupBy(qRecruitmentDate.recruitment.id)
                 .orderBy(earliestRecruitmentDate.asc(), qRecruitment.id.desc())
                 .limit(size+1)
                 .fetch();
