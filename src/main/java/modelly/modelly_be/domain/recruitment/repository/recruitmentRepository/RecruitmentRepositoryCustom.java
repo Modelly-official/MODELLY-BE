@@ -19,7 +19,6 @@ public interface RecruitmentRepositoryCustom {
 
     List<RecruitmentListResponseDto> findRecruitmentsByDistance(Long userId, SearchCondition searchCondition, Long cursorId, Double cursorDistance, int size, Coordinate userCoordinate);
 
-    List<DesignerRecruitmentListResponseDto> findRecruitmentsByDesignerAndDate(Designer designer, String month, int size);
-
+    List<DesignerRecruitmentListResponseDto> findRecruitmentsByDesignerAndDate(Designer designer, String month, int size,LocalDate cursorEarliestDate, Long cursorId);
 
 }

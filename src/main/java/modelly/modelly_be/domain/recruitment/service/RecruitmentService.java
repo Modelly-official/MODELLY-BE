@@ -90,8 +90,8 @@ public class RecruitmentService {
         return recruitmentRepository.updateStatusToClosed(today);
     }
 
-    public List<DesignerRecruitmentListResponseDto> getByDesignerAndRecruitmentDate(Designer designer, String month, int size) {
-        return recruitmentRepository.findRecruitmentsByDesignerAndDate(designer,month,size);
+    public List<DesignerRecruitmentListResponseDto> getByDesignerAndRecruitmentDate(Designer designer, String month, int size,LocalDate cursorEarliestDate, Long cursorId) {
+        return recruitmentRepository.findRecruitmentsByDesignerAndDate(designer,month,size,cursorEarliestDate,cursorId);
     }
 
 }

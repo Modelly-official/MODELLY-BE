@@ -39,6 +39,8 @@ public interface DesignerRecruitmentSwagger {
     ApiResponse<ScrollResponse<DesignerRecruitmentListResponseDto>> getMyRecruitments(
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam String month,
-            @RequestParam(defaultValue = "10") int size);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) LocalDate cursorEarliestDate,
+            @RequestParam(required = false) Long cursorId);
 
     }
