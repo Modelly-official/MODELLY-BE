@@ -14,7 +14,7 @@
         button { padding: 6px 12px; margin: 4px 2px; }
         #log {
             border: 1px solid #ccc;
-            height: 280px;
+            height: 320px;
             padding: 8px;
             white-space: pre-wrap;
             overflow-y: auto;
@@ -39,12 +39,16 @@
 <p><b>이미지 파일 (여러 장 선택 가능)</b></p>
 <input id="images" type="file" accept="image/*" multiple>
 
+<p><b>읽음 처리할 마지막 메시지 ID</b></p>
+<input id="lastReadMessageId" value="0">
+
 <br>
 <button id="connectBtn">CONNECT</button>
 <button id="disconnectBtn" disabled>DISCONNECT</button>
 <button id="subscribeBtn" disabled>SUBSCRIBE</button>
 <button id="sendBtn" disabled>SEND TEXT MESSAGE</button>
 <button id="sendImageBtn" disabled>SEND IMAGE MESSAGE</button>
+<button id="sendReadBtn" disabled>SEND READ EVENT</button>
 
 <h3>로그</h3>
 <div id="log"></div>
@@ -77,6 +81,7 @@
                 document.getElementById('subscribeBtn').disabled = false;
                 document.getElementById('sendBtn').disabled = false;
                 document.getElementById('sendImageBtn').disabled = false;
+                document.getElementById('sendReadBtn').disabled = false;
             },
             error => {
                 log('❌ CONNECTION ERROR');
@@ -96,6 +101,7 @@
         document.getElementById('subscribeBtn').disabled = true;
         document.getElementById('sendBtn').disabled = true;
         document.getElementById('sendImageBtn').disabled = true;
+        document.getElementById('sendReadBtn').disabled = true;
     };
 
     // ---------- SUBSCRIBE ----------
@@ -109,7 +115,18 @@
         log('📡 SUBSCRIBE ' + dest);
 
         stompClient.subscribe(dest, (message) => {
-            log('📥 RECEIVED from ' + dest + ': ' + message.body);
+            try {
+                const body = JSON.parse(message.body);
+                const type = body.messageType; // TEXT / IMAGE / READ
+
+                if (type === 'READ') {
+                    log('📥 [READ EVENT] ' + message.body);
+                } else {
+                    log('📥 [CHAT MESSAGE] ' + message.body);
+                }
+            } catch (e) {
+                log('📥 [RAW] ' + message.body);
+            }
         });
     };
 
@@ -122,7 +139,6 @@
         const dest = '/pub/chat/rooms/' + roomId;
         const msg = document.getElementById('message').value;
 
-        // 텍스트 전용 payload (messageType = TEXT 가정)
         const payload = JSON.stringify({
             messageType: 'TEXT',
             message: msg
@@ -133,7 +149,6 @@
         stompClient.send(dest, { 'content-type': 'application/json' }, payload);
     };
 
-    // ---------- SEND IMAGE MESSAGE ----------
     // ---------- SEND IMAGE MESSAGE ----------
     document.getElementById('sendImageBtn').onclick = async () => {
         if (!stompClient) {
@@ -167,8 +182,8 @@
 
             const res = await fetch(uploadUrl, {
                 method: 'POST',
-                headers,          // ✅ 여기에 Content-Type 넣지 않기!!
-                body: formData    // ✅ FormData면 브라우저가 multipart/form-data로 설정해줌
+                headers,
+                body: formData
             });
 
             if (!res.ok) {
@@ -199,6 +214,31 @@
             console.error(e);
             log('❌ 이미지 업로드/전송 중 에러: ' + e);
         }
+    };
+
+    // ---------- SEND READ EVENT ----------
+    document.getElementById('sendReadBtn').onclick = () => {
+        if (!stompClient) {
+            return log('⚠️ 아직 CONNECT 안 됨');
+        }
+
+        const roomId = document.getElementById('roomId').value.trim();
+        const lastReadIdStr = document.getElementById('lastReadMessageId').value.trim();
+        const lastReadId = Number(lastReadIdStr);
+
+        if (!lastReadIdStr || Number.isNaN(lastReadId)) {
+            return log('⚠️ lastReadMessageId가 올바르지 않음');
+        }
+
+        const dest = '/pub/chat/rooms/' + roomId + '/read';
+
+        const payload = JSON.stringify({
+            lastMessageId: lastReadId   // 서버에서 이 기준으로 READ 처리 + READ 이벤트 쏴줌
+        });
+
+        log('📤 SEND READ EVENT to ' + dest + ': ' + payload);
+
+        stompClient.send(dest, { 'content-type': 'application/json' }, payload);
     };
 </script>
 

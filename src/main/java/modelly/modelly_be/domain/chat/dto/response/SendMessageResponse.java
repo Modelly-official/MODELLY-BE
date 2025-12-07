@@ -20,6 +20,8 @@ public class SendMessageResponse {
     private List<String> imageUrls;
     private LocalDateTime createdAt;
 
+    private boolean isRead;
+
     public static SendMessageResponse of(Chatting chatting, List<ChattingImage> images) {
 
         List<String> urls = images.stream()
@@ -33,7 +35,8 @@ public class SendMessageResponse {
                 chatting.getMessageType(),
                 chatting.getMessage(),
                 urls,
-                chatting.getCreatedAt()
+                chatting.getCreatedAt(),
+                Boolean.TRUE.equals(chatting.getIsRead())
         );
     }
 }

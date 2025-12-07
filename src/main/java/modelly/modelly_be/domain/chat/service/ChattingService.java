@@ -13,10 +13,7 @@ import modelly.modelly_be.domain.chat.entity.enums.MessageType;
 import modelly.modelly_be.domain.chat.repository.ChatRoomRepository;
 import modelly.modelly_be.domain.chat.repository.ChattingImageRepository;
 import modelly.modelly_be.domain.chat.repository.ChattingRepository;
-import modelly.modelly_be.domain.user.entity.Designer;
-import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
-import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.domain.user.repository.UserRepository;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
@@ -101,7 +98,7 @@ public class ChattingService {
     }
 
     /* 채팅방 상세 조회 (상대 정보, 채팅 내역 등) */
-    @Transactional(readOnly = true)
+    @Transactional
     public ChatRoomDetailResponse getChatRoomDetail(
             Long currentUserId,
             Long roomId,
@@ -123,6 +120,11 @@ public class ChattingService {
         }
 
         OpponentInfoResponse opponent = chatRoomService.getOpponentInfo(room, currentUserId);
+
+        // 처음 채팅방 진입 시
+        if (cursorMessageId == null || cursorMessageId == 0) {
+            chattingRepository.markUnreadMessagesAsReadInRoom(room, currentUserId);
+        }
 
         /* --- 메세지 히스토리 관련 코드 ---- */
 
@@ -172,6 +174,7 @@ public class ChattingService {
 
         boolean hasNext = messages.size() == size; // 메세지와 반환 메세지 수가 다르다면 더이상 반환할 메세지가 없음
 
+        Long lastReadMessageId = chattingRepository.findLastReadMessageIdByRoomAndReader(room, currentUserId);
         /* 전체 응답 반환 */
         return ChatRoomDetailResponse.builder()
                 .roomId(room.getId())
@@ -179,6 +182,7 @@ public class ChattingService {
                 .messages(messageResponses)
                 .nextCursorMessageId(nextCursor)
                 .hasNext(hasNext)
+                .lastReadMessageId(lastReadMessageId)
                 .build();
     }
 }

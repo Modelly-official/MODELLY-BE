@@ -19,6 +19,8 @@ public class ChatMessageResponse {
     private List<String> imageUrls;
     private LocalDateTime createdAt;
 
+    private boolean isRead;
+
     public static ChatMessageResponse of(Chatting chatting, List<String> imageUrls) {
         return ChatMessageResponse.builder()
                 .messageId(chatting.getId())
@@ -27,6 +29,7 @@ public class ChatMessageResponse {
                 .message(chatting.getMessage())
                 .imageUrls(imageUrls)
                 .createdAt(chatting.getCreatedAt())
+                .isRead(Boolean.TRUE.equals(chatting.getIsRead()))
                 .build();
     }
 }

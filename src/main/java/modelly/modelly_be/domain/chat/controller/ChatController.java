@@ -7,9 +7,11 @@ import modelly.modelly_be.domain.chat.dto.request.OpenRoomRequest;
 import modelly.modelly_be.domain.chat.dto.request.SendMessageRequest;
 import modelly.modelly_be.domain.chat.dto.response.*;
 import modelly.modelly_be.domain.chat.entity.Chatting;
+import modelly.modelly_be.domain.chat.service.ChatReadService;
 import modelly.modelly_be.domain.chat.service.ChatRoomService;
 import modelly.modelly_be.domain.chat.service.ChattingService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
+import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.s3.S3Uploader;
 import modelly.modelly_be.global.security.AuthDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,6 +28,7 @@ public class ChatController {
     private final ChatRoomService chatRoomService;
     private final ChattingService chattingService;
     private final S3Uploader s3Uploader;
+    private final ChatReadService chatReadService;
 
     @Operation(
             summary = "채팅방 생성 또는 기존 채팅방 조회",

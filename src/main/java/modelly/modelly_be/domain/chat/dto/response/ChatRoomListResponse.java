@@ -20,8 +20,10 @@ public class ChatRoomListResponse {
     MessageType messageType;
     private String lastMessage;
     private LocalDateTime lastMessageTime;
-
+    private long unreadMessages; // 안읽은 메세지 개수
     private UserRole role; // DESIGNER or MODEL
+
+
 
     public static ChatRoomListResponse of(
             ChatRoom room,
@@ -30,6 +32,7 @@ public class ChatRoomListResponse {
             String profileImageUrl,
             MessageType messageType,
             Chatting lastChatting,
+            long unreadMessages,
             UserRole role
     ) {
         return ChatRoomListResponse.builder()
@@ -40,6 +43,7 @@ public class ChatRoomListResponse {
                 .messageType(messageType)
                 .lastMessage(lastChatting != null ? lastChatting.getMessage() : null)
                 .lastMessageTime(lastChatting != null ? lastChatting.getCreatedAt() : null)
+                .unreadMessages(unreadMessages)
                 .role(role)
                 .build();
     }
