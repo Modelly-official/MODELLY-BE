@@ -23,4 +23,7 @@ public interface LikeSwagger {
             @RequestParam(required = false) Category category,
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "20") int size);
+
+    @Operation(summary = "디자이너 찜하기 / 찜 취소하기", description = "모델이 디자이너를 찜하거나 찜을 취소할 때 사용하는 API입니다.")
+    ApiResponse<String> designerLikeOrLikeCancel(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long designerId);
 }

@@ -49,4 +49,9 @@ public class DesignerService {
 
         return designerListResponseDtoList;
     }
+
+    public Designer getById(Long designerId) {
+        return designerRepository.findById(designerId)
+                .orElseThrow(()-> new GeneralException(ErrorStatus.NOT_FOUND_DESIGNER));
+    }
 }
