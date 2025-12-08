@@ -22,9 +22,9 @@ public class ScrollUtil {
             } else if (last instanceof DesignerListResponseDto) {
                 nextCursor = ((DesignerListResponseDto) last).designerId();
             } else if (last instanceof LikeRecruitmentListResponseDto) {
-                nextCursor = ((LikeRecruitmentListResponseDto) last).recruitmentId();
+                nextCursor = ((LikeRecruitmentListResponseDto) last).recruitmentLikeId();
             } else if (last instanceof LikeDesignerListResponseDto) {
-                nextCursor = ((LikeDesignerListResponseDto) last).designerId();
+                nextCursor = ((LikeDesignerListResponseDto) last).designerLikeId();
             }
 
             else {
