@@ -5,7 +5,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import modelly.modelly_be.domain.like.dto.LikeRecruitmentListResponseDto;
+import modelly.modelly_be.domain.like.dto.response.LikeRecruitmentListResponseDto;
 import modelly.modelly_be.domain.like.entity.QRecruitmentLike;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitment;
 import modelly.modelly_be.global.entity.Category;
@@ -31,17 +31,18 @@ public class RecruitmentLikeRepositoryCustomImpl implements RecruitmentLikeRepos
         }
 
         if (cursorId != null) {
-            booleanBuilder.and(qRecruitment.id.lt(cursorId));
+            booleanBuilder.and(qRecruitmentLike.id.lt(cursorId));
         }
 
         return queryFactory.select(Projections.constructor(
                 LikeRecruitmentListResponseDto.class,
+                qRecruitmentLike.id,
                 qRecruitment.id,
                 qRecruitment.thumbnail))
                 .from(qRecruitmentLike)
                 .join(qRecruitmentLike.recruitment, qRecruitment)
                 .where(booleanBuilder)
-                .orderBy(qRecruitment.id.desc())
+                .orderBy(qRecruitmentLike.id.desc())
                 .limit(size+1)
                 .fetch();
     }

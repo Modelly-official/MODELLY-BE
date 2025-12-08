@@ -1,7 +1,8 @@
 package modelly.modelly_be.domain.like.service;
 
 import lombok.RequiredArgsConstructor;
-import modelly.modelly_be.domain.like.dto.LikeRecruitmentListResponseDto;
+import modelly.modelly_be.domain.like.dto.response.LikeDesignerListResponseDto;
+import modelly.modelly_be.domain.like.dto.response.LikeRecruitmentListResponseDto;
 import modelly.modelly_be.domain.like.entity.DesignerLike;
 import modelly.modelly_be.domain.like.entity.RecruitmentLike;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
@@ -71,5 +72,9 @@ public class LikeService {
 
             designerLikeService.save(designerLike);
         }
+    }
+
+    public List<LikeDesignerListResponseDto> getLikeDesignerList(User user, Category category, Long cursorId, int size) {
+        return designerLikeService.getLikeDesignerList(user, category, cursorId, size);
     }
 }

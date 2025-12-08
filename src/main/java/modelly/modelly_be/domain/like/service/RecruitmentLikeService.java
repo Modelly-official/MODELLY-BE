@@ -1,7 +1,7 @@
 package modelly.modelly_be.domain.like.service;
 
 import lombok.RequiredArgsConstructor;
-import modelly.modelly_be.domain.like.dto.LikeRecruitmentListResponseDto;
+import modelly.modelly_be.domain.like.dto.response.LikeRecruitmentListResponseDto;
 import modelly.modelly_be.domain.like.entity.RecruitmentLike;
 import modelly.modelly_be.domain.like.repository.recruitmentLikeRepository.RecruitmentLikeRepository;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
