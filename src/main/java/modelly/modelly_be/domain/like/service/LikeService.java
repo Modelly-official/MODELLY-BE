@@ -49,11 +49,13 @@ public class LikeService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<LikeRecruitmentListResponseDto> getLikeRecruitmentList(User user, Category category, Long cursorId, int size) {
         List<LikeRecruitmentListResponseDto> likeRecruitmentListResponseDtos = recruitmentLikeService.getLikeRecruitmentList(user,category,cursorId,size);
         return likeRecruitmentListResponseDtos;
     }
 
+    @Transactional
     public void designerLikeOrLikeCancel(User user, Long designerId) {
         Designer designer = designerService.getById(designerId);
 
@@ -74,6 +76,7 @@ public class LikeService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<LikeDesignerListResponseDto> getLikeDesignerList(User user, Category category, Long cursorId, int size) {
         return designerLikeService.getLikeDesignerList(user, category, cursorId, size);
     }

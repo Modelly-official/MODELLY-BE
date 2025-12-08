@@ -1,11 +1,13 @@
 package modelly.modelly_be.domain.like.dto.response;
 
+import modelly.modelly_be.global.entity.Category;
+
 public record LikeDesignerListResponseDto(
         Long designerLikeId,
         Long designerId,
         String designerName,
         String designerProfileImage,
-        String designerCategory,
+        Category designerCategory,
         String shopName,
         String shopAddress
 ) {
