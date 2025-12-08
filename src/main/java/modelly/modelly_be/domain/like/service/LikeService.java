@@ -51,6 +51,7 @@ public class LikeService {
 
     @Transactional(readOnly = true)
     public List<LikeRecruitmentListResponseDto> getLikeRecruitmentList(User user, Category category, Long cursorId, int size) {
+        modelService.checkModel(user);
         List<LikeRecruitmentListResponseDto> likeRecruitmentListResponseDtos = recruitmentLikeService.getLikeRecruitmentList(user,category,cursorId,size);
         return likeRecruitmentListResponseDtos;
     }
@@ -78,6 +79,7 @@ public class LikeService {
 
     @Transactional(readOnly = true)
     public List<LikeDesignerListResponseDto> getLikeDesignerList(User user, Category category, Long cursorId, int size) {
+        modelService.checkModel(user);
         return designerLikeService.getLikeDesignerList(user, category, cursorId, size);
     }
 }
