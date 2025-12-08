@@ -5,7 +5,7 @@ import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface DesignerLikeRepository extends JpaRepository<DesignerLike, Long> {
+public interface DesignerLikeRepository extends JpaRepository<DesignerLike, Long>, DesignerLikeRepositoryCustom {
 
     boolean existsByModelAndDesigner(Model model, Designer designer);
 

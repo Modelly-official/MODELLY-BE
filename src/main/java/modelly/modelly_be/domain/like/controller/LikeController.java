@@ -2,7 +2,8 @@ package modelly.modelly_be.domain.like.controller;
 
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.like.controller.swagger.LikeSwagger;
-import modelly.modelly_be.domain.like.dto.LikeRecruitmentListResponseDto;
+import modelly.modelly_be.domain.like.dto.response.LikeDesignerListResponseDto;
+import modelly.modelly_be.domain.like.dto.response.LikeRecruitmentListResponseDto;
 import modelly.modelly_be.domain.like.service.LikeService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.entity.Category;
@@ -44,6 +45,19 @@ public class LikeController implements LikeSwagger {
         likeService.designerLikeOrLikeCancel(authDetails.user(),designerId);
 
         return ApiResponse.onSuccess("디자이너 찜 / 찜 취소가 완료되었습니다.");
+    }
+
+    @GetMapping("/likes/designers")
+    public ApiResponse<ScrollResponse<LikeDesignerListResponseDto>> getLikeDesignerList(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @RequestParam(required = false) Category category,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(defaultValue = "20") int size) {
+
+        List<LikeDesignerListResponseDto> likeList = likeService.getLikeDesignerList(authDetails.user(), category, cursorId, size);
+
+        ScrollResponse<LikeDesignerListResponseDto> responseDtos = ScrollUtil.paginate(likeList,size);
+        return ApiResponse.onSuccess(responseDtos);
     }
 
 }
