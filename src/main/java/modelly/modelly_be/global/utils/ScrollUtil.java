@@ -1,7 +1,7 @@
 package modelly.modelly_be.global.utils;
 
-import modelly.modelly_be.domain.like.dto.LikeRecruitmentListResponseDto;
 import modelly.modelly_be.domain.like.dto.response.LikeDesignerListResponseDto;
+import modelly.modelly_be.domain.like.dto.response.LikeRecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
@@ -23,11 +23,11 @@ public class ScrollUtil {
             } else if (last instanceof DesignerListResponseDto) {
                 nextCursor = ((DesignerListResponseDto) last).designerId();
             } else if (last instanceof LikeRecruitmentListResponseDto) {
-                nextCursor = ((LikeRecruitmentListResponseDto) last).recruitmentId();
-            } else if (last instanceof DesignerRecruitmentListResponseDto) {
-                nextCursor = ((DesignerRecruitmentListResponseDto) last).recruitmentId();
+                nextCursor = ((LikeRecruitmentListResponseDto) last).recruitmentLikeId();
             } else if (last instanceof LikeDesignerListResponseDto) {
                 nextCursor = ((LikeDesignerListResponseDto) last).designerLikeId();
+            } else if (last instanceof DesignerRecruitmentListResponseDto) {
+                nextCursor = ((DesignerRecruitmentListResponseDto) last).recruitmentId();
             }
 
             else {

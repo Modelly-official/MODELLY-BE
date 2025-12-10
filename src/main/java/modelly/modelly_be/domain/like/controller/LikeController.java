@@ -41,7 +41,7 @@ public class LikeController implements LikeSwagger {
     }
 
     @PostMapping("/likes/designers/{designerId}")
-    public ApiResponse<String> designerLikeOrLikeCancel(AuthDetails authDetails,@PathVariable Long designerId) {
+    public ApiResponse<String> designerLikeOrLikeCancel(@AuthenticationPrincipal AuthDetails authDetails,@PathVariable Long designerId) {
         likeService.designerLikeOrLikeCancel(authDetails.user(),designerId);
 
         return ApiResponse.onSuccess("디자이너 찜 / 찜 취소가 완료되었습니다.");
