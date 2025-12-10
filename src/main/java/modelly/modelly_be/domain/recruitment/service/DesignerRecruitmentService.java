@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.recruitment.service;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.recruitment.dto.request.RecruitmentRequestDto;
 import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentRequestDto;
+import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentDate;
@@ -19,8 +20,13 @@ import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -141,5 +147,21 @@ public class DesignerRecruitmentService {
         if (!recruitment.getDesigner().equals(designer)){
             throw new GeneralException(ErrorStatus.FORBIDDEN_DELETE_OR_MODIFY_RECRUITMENT);
         }
+    }
+
+    public List<DesignerRecruitmentListResponseDto> getDesginerRecruitments(User user, String month, int size, LocalDate cursorEarliestDate, Long cursorId) {
+        YearMonth yearMonth;
+        try {
+            yearMonth = YearMonth.parse(month);
+        } catch (DateTimeParseException e) {
+            throw new GeneralException(ErrorStatus.MONTH_BAD_REQUEST);
+        }
+
+        checkDesigner(user);
+        Designer designer = designerService.getByUser(user);
+
+        List<DesignerRecruitmentListResponseDto> responseDtos = recruitmentService.getByDesignerAndRecruitmentDate(designer, yearMonth, size,cursorEarliestDate,cursorId);
+
+        return responseDtos;
     }
 }

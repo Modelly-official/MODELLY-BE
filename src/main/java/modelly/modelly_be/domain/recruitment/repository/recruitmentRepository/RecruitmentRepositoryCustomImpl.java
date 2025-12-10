@@ -1,27 +1,27 @@
 package modelly.modelly_be.domain.recruitment.repository.recruitmentRepository;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberExpression;
-import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.JPQLSubQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import modelly.modelly_be.domain.like.entity.QRecruitmentLike;
+import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitment;
+import modelly.modelly_be.domain.recruitment.entity.QRecruitmentDate;
 import modelly.modelly_be.domain.review.entity.QReview;
+import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.QDesigner;
 import modelly.modelly_be.global.utils.SearchCondition;
 import modelly.modelly_be.global.utils.Coordinate;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @Slf4j
@@ -166,6 +166,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                 Expressions.constant(pointWkt)
         );
 
+
         if (cursorId != null && cursorDistance != null) {
             booleanBuilder.and(
                     distance.gt(cursorDistance)
@@ -203,4 +204,50 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
 
         return dtos;
     }
+
+    @Override
+    public List<DesignerRecruitmentListResponseDto> findRecruitmentsByDesignerAndDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId) {
+        QRecruitment qRecruitment = QRecruitment.recruitment;
+        QRecruitmentDate qRecruitmentDate = QRecruitmentDate.recruitmentDate;
+
+
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        booleanBuilder.and(qRecruitment.designer.id.eq(designer.getId()));
+
+        booleanBuilder.and(qRecruitmentDate.date.year().eq(yearMonth.getYear())
+                .and(qRecruitmentDate.date.month().eq(yearMonth.getMonthValue())));
+
+
+
+        DatePath<LocalDate> earliestRecruitmentDate = Expressions.datePath(LocalDate.class, "earliestRecruitmentDate");
+
+        JPQLSubQuery<LocalDate> earliestDate = JPAExpressions.select(qRecruitmentDate.date.min())
+                .from(QRecruitmentDate.recruitmentDate)
+                .where(QRecruitmentDate.recruitmentDate.recruitment.eq(qRecruitment)
+                        .and(QRecruitmentDate.recruitmentDate.date.year().eq(yearMonth.getYear())
+                                .and(QRecruitmentDate.recruitmentDate.date.month().eq(yearMonth.getMonthValue()))));
+
+        DateExpression<LocalDate> earliestDateExpression = Expressions.asDate(ExpressionUtils.as(earliestDate, earliestRecruitmentDate));
+
+        if (cursorEarliestDate != null && cursorId != null) {
+            booleanBuilder.and(earliestDate.gt(cursorEarliestDate)
+                    .or(earliestDate.eq(cursorEarliestDate)
+                            .and(qRecruitmentDate.recruitment.id.lt(cursorId))));
+        }
+
+        return queryFactory.select(Projections.constructor(
+                DesignerRecruitmentListResponseDto.class,
+                qRecruitment.id,
+                qRecruitment.title,
+                earliestDateExpression
+        ))
+                .from(qRecruitment)
+                .join(qRecruitment.recruitmentDates, qRecruitmentDate)
+                .where(booleanBuilder)
+                .groupBy(qRecruitmentDate.recruitment.id)
+                .orderBy(earliestRecruitmentDate.asc(), qRecruitment.id.desc())
+                .limit(size+1)
+                .fetch();
+    }
+
 }

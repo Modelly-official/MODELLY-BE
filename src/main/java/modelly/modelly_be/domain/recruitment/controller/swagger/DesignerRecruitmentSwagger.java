@@ -9,9 +9,13 @@ import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentLis
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentResponseDto;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
+import modelly.modelly_be.global.utils.ScrollResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.time.LocalDate;
 
 @Tag(name = "디자이너 공고관련 API", description = "공고 CUD, 내 공고 리스트 조회")
 public interface DesignerRecruitmentSwagger {
@@ -25,7 +29,18 @@ public interface DesignerRecruitmentSwagger {
     @Operation(summary = "공고 삭제하기", description = "디자이너가 공고 삭제 시 사용하는 API입니다.")
     ApiResponse<String> deleteRecruitment(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long recruitmentId);
 
-//    @Operation(summary = "내 공고 리스트 조회하기.", description = "디자이너가 자신의 공고리스트를 조회할 때 사용하는 API입니다.")
-//    ApiResponse<DesignerRecruitmentListResponseDto> getMyRecruitments(@AuthenticationPrincipal AuthDetails authDetails);
+    @Operation(summary = "내 공고 리스트 조회하기.", description = """
+            디자이너가 자신의 공고리스트를 조회할 때 사용하는 API입니다. </p>
+            공고를 확인하는 해당 달을 request Param으로 같이 보내주세요. </p>
+            
+            ### Request Param </p>
+            `month` : 공고를 확인하는 해당 달 ex) 2025-10
+            """)
+    ApiResponse<ScrollResponse<DesignerRecruitmentListResponseDto>> getMyRecruitments(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @RequestParam String month,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) LocalDate cursorEarliestDate,
+            @RequestParam(required = false) Long cursorId);
 
     }

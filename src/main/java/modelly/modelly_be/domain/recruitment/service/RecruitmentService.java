@@ -3,12 +3,15 @@ package modelly.modelly_be.domain.recruitment.service;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.like.service.RecruitmentLikeService;
 import modelly.modelly_be.domain.recruitment.dto.common.CursorInformation;
+import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.GuestRecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.repository.recruitmentRepository.RecruitmentRepository;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.domain.user.dto.response.DesignerResponseDto;
+import modelly.modelly_be.domain.user.entity.Designer;
+import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.SortOption;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @Service
@@ -86,4 +90,9 @@ public class RecruitmentService {
     public int updateStatusToClosed(LocalDate today) {
         return recruitmentRepository.updateStatusToClosed(today);
     }
+
+    public List<DesignerRecruitmentListResponseDto> getByDesignerAndRecruitmentDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId) {
+        return recruitmentRepository.findRecruitmentsByDesignerAndDate(designer,yearMonth,size,cursorEarliestDate,cursorId);
+    }
+
 }
