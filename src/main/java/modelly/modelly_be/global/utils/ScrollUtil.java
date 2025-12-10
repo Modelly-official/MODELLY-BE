@@ -26,7 +26,6 @@ public class ScrollUtil {
                 nextCursor = ((LikeRecruitmentListResponseDto) last).recruitmentLikeId();
             } else if (last instanceof LikeDesignerListResponseDto) {
                 nextCursor = ((LikeDesignerListResponseDto) last).designerLikeId();
-                nextCursor = ((LikeRecruitmentListResponseDto) last).recruitmentId();
             } else if (last instanceof DesignerRecruitmentListResponseDto) {
                 nextCursor = ((DesignerRecruitmentListResponseDto) last).recruitmentId();
             }
