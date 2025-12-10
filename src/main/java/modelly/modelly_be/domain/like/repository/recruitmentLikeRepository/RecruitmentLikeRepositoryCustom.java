@@ -1,6 +1,6 @@
 package modelly.modelly_be.domain.like.repository.recruitmentLikeRepository;
 
-import modelly.modelly_be.domain.like.dto.LikeRecruitmentListResponseDto;
+import modelly.modelly_be.domain.like.dto.response.LikeRecruitmentListResponseDto;
 import modelly.modelly_be.global.entity.Category;
 
 import java.util.List;
