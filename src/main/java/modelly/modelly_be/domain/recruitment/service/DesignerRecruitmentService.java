@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -148,10 +150,17 @@ public class DesignerRecruitmentService {
     }
 
     public List<DesignerRecruitmentListResponseDto> getDesginerRecruitments(User user, String month, int size, LocalDate cursorEarliestDate, Long cursorId) {
+        YearMonth yearMonth;
+        try {
+            yearMonth = YearMonth.parse(month);
+        } catch (DateTimeParseException e) {
+            throw new GeneralException(ErrorStatus.MONTH_BAD_REQUEST);
+        }
+
         checkDesigner(user);
         Designer designer = designerService.getByUser(user);
 
-        List<DesignerRecruitmentListResponseDto> responseDtos = recruitmentService.getByDesignerAndRecruitmentDate(designer, month, size,cursorEarliestDate,cursorId);
+        List<DesignerRecruitmentListResponseDto> responseDtos = recruitmentService.getByDesignerAndRecruitmentDate(designer, yearMonth, size,cursorEarliestDate,cursorId);
 
         return responseDtos;
     }
