@@ -69,7 +69,8 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_FOUND_RESERVATION(HttpStatus.NOT_FOUND, "RESERVATION404", "예약이 존재하지 않습니다."),
 
     //Review
-    REVIEW_ALREADY_EXIST(HttpStatus.CONFLICT, "REVIEW409", "해당 예약에 대한 리뷰를 이미 작성하셨습니다.")
+    REVIEW_ALREADY_EXIST(HttpStatus.CONFLICT, "REVIEW409", "해당 예약에 대한 리뷰를 이미 작성하셨습니다."),
+    NOT_FOUND_REVIEW(HttpStatus.NOT_FOUND, "REVIEW404", "리뷰가 존재하지 않습니다."),
 
     ;
 

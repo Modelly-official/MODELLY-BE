@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.review.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
+import modelly.modelly_be.domain.review.dto.request.ReviewUpdateRequestDto;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.global.entity.BaseEntity;
@@ -53,5 +54,10 @@ public class Review extends BaseEntity {
 
     public void addReviewImage(ReviewImage reviewImage) {
         this.reviewImages.add(reviewImage);
+    }
+
+    public void update(ReviewUpdateRequestDto requestDto) {
+        if (requestDto.rating() != -1 && requestDto.rating() > 0) rating = requestDto.rating();
+        if (requestDto.content() != null) content = requestDto.content();
     }
 }

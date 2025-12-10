@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.domain.review.dto.request.ReviewCreateRequestDto;
+import modelly.modelly_be.domain.review.dto.request.ReviewUpdateRequestDto;
 import modelly.modelly_be.domain.review.entity.Review;
 import modelly.modelly_be.domain.review.entity.ReviewImage;
 import modelly.modelly_be.domain.review.repository.ReviewRepository;
@@ -66,6 +67,32 @@ public class ReviewService {
 
     public boolean existReview(Model model, Reservation reservation) {
         return reviewRepository.existsByModelAndReservation(model, reservation);
+    }
+
+    public Review updateReview(User user, Long reviewId, ReviewUpdateRequestDto requestDto) {
+        modelService.checkModel(user);
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_REVIEW));
+
+        review.update(requestDto);
+        reviewRepository.save(review);
+
+        //기존에 있던 리뷰 이미지들 삭제 후, 다시 생성
+        if (requestDto.imageUrlList() != null){
+            review.getReviewImages().clear();
+
+            for (String imageUrl : requestDto.imageUrlList()){
+                ReviewImage reviewImage = ReviewImage.builder()
+                        .imageUrl(imageUrl)
+                        .review(review)
+                        .build();
+
+                review.addReviewImage(reviewImage);
+            }
+        }
+
+        return review;
     }
 
 }
