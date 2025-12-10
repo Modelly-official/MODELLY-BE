@@ -22,11 +22,11 @@ public enum ErrorStatus implements BaseErrorCode {
     // User
     NOT_FOUND_USER(HttpStatus.NOT_FOUND, "USER404", "해당 유저를 찾을 수 없습니다."),
 
-    // Model
-    NOT_FOUND_MODEL(HttpStatus.NOT_FOUND, "MODEL404", "해당 모델을 찾을 수 없습니다."),
-
     //Designer
     NOT_FOUND_DESIGNER(HttpStatus.NOT_FOUND, "DESIGNER404", "해당 디자이너를 찾을 수 없습니다."),
+
+    //Model
+    NOT_FOUND_MODEL(HttpStatus.NOT_FOUND, "MODEL404", "해당 모델을 찾을 수 없습니다."),
 
     // Token, JWT
     NOT_FOUND_TOKEN(HttpStatus.NOT_FOUND,"TOKEN404","토큰을 찾을 수 없습니다."),
@@ -60,6 +60,7 @@ public enum ErrorStatus implements BaseErrorCode {
     //무한스크롤 관련 에러
     SCROLL_ERROR(HttpStatus.BAD_REQUEST, "SCROLL400", "무한스크롤 변환을 지원하지않는 엔티티입니다. ScrollUtil에 엔티티를 추가해주세요"),
     CURSOR_BAD_REQUEST(HttpStatus.BAD_REQUEST, "CURSOR400", "커서 정보가 유효하지않습니다. 형식에 맞춰서 다시 입력해주세요."),
+    MONTH_BAD_REQUEST(HttpStatus.BAD_REQUEST, "MONTH400","잘못된 month 형식입니다. 형식은 yyyy-MM 이어야 합니다"),
 
     GEOCODING_FAILED(HttpStatus.BAD_REQUEST, "GEOCODING400", "지오코딩에 실패하였습니다. 주소를 정확히 입력해주세요."),
 

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @Service
@@ -90,8 +91,8 @@ public class RecruitmentService {
         return recruitmentRepository.updateStatusToClosed(today);
     }
 
-    public List<DesignerRecruitmentListResponseDto> getByDesignerAndRecruitmentDate(Designer designer, String month, int size,LocalDate cursorEarliestDate, Long cursorId) {
-        return recruitmentRepository.findRecruitmentsByDesignerAndDate(designer,month,size,cursorEarliestDate,cursorId);
+    public List<DesignerRecruitmentListResponseDto> getByDesignerAndRecruitmentDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId) {
+        return recruitmentRepository.findRecruitmentsByDesignerAndDate(designer,yearMonth,size,cursorEarliestDate,cursorId);
     }
 
 }

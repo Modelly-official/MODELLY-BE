@@ -206,11 +206,10 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
     }
 
     @Override
-    public List<DesignerRecruitmentListResponseDto> findRecruitmentsByDesignerAndDate(Designer designer, String month, int size, LocalDate cursorEarliestDate, Long cursorId) {
+    public List<DesignerRecruitmentListResponseDto> findRecruitmentsByDesignerAndDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId) {
         QRecruitment qRecruitment = QRecruitment.recruitment;
         QRecruitmentDate qRecruitmentDate = QRecruitmentDate.recruitmentDate;
 
-        YearMonth yearMonth = YearMonth.parse(month);
 
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         booleanBuilder.and(qRecruitment.designer.id.eq(designer.getId()));

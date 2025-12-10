@@ -8,6 +8,7 @@ import modelly.modelly_be.global.utils.SearchCondition;
 import modelly.modelly_be.global.utils.Coordinate;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 public interface RecruitmentRepositoryCustom {
@@ -19,6 +20,6 @@ public interface RecruitmentRepositoryCustom {
 
     List<RecruitmentListResponseDto> findRecruitmentsByDistance(Long userId, SearchCondition searchCondition, Long cursorId, Double cursorDistance, int size, Coordinate userCoordinate);
 
-    List<DesignerRecruitmentListResponseDto> findRecruitmentsByDesignerAndDate(Designer designer, String month, int size,LocalDate cursorEarliestDate, Long cursorId);
+    List<DesignerRecruitmentListResponseDto> findRecruitmentsByDesignerAndDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId);
 
 }
