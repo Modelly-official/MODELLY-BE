@@ -30,6 +30,10 @@ public class ChatReadService {
             throw new GeneralException(ErrorStatus._FORBIDDEN);
         }
 
+        if (lastMessageId == null) {
+            throw new GeneralException(ErrorStatus._BAD_REQUEST);
+        }
+
         // id <= lastMessageId 인 상대 메세지들을 한 번에 읽음 처리
         chattingRepository.readMessagesUpToId(room, currentUserId, lastMessageId);
 

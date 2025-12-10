@@ -67,6 +67,11 @@ public class ChatStompController {
         Long lastReadMessageId =
                 chatReadService.readMessagesUpToId(currentUserId, roomId, request.getLastMessageId());
 
+        // 읽은 메시지가 없으면 이벤트 보내지 않음
+        if (lastReadMessageId == null) {
+            return;
+        }
+
         // 상대에게 읽음 이벤트 브로드캐스트
         ReadNotificationResponse payload =
                 new ReadNotificationResponse(roomId, MessageType.READ, currentUserId, lastReadMessageId);

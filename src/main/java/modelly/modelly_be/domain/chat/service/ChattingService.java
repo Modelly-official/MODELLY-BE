@@ -61,17 +61,26 @@ public class ChattingService {
         }
 
 
-        String messageContent;
+        String messageContent = null;
         if (type == MessageType.TEXT) {
             messageContent = request.getMessage();
             if (messageContent == null || messageContent.isBlank()) {
                 throw new GeneralException(ErrorStatus._BAD_REQUEST);
             }
-        } else { // IMAGE
+        } else if (type == MessageType.IMAGE) {
             if (request.getImageUrls() == null || request.getImageUrls().isEmpty()) {
                 throw new GeneralException(ErrorStatus._BAD_REQUEST);
             }
-            messageContent = "이미지";
+
+            boolean hasInvalidUrl = request.getImageUrls().stream()
+                    .anyMatch(url -> url == null || url.isBlank());
+            if (hasInvalidUrl) {
+                throw new GeneralException(ErrorStatus._BAD_REQUEST);
+            }
+
+        } else {
+            // 지원하지 않는 타입 방어
+            throw new GeneralException(ErrorStatus._BAD_REQUEST);
         }
 
         // Chatting 저장

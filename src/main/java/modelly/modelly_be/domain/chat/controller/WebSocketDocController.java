@@ -20,7 +20,7 @@ public class WebSocketDocController implements WebSocketSwagger {
     }
 
     @PostMapping("/read")
-    public ReadNotificationResponse docRead(ReadUpToRequest request) {
+    public ReadNotificationResponse docRead(@RequestBody ReadUpToRequest request) {
         throw new UnsupportedOperationException("문서용 엔드포인트입니다. 실제 읽음 처리는 STOMP WebSocket을 사용하세요.");
     }
 

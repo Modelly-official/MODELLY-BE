@@ -28,6 +28,13 @@ public class S3Uploader {
     private String region;
 
     public String upload(MultipartFile file, String dirName) {
+
+        // 파일 크기 검증 (10MB)
+        long maxSize = 10 * 1024 * 1024;
+        if (file.getSize() > maxSize) {
+            throw new GeneralException(ErrorStatus.FILE_TOO_LARGE);
+        }
+
         String originalFilename = file.getOriginalFilename();
         String ext = "";
 

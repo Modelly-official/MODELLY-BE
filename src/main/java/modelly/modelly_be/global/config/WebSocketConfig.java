@@ -19,7 +19,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final StompAuthChannelInterceptor stompAuthChannelInterceptor;
 
-    @Value("${websocket.allowed-origins}")
+    @Value("#{'${websocket.allowed-origins}'.split(',')}")
     private List<String> allowedOrigins;
 
     @Override

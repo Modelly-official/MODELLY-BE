@@ -56,6 +56,8 @@ public enum ErrorStatus implements BaseErrorCode {
     // 채팅
     INVALID_CHATROOM(HttpStatus.BAD_REQUEST, "CHAT400", "채팅방 생성이 불가능합니다."),
     NOT_FOUND_CHAT_ROOM(HttpStatus.NOT_FOUND, "CHAT404", "채팅방이 존재하지 않습니다."),
+    TOO_MANY_FILES(HttpStatus.BAD_REQUEST, "CHAT400", "첨부한 이미지 파일이 너무 많습니다."),
+    FILE_TOO_LARGE(HttpStatus.BAD_REQUEST, "CHAT400", "첨부한 파일의 크기가 너무 큽니다."),
 
     //무한스크롤 관련 에러
     SCROLL_ERROR(HttpStatus.BAD_REQUEST, "SCROLL400", "무한스크롤 변환을 지원하지않는 엔티티입니다. ScrollUtil에 엔티티를 추가해주세요"),
