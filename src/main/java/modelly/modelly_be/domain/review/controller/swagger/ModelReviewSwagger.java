@@ -1,0 +1,27 @@
+package modelly.modelly_be.domain.review.controller.swagger;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import modelly.modelly_be.domain.review.dto.request.ReviewCreateRequestDto;
+import modelly.modelly_be.domain.review.dto.response.ReviewResponseDto;
+import modelly.modelly_be.global.apiPayload.ApiResponse;
+import modelly.modelly_be.global.security.AuthDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+
+@Tag(name = "모델뷰에서의 리뷰 도메인 관련 API", description = "리뷰 작성 / 수정 / 삭제, 내가 작성한 리뷰 조회")
+public interface ModelReviewSwagger {
+
+    @Operation(summary = "리뷰 작성 API", description = """
+            모델이 리뷰를 작성할 때 사용하는 API입니다. \n
+            `rating`: 별점 (ex. 5.0, 3.5 ...) \n
+            `content`: 리뷰 내용으로, 10자 이상 1000자 이하여야합니다. \n
+            `imageUrlList`: 리뷰 사진으로 최대 3장까지만 가능합니다. \n
+            """)
+    ApiResponse<ReviewResponseDto> createReview(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @PathVariable Long reservationId,
+            @RequestBody @Valid ReviewCreateRequestDto reviewCreateRequestDto);
+}

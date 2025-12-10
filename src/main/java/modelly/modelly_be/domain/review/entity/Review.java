@@ -14,16 +14,19 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor
+@Table(name = "review_id",
+        uniqueConstraints =
+        @UniqueConstraint(columnNames = {"recruitment_id", "model_id"}))
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Review extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "review_id")
     private Long id;
 
-    @Column(name = "summary", nullable = false, length = 254)
-    private String summary;
+//    @Column(name = "summary", nullable = false, length = 254)
+//    private String summary;
 
-    @Column(name = "content", nullable = false, columnDefinition = "text")
+    @Column(name = "content", nullable = false, length = 1000)
     private String content;
 
     @Column(name = "is_fixed", nullable = false)
@@ -41,8 +44,14 @@ public class Review extends BaseEntity {
     @JoinColumn(name = "model_id")
     private Model model;
 
+    @Column(name = "rating", nullable = false)
+    private float rating;
+
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ReviewImage> reviewImages = new ArrayList<>();
 
+    public void addReviewImage(ReviewImage reviewImage) {
+        this.reviewImages.add(reviewImage);
+    }
 }
