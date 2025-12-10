@@ -1,11 +1,12 @@
 package modelly.modelly_be.domain.review.service;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.domain.review.dto.request.ReviewCreateRequestDto;
 import modelly.modelly_be.domain.review.dto.request.ReviewUpdateRequestDto;
+import modelly.modelly_be.domain.review.entity.Reply;
 import modelly.modelly_be.domain.review.entity.Review;
 import modelly.modelly_be.domain.review.entity.ReviewImage;
 import modelly.modelly_be.domain.review.repository.ReviewRepository;
@@ -18,12 +19,17 @@ import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
 
     private final ModelService modelService;
     private final ReservationService reservationService;
+    private final ReplyService replyService;
     private final ReviewRepository reviewRepository;
 
     @Transactional
@@ -33,6 +39,11 @@ public class ReviewService {
 
         Reservation reservation = reservationService.getById(reservationId);
         Designer designer = reservation.getDesigner();
+
+        //완료된 예약에 대해서만 작성가능하도록 체크
+        if (reservation.getEndTime().isAfter(LocalDateTime.now(ZoneId.of("Asia/Seoul")))){
+            throw new GeneralException(ErrorStatus.RESERVATION_NOT_COMPLETED);
+        }
 
         if (existReview(model, reservation)){
             throw new GeneralException(ErrorStatus.REVIEW_ALREADY_EXIST);
@@ -69,6 +80,7 @@ public class ReviewService {
         return reviewRepository.existsByModelAndReservation(model, reservation);
     }
 
+    @Transactional
     public Review updateReview(User user, Long reviewId, ReviewUpdateRequestDto requestDto) {
         modelService.checkModel(user);
 
@@ -95,4 +107,20 @@ public class ReviewService {
         return review;
     }
 
+    @Transactional
+    public void deleteReview(User user, Long reviewId) {
+        modelService.checkModel(user);
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_REVIEW));
+
+       Reply reply = replyService.getByReview(review)
+                       .orElse(null);
+
+       if (reply != null){
+           replyService.delete(reply);
+       }
+
+        reviewRepository.delete(review);
+    }
 }

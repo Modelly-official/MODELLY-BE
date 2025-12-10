@@ -37,5 +37,12 @@ public class ModelReviewController implements ModelReviewSwagger {
         return ApiResponse.onSuccess(responseDto);
     }
 
+    @DeleteMapping("/reviews/{reviewId}")
+    public ApiResponse<String> deleteReview(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long reviewId) {
+
+        reviewService.deleteReview(authDetails.user(), reviewId);
+
+        return ApiResponse.onSuccess("리뷰가 삭제되었습니다.");
+    }
 
 }

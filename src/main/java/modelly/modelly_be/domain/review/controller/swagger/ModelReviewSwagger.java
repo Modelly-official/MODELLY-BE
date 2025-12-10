@@ -36,4 +36,7 @@ public interface ModelReviewSwagger {
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long reviewId,
             @RequestBody @Valid ReviewUpdateRequestDto reviewUpdateRequestDto);
+
+    @Operation(summary = "리뷰 삭제하기 API", description = "모델이 리뷰를 삭제할 때 사용하는 API입니다.")
+    ApiResponse<String> deleteReview(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long reviewId);
 }

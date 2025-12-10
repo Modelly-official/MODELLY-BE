@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor
-@Table(name = "review_id",
+@Table(name = "review",
         uniqueConstraints =
         @UniqueConstraint(columnNames = {"recruitment_id", "model_id"}))
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -57,7 +57,7 @@ public class Review extends BaseEntity {
     }
 
     public void update(ReviewUpdateRequestDto requestDto) {
-        if (requestDto.rating() != -1 && requestDto.rating() > 0) rating = requestDto.rating();
+        if (requestDto.rating() != -1 && requestDto.rating() >= 0) rating = requestDto.rating();
         if (requestDto.content() != null) content = requestDto.content();
     }
 }
