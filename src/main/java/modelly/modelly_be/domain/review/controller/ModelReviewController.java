@@ -29,7 +29,7 @@ public class ModelReviewController implements ModelReviewSwagger {
     public ApiResponse<ReviewResponseDto> createReview(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long reservationId, @RequestBody @Valid ReviewCreateRequestDto reviewCreateRequestDto) {
         Review review = reviewService.createReview(authDetails.user(), reservationId, reviewCreateRequestDto);
 
-        ReviewResponseDto responseDto = ReviewResponseDto.of(review);
+        ReviewResponseDto responseDto = ReviewResponseDto.of(review, true);
 
         return ApiResponse.onSuccess(responseDto);
     }
@@ -38,7 +38,7 @@ public class ModelReviewController implements ModelReviewSwagger {
     public ApiResponse<ReviewResponseDto> updateReview(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long reviewId, @RequestBody @Valid ReviewUpdateRequestDto reviewUpdateRequestDto) {
         Review review = reviewService.updateReview(authDetails.user(), reviewId, reviewUpdateRequestDto);
 
-        ReviewResponseDto responseDto = ReviewResponseDto.of(review);
+        ReviewResponseDto responseDto = ReviewResponseDto.of(review, true);
 
         return ApiResponse.onSuccess(responseDto);
     }

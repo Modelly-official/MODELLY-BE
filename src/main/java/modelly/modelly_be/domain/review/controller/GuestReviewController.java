@@ -3,7 +3,9 @@ package modelly.modelly_be.domain.review.controller;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.review.controller.swagger.GuestReviewSwagger;
 import modelly.modelly_be.domain.review.dto.response.ReviewListResponseDto;
+import modelly.modelly_be.domain.review.dto.response.ReviewResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReviewThumbnailListResponseDto;
+import modelly.modelly_be.domain.review.entity.Review;
 import modelly.modelly_be.domain.review.service.ReviewService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
@@ -50,5 +52,17 @@ public class GuestReviewController implements GuestReviewSwagger {
         ScrollResponse<ReviewThumbnailListResponseDto> responseDtos = ScrollUtil.paginate(dtoList, size);
 
         return ApiResponse.onSuccess(responseDtos);
+    }
+
+    @GetMapping("/reviews/{reviewId}")
+    public ApiResponse<ReviewResponseDto> getDesignerReviewList(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @PathVariable Long reviewId) {
+
+        Long userId = (authDetails != null ? authDetails.user().getId() : null);
+
+        ReviewResponseDto responseDto = reviewService.getReview(userId, reviewId);
+
+        return ApiResponse.onSuccess(responseDto);
     }
 }

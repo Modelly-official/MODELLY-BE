@@ -8,10 +8,11 @@ public record ReviewResponseDto(
         Long reviewId,
         float rating,
         String content,
-        List<String> imageUrls
+        List<String> imageUrls,
+        boolean isMine
 ) {
 
-    public static ReviewResponseDto of(Review review) {
+    public static ReviewResponseDto of(Review review, boolean isMine) {
 
         List<String> imageUrls = review.getReviewImages().stream()
                 .map(ReviewImage::getImageUrl)
@@ -21,6 +22,7 @@ public record ReviewResponseDto(
                 review.getId(),
                 review.getRating(),
                 review.getContent(),
-                imageUrls);
+                imageUrls,
+                isMine);
     }
 }

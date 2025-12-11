@@ -8,6 +8,7 @@ import modelly.modelly_be.domain.review.dto.request.ReviewCreateRequestDto;
 import modelly.modelly_be.domain.review.dto.request.ReviewUpdateRequestDto;
 import modelly.modelly_be.domain.review.dto.response.MyReviewListResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReviewListResponseDto;
+import modelly.modelly_be.domain.review.dto.response.ReviewResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReviewThumbnailListResponseDto;
 import modelly.modelly_be.domain.review.entity.Reply;
 import modelly.modelly_be.domain.review.entity.Review;
@@ -91,8 +92,7 @@ public class ReviewService {
     @Transactional
     public Review updateReview(User user, Long reviewId, ReviewUpdateRequestDto requestDto) {
 
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_REVIEW));
+        Review review = getById(reviewId);
 
         review.update(requestDto);
         reviewRepository.save(review);
@@ -117,8 +117,7 @@ public class ReviewService {
     @Transactional
     public void deleteReview(User user, Long reviewId) {
 
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_REVIEW));
+        Review review = getById(reviewId);
 
        Reply reply = replyService.getByReview(review)
                        .orElse(null);
@@ -172,5 +171,24 @@ public class ReviewService {
         Slice<ReviewThumbnailListResponseDto> dtoSlice = reviewRepository.findThumbNailByDesignerAndIdLessThanOrderByCreatedAtDesc(designer, cursorId, pageable);
 
         return dtoSlice.getContent();
+    }
+
+    @Transactional(readOnly = true)
+    public ReviewResponseDto getReview(Long userId, Long reviewId) {
+        Review review = getById(reviewId);
+
+        boolean isMine = false;
+        if (userId != null){
+            Model model = modelService.getModelByUserId(userId);
+
+            isMine = review.getModel().getId().equals(model.getId());
+        }
+
+        return ReviewResponseDto.of(review, isMine);
+    }
+
+    public Review getById(Long reviewId) {
+        return reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_REVIEW));
     }
 }

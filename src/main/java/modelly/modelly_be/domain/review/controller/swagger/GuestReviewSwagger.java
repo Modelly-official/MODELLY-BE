@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.review.controller.swagger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import modelly.modelly_be.domain.review.dto.response.ReviewListResponseDto;
+import modelly.modelly_be.domain.review.dto.response.ReviewResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReviewThumbnailListResponseDto;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
@@ -35,4 +36,10 @@ public interface GuestReviewSwagger {
             @PathVariable Long designerId,
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "10") int size);
+
+    @Operation(summary = "리뷰 단건 조회 API", description = "특정 리뷰를 조회할 때 사용하는 API입니다.")
+    ApiResponse<ReviewResponseDto> getDesignerReviewList(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @PathVariable Long reviewId);
+
 }
