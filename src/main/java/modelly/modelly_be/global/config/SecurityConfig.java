@@ -1,6 +1,7 @@
 package modelly.modelly_be.global.config;
 
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.global.security.jwt.JwtAuthenticationFilter;
 import modelly.modelly_be.global.security.jwt.JwtExceptionFilter;
 import org.springframework.context.annotation.Bean;
@@ -53,8 +54,18 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/logout",
                                 "/auth/validate",
-                                "/api/recruitments/**"
+                                "/api/recruitments/**",
+                                "/models/**",
+                                "/designers/**",
+                                "/chat/**",
+                                "/likes/**"
                         ).authenticated()
+                        .requestMatchers(
+                                "/models/**"
+                        ).hasRole("MODEL")
+                        .requestMatchers(
+                                "/designers/**"
+                        ).hasRole("DESIGNER")
                         .anyRequest().permitAll()
                 );
 

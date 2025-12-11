@@ -20,11 +20,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/models")
 public class ModelReviewController implements ModelReviewSwagger {
 
     private final ReviewService reviewService;
 
-    @PostMapping("/reservations/{reservationId}/reviews")
+    @PostMapping("/reviews/{reservationId}")
     public ApiResponse<ReviewResponseDto> createReview(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long reservationId, @RequestBody @Valid ReviewCreateRequestDto reviewCreateRequestDto) {
         Review review = reviewService.createReview(authDetails.user(), reservationId, reviewCreateRequestDto);
 
@@ -50,7 +51,7 @@ public class ModelReviewController implements ModelReviewSwagger {
         return ApiResponse.onSuccess("리뷰가 삭제되었습니다.");
     }
 
-    @GetMapping("/my-page/reviews")
+    @GetMapping("/reviews")
     public ApiResponse<ScrollResponse<ReviewListResponseDto>> getReviewList(
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam(required = false) Long cursorId,

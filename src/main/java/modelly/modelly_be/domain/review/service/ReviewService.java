@@ -39,7 +39,6 @@ public class ReviewService {
 
     @Transactional
     public Review createReview(User user, Long reservationId, ReviewCreateRequestDto requestDto) {
-        modelService.checkModel(user);
         Model model = modelService.getModelByUser(user);
 
         Reservation reservation = reservationService.getById(reservationId);
@@ -87,7 +86,6 @@ public class ReviewService {
 
     @Transactional
     public Review updateReview(User user, Long reviewId, ReviewUpdateRequestDto requestDto) {
-        modelService.checkModel(user);
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_REVIEW));
@@ -114,7 +112,6 @@ public class ReviewService {
 
     @Transactional
     public void deleteReview(User user, Long reviewId) {
-        modelService.checkModel(user);
 
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_REVIEW));
@@ -130,7 +127,6 @@ public class ReviewService {
     }
 
     public List<ReviewListResponseDto> getReviewList(User user, Long cursorId, int size) {
-        modelService.checkModel(user);
         Model model = modelService.getModelByUser(user);
 
         Slice<ReviewListResponseDto> responseDtos;
