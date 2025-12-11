@@ -48,6 +48,9 @@ public class Review extends BaseEntity {
     @Column(name = "rating", nullable = false)
     private float rating;
 
+    @Column(name = "thumbnail")
+    private String thumbnail;
+
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<ReviewImage> reviewImages = new ArrayList<>();

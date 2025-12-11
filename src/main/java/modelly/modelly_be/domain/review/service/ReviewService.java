@@ -6,6 +6,7 @@ import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.domain.review.dto.request.ReviewCreateRequestDto;
 import modelly.modelly_be.domain.review.dto.request.ReviewUpdateRequestDto;
+import modelly.modelly_be.domain.review.dto.response.ReviewListResponseDto;
 import modelly.modelly_be.domain.review.entity.Reply;
 import modelly.modelly_be.domain.review.entity.Review;
 import modelly.modelly_be.domain.review.entity.ReviewImage;
@@ -16,11 +17,15 @@ import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.service.ModelService;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -122,5 +127,21 @@ public class ReviewService {
        }
 
         reviewRepository.delete(review);
+    }
+
+    public List<ReviewListResponseDto> getReviewList(User user, Long cursorId, int size) {
+        modelService.checkModel(user);
+        Model model = modelService.getModelByUser(user);
+
+        Slice<ReviewListResponseDto> responseDtos;
+        Pageable pageable = PageRequest.of(0, size+1);
+
+        //if (cursorId != null){
+            responseDtos = reviewRepository.findAllByModelAndIdLessThanOrderByCreatedAtDesc(model, cursorId, pageable);
+//        } else {
+//            responseDtos = reviewRepository.findAllByModel(model, size+1);
+//        }
+
+        return responseDtos.getContent();
     }
 }
