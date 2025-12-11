@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.review.repository;
 
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.review.dto.response.MyReviewListResponseDto;
+import modelly.modelly_be.domain.review.dto.response.ReviewThumbnailListResponseDto;
 import modelly.modelly_be.domain.review.entity.Review;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
@@ -31,4 +32,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "WHERE r.designer = :designer AND (:cursorId IS NULL OR r.id < :cursorId) " +
             "ORDER BY r.createdAt desc ")
     Slice<Review> findAllByDesignerAndIdLessThanOrderByCreatedAtDesc(Designer designer, Long cursorId, Pageable pageable);
+
+    @Query("SELECT r.id, r.thumbnail" +
+            " FROM Review r WHERE r.designer = :designer AND (:cursorId IS NULL OR r.id < :cursorId) " +
+            " ORDER BY r.createdAt desc ")
+    Slice<ReviewThumbnailListResponseDto> findThumbNailByDesignerAndIdLessThanOrderByCreatedAtDesc(Designer designer, Long cursorId, Pageable pageable);
 }

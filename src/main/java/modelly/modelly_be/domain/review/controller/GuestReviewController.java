@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.review.controller;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.review.controller.swagger.GuestReviewSwagger;
 import modelly.modelly_be.domain.review.dto.response.ReviewListResponseDto;
+import modelly.modelly_be.domain.review.dto.response.ReviewThumbnailListResponseDto;
 import modelly.modelly_be.domain.review.service.ReviewService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
@@ -34,6 +35,19 @@ public class GuestReviewController implements GuestReviewSwagger {
         List<ReviewListResponseDto> dtolist = reviewService.getDesignerReviewList(userId, designerId, cursorId, size);
 
         ScrollResponse<ReviewListResponseDto> responseDtos = ScrollUtil.paginate(dtolist, size);
+
+        return ApiResponse.onSuccess(responseDtos);
+    }
+
+    @GetMapping("/{designerId}/reviews/images")
+    public ApiResponse<ScrollResponse<ReviewThumbnailListResponseDto>> getDesignerReviewThumbnailList(
+            @PathVariable Long designerId,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(defaultValue = "10") int size) {
+
+        List<ReviewThumbnailListResponseDto> dtoList = reviewService.getReviewThumbnailList(designerId, cursorId, size);
+
+        ScrollResponse<ReviewThumbnailListResponseDto> responseDtos = ScrollUtil.paginate(dtoList, size);
 
         return ApiResponse.onSuccess(responseDtos);
     }
