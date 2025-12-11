@@ -6,6 +6,7 @@ import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.domain.review.dto.request.ReviewCreateRequestDto;
 import modelly.modelly_be.domain.review.dto.request.ReviewUpdateRequestDto;
+import modelly.modelly_be.domain.review.dto.response.MyReviewListResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReviewListResponseDto;
 import modelly.modelly_be.domain.review.entity.Reply;
 import modelly.modelly_be.domain.review.entity.Review;
@@ -14,6 +15,7 @@ import modelly.modelly_be.domain.review.repository.ReviewRepository;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
+import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.domain.user.service.ModelService;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
@@ -35,6 +37,7 @@ public class ReviewService {
     private final ModelService modelService;
     private final ReservationService reservationService;
     private final ReplyService replyService;
+    private final DesignerService designerService;
     private final ReviewRepository reviewRepository;
 
     @Transactional
@@ -126,18 +129,38 @@ public class ReviewService {
         reviewRepository.delete(review);
     }
 
-    public List<ReviewListResponseDto> getReviewList(User user, Long cursorId, int size) {
+    public List<MyReviewListResponseDto> getReviewList(User user, Long cursorId, int size) {
         Model model = modelService.getModelByUser(user);
 
-        Slice<ReviewListResponseDto> responseDtos;
         Pageable pageable = PageRequest.of(0, size+1);
-
-        //if (cursorId != null){
-            responseDtos = reviewRepository.findAllByModelAndIdLessThanOrderByCreatedAtDesc(model, cursorId, pageable);
-//        } else {
-//            responseDtos = reviewRepository.findAllByModel(model, size+1);
-//        }
+        Slice<MyReviewListResponseDto> responseDtos = reviewRepository.findAllByModelAndIdLessThanOrderByCreatedAtDesc(model, cursorId, pageable);
 
         return responseDtos.getContent();
+    }
+
+    public List<ReviewListResponseDto> getDesignerReviewList(Long userId, Long designerId, Long cursorId, int size) {
+        Designer designer = designerService.getById(designerId);
+
+        Pageable pageable = PageRequest.of(0, size+1);
+        Slice<Review> reviews = reviewRepository.findAllByDesignerAndIdLessThanOrderByCreatedAtDesc(designer, cursorId, pageable);
+
+        Long modelId;
+        if (userId != null){
+            Model model = modelService.getModelByUserId(userId);
+            modelId = model.getId();
+        } else {
+            modelId = null;
+        }
+
+        return reviews.getContent().stream()
+                .map(review -> {
+                    boolean isMine = false;
+                    if ( modelId != null){
+                        isMine = review.getModel().getId().equals(modelId);
+                    }
+                    return ReviewListResponseDto.of(review, review.getModel().getUser().getImageUrl(),isMine);
+                })
+                .toList();
+
     }
 }

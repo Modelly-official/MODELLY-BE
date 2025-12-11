@@ -1,15 +1,41 @@
 package modelly.modelly_be.domain.review.dto.response;
 
-import java.time.LocalDateTime;
+import modelly.modelly_be.domain.review.entity.Review;
+import modelly.modelly_be.domain.review.entity.ReviewImage;
+
+import java.time.LocalDate;
+import java.util.List;
 
 public record ReviewListResponseDto(
         Long reviewId,
-        String designerName,
-        String shop,
-        String shopAddress,
+        String modelImage,
+        String modelname,
         float rating,
-        String thumbnail,
+        LocalDate createdDate,
         String content,
-        LocalDateTime createdAt
+        List<String> reviewImages,
+        boolean isMine
 ) {
+
+    public static ReviewListResponseDto of(Review review, String modelImage, boolean isMine) {
+
+        List<String> imageUrls = review.getReviewImages().stream()
+                .map(ReviewImage::getImageUrl)
+                .toList();
+
+        LocalDate createdDate = review.getCreatedAt().toLocalDate();
+
+        return new ReviewListResponseDto(
+                review.getId(),
+                modelImage,
+                review.getModel().getNickname(),
+                review.getRating(),
+                createdDate,
+                review.getContent(),
+                imageUrls,
+                isMine
+        );
+    }
+
+
 }

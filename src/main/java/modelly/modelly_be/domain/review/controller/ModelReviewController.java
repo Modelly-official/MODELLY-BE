@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.review.controller.swagger.ModelReviewSwagger;
 import modelly.modelly_be.domain.review.dto.request.ReviewCreateRequestDto;
 import modelly.modelly_be.domain.review.dto.request.ReviewUpdateRequestDto;
-import modelly.modelly_be.domain.review.dto.response.ReviewListResponseDto;
+import modelly.modelly_be.domain.review.dto.response.MyReviewListResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReviewResponseDto;
 import modelly.modelly_be.domain.review.entity.Review;
 import modelly.modelly_be.domain.review.service.ReviewService;
@@ -52,14 +52,14 @@ public class ModelReviewController implements ModelReviewSwagger {
     }
 
     @GetMapping("/reviews")
-    public ApiResponse<ScrollResponse<ReviewListResponseDto>> getReviewList(
+    public ApiResponse<ScrollResponse<MyReviewListResponseDto>> getReviewList(
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "10") int size){
 
-        List<ReviewListResponseDto> listDtos = reviewService.getReviewList(authDetails.user(), cursorId, size);
+        List<MyReviewListResponseDto> listDtos = reviewService.getReviewList(authDetails.user(), cursorId, size);
 
-        ScrollResponse<ReviewListResponseDto> responseDtos = ScrollUtil.paginate(listDtos, size);
+        ScrollResponse<MyReviewListResponseDto> responseDtos = ScrollUtil.paginate(listDtos, size);
 
         return ApiResponse.onSuccess(responseDtos);
     }

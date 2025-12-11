@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import modelly.modelly_be.domain.review.dto.request.ReviewCreateRequestDto;
 import modelly.modelly_be.domain.review.dto.request.ReviewUpdateRequestDto;
-import modelly.modelly_be.domain.review.dto.response.ReviewListResponseDto;
+import modelly.modelly_be.domain.review.dto.response.MyReviewListResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReviewResponseDto;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
@@ -46,9 +46,9 @@ public interface ModelReviewSwagger {
     @Operation(summary = "나의 리뷰 내역 조회", description = """
             내가 작성한 리뷰들을 조회하는 API입니다. \n
             `cursorId`: response에서의 nextCursor값을 넣어주시면 됩니다. \n
-            `size` : 한 페이지에서 보여질 공고의 개수 \n
+            `size` : 한 페이지에서 보여질 리뷰의 개수 \n
             """)
-    ApiResponse<ScrollResponse<ReviewListResponseDto>> getReviewList(
+    ApiResponse<ScrollResponse<MyReviewListResponseDto>> getReviewList(
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "10") int size);

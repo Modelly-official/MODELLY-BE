@@ -25,4 +25,9 @@ public class ModelService {
         return modelRepository.findByUser(user)
                 .orElseThrow(()-> new GeneralException(ErrorStatus.NOT_FOUND_MODEL));
     }
+
+    public Model getModelByUserId(Long userId) {
+        return modelRepository.findByUser_Id(userId)
+                .orElseThrow(()-> new GeneralException(ErrorStatus.NOT_FOUND_MODEL));
+    }
 }
