@@ -71,7 +71,8 @@ public enum ErrorStatus implements BaseErrorCode {
     //Review
     REVIEW_ALREADY_EXIST(HttpStatus.CONFLICT, "REVIEW409", "해당 예약에 대한 리뷰를 이미 작성하셨습니다."),
     NOT_FOUND_REVIEW(HttpStatus.NOT_FOUND, "REVIEW404", "리뷰가 존재하지 않습니다."),
-    RESERVATION_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "REVIEW400", "예약된 일정이 아직 완료되지않아 리뷰 작성이 불가능합니다.")
+    RESERVATION_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "REVIEW400", "예약된 일정이 아직 완료되지않아 리뷰 작성이 불가능합니다."),
+    FORBIDDEN_DELETE_OR_MODIFY_REVIEW(HttpStatus.FORBIDDEN, "REVIEW403", "작성자만 리뷰 삭제 및 수정이 가능합니다.")
     ;
 
     private final HttpStatus httpStatus;

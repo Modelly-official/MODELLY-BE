@@ -12,7 +12,7 @@ public record UpdateRecruitmentRequestDto(
         String title,
         @Schema(description = "공고 스케줄")
         List<RecruitmentSchedule> recruitmentSchedule,
-        @Schema(description = "카테고리", example = "HAIR, NAIL, TATTOO, MAKEUP, ETC 중 택1")
+        @Schema(description = "카테고리", example = "HAIR, NAIL, TATTOO, EYELASH 중 택1")
         Category category,
         @Schema(description = "세부 카테고리")
         List<SubCategory> subCategoryList,

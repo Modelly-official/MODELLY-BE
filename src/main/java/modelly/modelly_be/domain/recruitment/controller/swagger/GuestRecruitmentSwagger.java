@@ -30,12 +30,13 @@ public interface GuestRecruitmentSwagger {
             ✅ 필터링 : 카테고리, 세부카테고리별로 가능 \n
             ---
             ### Request Param \n
-            `category` : HAIR, NAIL, TATTOO, EYELASH, ETC 중 택1 \n
+            `category` : HAIR, NAIL, TATTOO, EYELASH 중 택1 \n
             `subCategory` : 세부 카테고리입니다. \n
             - 헤어 관련: HAIR_CUT, HAIR_PERM, HAIR_COLORING \s
             - 네일 관련: ONE_COLOR, ART, PEDICURE \s
             - 속눈썹 관련: EYELASH_PERM, EYELASH_EXTENSION \s
             - 타투 관련: LIP_TATTOO, EYEBROW_TATTOO, NORMAL_TATTOO \n
+            - 기타: ETC \n
                 이 중에서 택1 해주세요 \n
             `keyword` : 검색 시 사용 ex. keyword = 레이어드펌 \n
             `sortOption` : 정렬 시 사용. NEWEST(최신순), MOST_REVIEWS(리뷰 많은 순), DISTANCE(거리순) 중 택1 \n
@@ -72,12 +73,13 @@ public interface GuestRecruitmentSwagger {
             ✅ 필터링 : 카테고리, 세부카테고리별로 가능 \n
             ---
             ### Request Param \n
-            `category` : HAIR, NAIL, TATTOO, EYELASH, ETC 중 택1 \n
+            `category` : HAIR, NAIL, TATTOO, EYELASH 중 택1 \n
             `subCategory` : 세부 카테고리입니다. \n
             - 헤어 관련: HAIR_CUT, HAIR_PERM, HAIR_COLORING \s
             - 네일 관련: ONE_COLOR, ART, PEDICURE \s
             - 속눈썹 관련: EYELASH_PERM, EYELASH_EXTENSION \s
             - 타투 관련: LIP_TATTOO, EYEBROW_TATTOO, NORMAL_TATTOO \n
+            - 기타: ETC \n
                 이 중에서 택1 해주세요 \n
             `keyword` : 검색 시 사용 ex. keyword = 레이어드펌 \n
             `sortOption` : 정렬 시 사용. NEWEST(최신순), MOST_REVIEWS(리뷰 많은 순), DISTANCE(거리순) 중 택1 \n

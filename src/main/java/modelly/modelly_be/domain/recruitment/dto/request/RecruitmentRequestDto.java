@@ -16,11 +16,12 @@ public record RecruitmentRequestDto(
         @Schema(description = "공고 스케줄")
         @NotNull(message = "하나 이상은 필수입니다.")
         List<RecruitmentSchedule> recruitmentSchedule,
-        @Schema(description = "카테고리", example = "HAIR, NAIL, TATTOO, MAKEUP, ETC 중 택1")
+        @Schema(description = "카테고리", example = "HAIR, NAIL, TATTOO, EYELASH 중 택1")
         @NotNull(message = "카테고리는 필수입니다.")
         Category category,
         @Schema(description = "세부 카테고리")
-        List<SubCategory> subCategories,
+        @NotNull(message = "하나 이상은 필수입니다.")
+        List<SubCategory> subCategoryList,
         @Schema(description = "공고 내용", example = "시스루펌, 레이어드펌을 공짜로 받으실 헤어모델 모집합니다!")
         @NotBlank(message = "공고 내용은 필수입니다.")
         String content,

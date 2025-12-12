@@ -97,6 +97,7 @@ public class ReviewService {
     @Transactional
     public Review updateReview(User user, Long reviewId, ReviewUpdateRequestDto requestDto) {
 
+
         Review review = getById(reviewId);
 
         review.update(requestDto);
@@ -197,4 +198,9 @@ public class ReviewService {
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_REVIEW));
     }
 
+    public void isReviewAuthor(Model model, Review review) {
+        if (!review.getModel().equals(model)){
+            throw new GeneralException(ErrorStatus.FORBIDDEN_DELETE_OR_MODIFY_REVIEW);
+        }
+    }
 }

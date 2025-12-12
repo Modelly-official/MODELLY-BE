@@ -1,7 +1,6 @@
 package modelly.modelly_be.global.config;
 
 import lombok.RequiredArgsConstructor;
-import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.global.security.jwt.JwtAuthenticationFilter;
 import modelly.modelly_be.global.security.jwt.JwtExceptionFilter;
 import org.springframework.context.annotation.Bean;

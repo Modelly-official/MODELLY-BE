@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "review",
         uniqueConstraints =
-        @UniqueConstraint(columnNames = {"recruitment_id", "model_id"}))
+        @UniqueConstraint(columnNames = {"reservation_id", "model_id"}))
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Review extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

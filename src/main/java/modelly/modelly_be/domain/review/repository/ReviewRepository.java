@@ -12,15 +12,9 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     boolean existsByModelAndReservation(Model model, Reservation reservation);
-
-    @Query("SELECT r.id, r.designer.nickname, r.designer.shop, r.designer.addressLine1, r.rating, r.thumbnail, r.content, r.createdAt" +
-            " FROM Review r WHERE r.model = :model " +
-            " ORDER BY r.createdAt desc LIMIT :size")
-    List<MyReviewListResponseDto> findAllByModel(Model model, int size);
 
     @Query("SELECT r.id, r.designer.nickname, r.designer.shop, r.designer.addressLine1, r.rating, r.thumbnail, r.content, r.createdAt" +
             " FROM Review r WHERE r.model = :model AND (:cursorId IS NULL OR r.id < :cursorId) " +

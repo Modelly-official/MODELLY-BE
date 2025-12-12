@@ -63,10 +63,10 @@ public class DesignerRecruitmentService {
                 .recruitmentStatus(RecruitmentStatus.OPEN)
                 .build();
 
-        if (recruitmentRequestDto.subCategories() != null
-                && !recruitmentRequestDto.subCategories().isEmpty()) {
+        if (recruitmentRequestDto.subCategoryList() != null
+                && !recruitmentRequestDto.subCategoryList().isEmpty()) {
             recruitment.getSubCategoryList()
-                    .addAll(recruitmentRequestDto.subCategories());
+                    .addAll(recruitmentRequestDto.subCategoryList());
         }
 
         recruitmentService.save(recruitment);
