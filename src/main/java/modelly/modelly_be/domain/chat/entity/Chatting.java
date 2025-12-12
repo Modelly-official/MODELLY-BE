@@ -20,7 +20,7 @@ public class Chatting extends BaseEntity {
     @Column(name = "sender_id", nullable = false)
     private Long senderId;
 
-    @Column(name = "message", columnDefinition = "TEXT")
+    @Column(name = "message", columnDefinition = "TEXT", nullable = true)
     private String message;
 
     @Column(name = "is_read")

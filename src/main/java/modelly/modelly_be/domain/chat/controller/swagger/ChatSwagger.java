@@ -7,9 +7,11 @@ import modelly.modelly_be.domain.chat.dto.response.ChatRoomDetailResponse;
 import modelly.modelly_be.domain.chat.dto.response.ChatRoomListResponse;
 import modelly.modelly_be.domain.chat.dto.response.OpenRoomResponse;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
+import modelly.modelly_be.global.s3.PresignedUploadResponse;
 import modelly.modelly_be.global.security.AuthDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -155,50 +157,67 @@ public interface ChatSwagger {
     );
 
     @Operation(
-            summary = "채팅 이미지 업로드 (S3) - WebSocket 이미지 메시지 전송 전에 호출",
+            summary = "채팅 이미지 업로드용 Presigned URL 발급",
             description = """
-                    채팅방에서 이미지를 전송하기 위해 **이미지 파일을 먼저 S3에 업로드**하는 API입니다.  
-                    이 API는 파일 업로드만 담당하며, 실제 채팅 메시지 전송은  
-                    STOMP WebSocket으로 `imageUrls`를 포함한 메시지를 보내서 처리합니다.
-                    
-                    ---
-                    📌 사용 흐름
-                    
-                    1️⃣ 프론트에서 이 API로 이미지 파일들을 업로드  
-                    - `multipart/form-data` 형식으로 파일 전송  
-                    - 서버는 S3에 업로드 후, 각 파일의 URL 리스트를 반환
-                    
-                    2️⃣ 프론트에서 STOMP 메시지 전송  
-                    - `/pub/chat/rooms/{roomId}` 로 아래 형태의 메시지를 보냅니다:
-                    
-                    ```json
-                    {
-                      "messageType": "IMAGE",
-                      "imageUrls": ["https://s3.../img1.png", "https://s3.../img2.png"]
-                    }
-                    ```
-                    
-                    ---
-                    📥 Request
-                    
-                    - Path Variable
-                      - `roomId` : 이미지를 업로드할 채팅방 ID  
-                        → 서버에서 현재 유저가 이 방의 참여자인지 검증합니다.
-                    
-                    - Request Part
-                      - `files` : 업로드할 이미지 파일 리스트 (`List<MultipartFile>`)
-                    
-                    ---
-                    📤 Response
-                    
-                    - `List<String>` : 업로드된 이미지들의 S3 URL 리스트  
-                      → 이 값을 WebSocket 메시지 전송 시 `imageUrls`에 그대로 넣어 사용하면 됩니다.
-                    """
+                채팅방에 업로드할 파일을 위해 **S3 Presigned PUT URL**을 발급합니다.  
+                **프론트엔드가 S3로 직접 PUT 업로드**
+                
+                ---
+                ✅ 접근 제어
+                - 요청한 사용자가 해당 `roomId` 채팅방의 **참여자인지 검증**합니다.
+                - 채팅방 참여자가 아닌 경우 **403 Forbidden** 에러가 발생합니다.
+                
+                ---
+                📥 Request
+                
+                - Path Variable
+                  - `roomId` : 채팅방 ID
+                
+                
+                ---
+                📤 Response (PresignedUploadResponse)
+                
+                - `uploadUrl`  
+                  - S3에 **PUT 업로드**할 Presigned URL  
+                  - 유효시간: **5분**
+                
+                - `imageUrl`  
+                  - 업로드 완료 후 채팅 메시지로 사용할 **S3 객체 접근 URL**
+                
+                ---
+                🧩 프론트엔드 처리 흐름
+                
+                1️⃣ Presigned URL 발급 요청  
+                ```
+                POST /chat/rooms/{roomId}/images/presigned
+                ```
+                
+                2️⃣ S3에 직접 파일 업로드  
+                ```
+                PUT {uploadUrl}
+                Body: file(binary)
+                ```
+                
+                3️⃣ 업로드가 완료되면 `imageUrl`을 STOMP로 전송  
+                - destination: `/pub/chat/rooms/{roomId}`
+                - payload 예시:
+                ```json
+                {
+                  "messageType": "IMAGE",
+                  "imageUrls": ["{imageUrl}"]
+                }
+                ```
+                
+                4️⃣ 서버는 전달받은 URL들을 `chatting_image` 테이블에 저장하고,  
+                같은 채팅방을 구독 중인 사용자들에게 IMAGE 메시지를 브로드캐스트합니다.
+                
+                """
     )
-    ApiResponse<List<String>> uploadChatImages(
-            @AuthenticationPrincipal AuthDetails auth,
+    @PostMapping("/chat/rooms/{roomId}/images/presigned")
+    public ApiResponse<PresignedUploadResponse> createPresignedUrl(
             @PathVariable Long roomId,
-            @org.springframework.web.bind.annotation.RequestPart("files") List<MultipartFile> files
+            @AuthenticationPrincipal AuthDetails auth
     );
+
 }
 

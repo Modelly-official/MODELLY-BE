@@ -131,6 +131,7 @@
         });
     };
 
+    // ---------- SEND TEXT MESSAGE ----------
     document.getElementById('sendBtn').onclick = () => {
         if (!stompClient) {
             return log('⚠️ 아직 CONNECT 안 됨');

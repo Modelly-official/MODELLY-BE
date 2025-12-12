@@ -1,25 +1,21 @@
 package modelly.modelly_be.global.s3;
 
 import lombok.RequiredArgsConstructor;
-import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
-import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class S3Uploader {
 
-    private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
 
     @Value("${aws.s3.bucket}")
     private String bucket;
@@ -27,44 +23,29 @@ public class S3Uploader {
     @Value("${aws.region}")
     private String region;
 
-    public String upload(MultipartFile file, String dirName) {
+    public PresignedUploadResponse generatePresignedUrl(String folder) {
+        String fileName = UUID.randomUUID().toString();
+        String key = folder + "/" + fileName;
 
-        // 파일 크기 검증 (10MB)
-        long maxSize = 10 * 1024 * 1024;
-        if (file.getSize() > maxSize) {
-            throw new GeneralException(ErrorStatus.FILE_TOO_LARGE);
-        }
+        PutObjectRequest putRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .build();
 
-        String originalFilename = file.getOriginalFilename();
-        String ext = "";
+        PutObjectPresignRequest presignRequest =
+                PutObjectPresignRequest.builder()
+                        .signatureDuration(Duration.ofMinutes(5))
+                        .putObjectRequest(putRequest)
+                        .build();
 
-        if (originalFilename != null && originalFilename.contains(".")) {
-            ext = originalFilename.substring(originalFilename.lastIndexOf("."));
-        }
+        PresignedPutObjectRequest presigned =
+                s3Presigner.presignPutObject(presignRequest);
 
-        String fileName = dirName + "/" + UUID.randomUUID() + ext;
+        String imageUrl = "https://" + bucket + ".s3." + region + ".amazonaws.com/" + key;
 
-        try {
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucket)
-                    .key(fileName)
-                    .contentType(file.getContentType())
-                    .build();
-
-            s3Client.putObject(
-                    putObjectRequest,
-                    RequestBody.fromBytes(file.getBytes())
-            );
-        } catch (IOException e) {
-            throw new GeneralException(ErrorStatus.FILE_UPLOAD_FAIL);
-        }
-
-        // S3 URL 만들기 (퍼블릭 버킷이라면 이런 식)
-        String encodedKey = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
-        return "https://" + bucket + ".s3." + region + ".amazonaws.com/" + encodedKey;
-    }
-
-    public void delete(String fileUrl) {
-        // 필요하면 나중에 구현 (URL → key로 변환해서 deleteObject)
+        return new PresignedUploadResponse(
+                presigned.url().toString(),
+                imageUrl
+        );
     }
 }
