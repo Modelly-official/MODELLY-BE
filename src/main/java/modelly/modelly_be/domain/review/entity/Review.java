@@ -60,7 +60,7 @@ public class Review extends BaseEntity {
     }
 
     public void update(ReviewUpdateRequestDto requestDto) {
-        if (requestDto.rating() != -1 && requestDto.rating() >= 0) rating = requestDto.rating();
+        if (requestDto.rating() != null) rating = requestDto.rating();
         if (requestDto.content() != null) content = requestDto.content();
     }
 }

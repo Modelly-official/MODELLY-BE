@@ -50,6 +50,11 @@ public class ReviewService {
         Reservation reservation = reservationService.getById(reservationId);
         Designer designer = reservation.getDesigner();
 
+        //예약자인지 확인
+        if (!reservation.getModel().equals(model)) {
+            throw new GeneralException(ErrorStatus.FORBIDDEN_CREATE_REVIEW);
+        }
+
         //완료된 예약에 대해서만 작성가능하도록 체크
         if (reservation.getEndTime().isAfter(LocalDateTime.now(ZoneId.of("Asia/Seoul")))){
             throw new GeneralException(ErrorStatus.RESERVATION_NOT_COMPLETED);
@@ -97,8 +102,10 @@ public class ReviewService {
     @Transactional
     public Review updateReview(User user, Long reviewId, ReviewUpdateRequestDto requestDto) {
 
-
+        Model model = modelService.getModelByUser(user);
         Review review = getById(reviewId);
+
+        isReviewAuthor(model, review);
 
         review.update(requestDto);
         reviewRepository.save(review);
@@ -123,7 +130,11 @@ public class ReviewService {
     @Transactional
     public void deleteReview(User user, Long reviewId) {
 
-        Review review = getById(reviewId);
+       Model model = modelService.getModelByUser(user);
+
+       Review review = getById(reviewId);
+
+       isReviewAuthor(model, review);
 
        Reply reply = replyService.getByReview(review)
                        .orElse(null);

@@ -18,17 +18,17 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query("SELECT r.id, r.designer.nickname, r.designer.shop, r.designer.addressLine1, r.rating, r.thumbnail, r.content, r.createdAt" +
             " FROM Review r WHERE r.model = :model AND (:cursorId IS NULL OR r.id < :cursorId) " +
-            " ORDER BY r.createdAt desc ")
+            " ORDER BY r.id desc, r.createdAt desc ")
     Slice<MyReviewListResponseDto> findAllByModelAndIdLessThanOrderByCreatedAtDesc(Model model, Long cursorId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"model", "reviewImages", "model.user"})
     @Query("SELECT r FROM Review r " +
             "WHERE r.designer = :designer AND (:cursorId IS NULL OR r.id < :cursorId) " +
-            "ORDER BY r.createdAt desc ")
+            "ORDER BY r.id desc, r.createdAt desc ")
     Slice<Review> findAllByDesignerAndIdLessThanOrderByCreatedAtDesc(Designer designer, Long cursorId, Pageable pageable);
 
     @Query("SELECT r.id, r.thumbnail" +
             " FROM Review r WHERE r.designer = :designer AND (:cursorId IS NULL OR r.id < :cursorId) " +
-            " ORDER BY r.createdAt desc ")
+            " ORDER BY r.id desc, r.createdAt desc ")
     Slice<ReviewThumbnailListResponseDto> findThumbNailByDesignerAndIdLessThanOrderByCreatedAtDesc(Designer designer, Long cursorId, Pageable pageable);
 }
