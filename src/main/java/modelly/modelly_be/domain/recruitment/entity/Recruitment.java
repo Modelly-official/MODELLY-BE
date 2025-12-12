@@ -29,9 +29,10 @@ public class Recruitment extends BaseEntity {
     @Column(name = "category", nullable = false)
     private Category category;
 
+    @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    @Column(name = "sub_category")
-    private SubCategory subCategory;
+    @Builder.Default
+    private Set<SubCategory> subCategoryList = new HashSet<>();
 
     @Column(name = "content", nullable = false, length = 254)
     private String content;
@@ -93,7 +94,11 @@ public class Recruitment extends BaseEntity {
     public void updateRecruitment(UpdateRecruitmentRequestDto dto) {
         if (dto.title() != null) this.title = dto.title();
         if (dto.category() != null) this.category = dto.category();
-        if (dto.subCategory() != null) this.subCategory = dto.subCategory();
+        if (dto.subCategoryList() != null && !dto.subCategoryList().isEmpty()) {
+            this.subCategoryList.clear();
+            this.subCategoryList.addAll(dto.subCategoryList());
+        }
+
         if (dto.content() != null) this.content = dto.content();
         if (dto.notice() != null) this.notice = dto.notice();
         this.goal1 = dto.goal1();

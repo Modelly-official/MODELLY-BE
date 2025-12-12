@@ -11,7 +11,7 @@ public record RecruitmentResponseDto(
         String title,
         List<RecruitmentSchedule> recruitmentSchedule,
         String category,
-        String subCategory,
+        List<String> subCategories,
         String content,
         String notice,
         String goal1,
@@ -37,12 +37,16 @@ public record RecruitmentResponseDto(
                 .map(RecruitmentImage::getImageUrl)
                 .toList();
 
+        List<String> subCategories = recruitment.getSubCategoryList().stream()
+                .map(subCategory -> subCategory.getDescription())
+                .toList();
+
         return new RecruitmentResponseDto(
                 recruitment.getId(),
                 recruitment.getTitle(),
                 schedules,
                 recruitment.getCategory().getDescription(),
-                recruitment.getSubCategory().getDescription(),
+                subCategories,
                 recruitment.getContent(),
                 recruitment.getNotice(),
                 recruitment.getGoal1(),

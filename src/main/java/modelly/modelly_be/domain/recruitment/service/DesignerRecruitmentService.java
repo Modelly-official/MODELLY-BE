@@ -24,7 +24,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -46,7 +45,6 @@ public class DesignerRecruitmentService {
                 .designer(designer)
                 .title(recruitmentRequestDto.title())
                 .category(recruitmentRequestDto.category())
-                .subCategory(recruitmentRequestDto.subCategory())
                 .notice(recruitmentRequestDto.notice())
                 .content(recruitmentRequestDto.content())
                 .goal1(recruitmentRequestDto.goal1())
@@ -64,6 +62,12 @@ public class DesignerRecruitmentService {
                 )
                 .recruitmentStatus(RecruitmentStatus.OPEN)
                 .build();
+
+        if (recruitmentRequestDto.subCategories() != null
+                && !recruitmentRequestDto.subCategories().isEmpty()) {
+            recruitment.getSubCategoryList()
+                    .addAll(recruitmentRequestDto.subCategories());
+        }
 
         recruitmentService.save(recruitment);
 

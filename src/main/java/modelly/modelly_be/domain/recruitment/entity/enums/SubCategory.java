@@ -15,7 +15,9 @@ public enum SubCategory {
     //TATTOO
     LIP_TATTOO("립"),
     EYEBROW_TATTOO("눈썹"),
-    NORMAL_TATTOO("일반아트")
+    NORMAL_TATTOO("일반아트"),
+
+    ETC("기타")
     ;
 
     private final String description;

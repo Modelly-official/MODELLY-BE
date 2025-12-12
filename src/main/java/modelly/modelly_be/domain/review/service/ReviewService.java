@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -58,6 +59,10 @@ public class ReviewService {
             throw new GeneralException(ErrorStatus.REVIEW_ALREADY_EXIST);
         }
 
+        String summary = reservation.getRecruitment().getSubCategoryList().stream()
+                .map(subCategory -> subCategory.getDescription())
+                .collect(Collectors.joining(", "));
+
         Review review = Review.builder()
                 .content(requestDto.content())
                 .rating(requestDto.rating())
@@ -65,7 +70,7 @@ public class ReviewService {
                 .reservation(reservation)
                 .model(model)
                 .isFixed(false)
-                //.summary() //기획한테 확인받은 후 수정
+                .summary(summary)
                 .build();
 
         reviewRepository.save(review);
@@ -191,4 +196,5 @@ public class ReviewService {
         return reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_REVIEW));
     }
+
 }

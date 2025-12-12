@@ -8,6 +8,7 @@ public record ReviewResponseDto(
         Long reviewId,
         float rating,
         String content,
+        String summary,
         List<String> imageUrls,
         boolean isMine
 ) {
@@ -22,6 +23,7 @@ public record ReviewResponseDto(
                 review.getId(),
                 review.getRating(),
                 review.getContent(),
+                review.getSummary(),
                 imageUrls,
                 isMine);
     }

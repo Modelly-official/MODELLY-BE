@@ -13,6 +13,7 @@ public record ReviewListResponseDto(
         float rating,
         LocalDate createdDate,
         String content,
+        String summary,
         List<String> reviewImages,
         boolean isMine
 ) {
@@ -32,6 +33,7 @@ public record ReviewListResponseDto(
                 review.getRating(),
                 createdDate,
                 review.getContent(),
+                review.getSummary(),
                 imageUrls,
                 isMine
         );

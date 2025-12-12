@@ -4,8 +4,7 @@ public enum Category {
     HAIR("헤어"),
     NAIL("네일"),
     TATTOO("타투"),
-    EYELASH("속눈썹"),
-    ETC("기타")
+    EYELASH("속눈썹")
     ;
 
     private final String description;
