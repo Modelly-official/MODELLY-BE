@@ -19,7 +19,7 @@ import modelly.modelly_be.domain.chat.dto.response.SendMessageResponse;
                     Authorization: Bearer {accessToken}
 
                 🔌 WebSocket 연결 URL
-                - wss://api.monde.kr/api/ws/chat
+                - wss://{host}/api/ws/chat
 
                 📌 Publish / Subscribe destination
                 - Publish:   /pub/chat/rooms/{roomId}
@@ -35,7 +35,7 @@ public interface WebSocketSwagger {
                     채팅 메시지를 STOMP WebSocket으로 전송할 때 사용하는 요청 형식입니다.
 
                     🔌 WebSocket URL
-                    - wss://api.monde.kr/api/ws/chat
+                    - wss://{host}/api/ws/chat
 
                     📮 Publish
                     - /pub/chat/rooms/{roomId}
