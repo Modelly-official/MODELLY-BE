@@ -129,7 +129,7 @@ public class AuthService {
 
         }
 
-        return SignupResponse.of("회원가입이 완료되었습니다.", user.getLoginId(), user.getName(), nickname);
+        return SignupResponse.of("회원가입이 완료되었습니다.", user.getLoginId(), user.getName(), nickname, user.getUserRole().getDescription());
     }
 
     /* 로그인 */
@@ -153,7 +153,8 @@ public class AuthService {
         // 로그인 응답 생성
         LoginResponse loginResponse = LoginResponse.of(
                 user.getId(),
-                tokens.getAccessToken()
+                tokens.getAccessToken(),
+                user.getUserRole().getDescription()
         );
 
         return LoginResult.of(loginResponse, refreshToken, ttlSec);
@@ -328,7 +329,7 @@ public class AuthService {
 
         }
 
-        return SignupResponse.of("회원가입이 완료되었습니다.", user.getEmail(), user.getName(), nickname);
+        return SignupResponse.of("회원가입이 완료되었습니다.", user.getEmail(), user.getName(), nickname, user.getUserRole().getDescription());
     }
 
     /* 카카오 로그인(토큰, 회원가입 여부 반환) */
@@ -441,8 +442,8 @@ public class AuthService {
 
         // 응답 생성
         SocialLoginResponse loginResponse = registered
-                ? SocialLoginResponse.existing(user.getId(), tokens.getAccessToken())
-                : SocialLoginResponse.newUser(user.getId(), tokens.getAccessToken());
+                ? SocialLoginResponse.existing(user.getId(), tokens.getAccessToken(), user.getUserRole().getDescription())
+                : SocialLoginResponse.newUser(user.getId(), tokens.getAccessToken(), user.getUserRole().getDescription());
 
         return SocialLoginResult.of(loginResponse, refreshToken, ttlSec);
     }

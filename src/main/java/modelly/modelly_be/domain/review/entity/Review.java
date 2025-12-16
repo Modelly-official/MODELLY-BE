@@ -46,7 +46,7 @@ public class Review extends BaseEntity {
     private Model model;
 
     @Column(name = "rating", nullable = false)
-    private float rating;
+    private Float rating;
 
     @Column(name = "thumbnail")
     private String thumbnail;
