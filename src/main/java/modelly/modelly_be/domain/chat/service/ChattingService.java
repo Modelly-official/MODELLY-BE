@@ -5,14 +5,15 @@ import modelly.modelly_be.domain.chat.dto.request.SendMessageRequest;
 import modelly.modelly_be.domain.chat.dto.response.ChatMessageResponse;
 import modelly.modelly_be.domain.chat.dto.response.ChatRoomDetailResponse;
 import modelly.modelly_be.domain.chat.dto.response.OpponentInfoResponse;
+import modelly.modelly_be.domain.chat.dto.response.SendMessageResponse;
 import modelly.modelly_be.domain.chat.entity.ChatRoom;
 import modelly.modelly_be.domain.chat.entity.Chatting;
+import modelly.modelly_be.domain.chat.entity.ChattingImage;
+import modelly.modelly_be.domain.chat.entity.enums.MessageType;
 import modelly.modelly_be.domain.chat.repository.ChatRoomRepository;
+import modelly.modelly_be.domain.chat.repository.ChattingImageRepository;
 import modelly.modelly_be.domain.chat.repository.ChattingRepository;
-import modelly.modelly_be.domain.user.entity.Designer;
-import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
-import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.domain.user.repository.UserRepository;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
@@ -24,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,10 +35,11 @@ public class ChattingService {
     private final ChattingRepository chattingRepository;
     private final UserRepository userRepository;
     private final ChatRoomService chatRoomService;
+    private final ChattingImageRepository chattingImageRepository;
 
     // 메세지 보내기(DB 저장)
     @Transactional
-    public Chatting sendMessage(Long currentUserId, Long roomId, SendMessageRequest request) {
+    public SendMessageResponse sendMessage(Long currentUserId, Long roomId, SendMessageRequest request) {
 
         // 보낸 사람 = 현재 유저
         User sender = userRepository.findById(currentUserId)
@@ -50,19 +54,60 @@ public class ChattingService {
             throw new GeneralException(ErrorStatus._FORBIDDEN);
         }
 
-        // 메시지 생성
+        // 메세지 타입 확인
+        MessageType type = request.getMessageType();
+        if (type == null) {
+            type = MessageType.TEXT;
+        }
+
+
+        String messageContent = null;
+        if (type == MessageType.TEXT) {
+            messageContent = request.getMessage();
+            if (messageContent == null || messageContent.isBlank()) {
+                throw new GeneralException(ErrorStatus._BAD_REQUEST);
+            }
+        } else if (type == MessageType.IMAGE) {
+            if (request.getImageUrls() == null || request.getImageUrls().isEmpty()) {
+                throw new GeneralException(ErrorStatus._BAD_REQUEST);
+            }
+
+            boolean hasInvalidUrl = request.getImageUrls().stream()
+                    .anyMatch(url -> url == null || url.isBlank());
+            if (hasInvalidUrl) {
+                throw new GeneralException(ErrorStatus._BAD_REQUEST);
+            }
+
+        } else {
+            // 지원하지 않는 타입 방어
+            throw new GeneralException(ErrorStatus._BAD_REQUEST);
+        }
+
+        // Chatting 저장
         Chatting chatting = Chatting.of(
                 sender.getId(),
-                request.getMessage(),
+                messageContent,
                 false,
+                type,
                 room
         );
+        Chatting saved = chattingRepository.save(chatting);
 
-        return chattingRepository.save(chatting);
+        // IMAGE면 chatting_image 저장
+        List<ChattingImage> images = List.of();
+        if (type == MessageType.IMAGE) {
+            images = request.getImageUrls().stream()
+                    .map(url -> ChattingImage.of(saved, url))
+                    .toList();
+            chattingImageRepository.saveAll(images);
+        }
+
+        // STOMP 응답 DTO 반환
+        return SendMessageResponse.of(saved, images);
     }
 
     /* 채팅방 상세 조회 (상대 정보, 채팅 내역 등) */
-    @Transactional(readOnly = true)
+    @Transactional
     public ChatRoomDetailResponse getChatRoomDetail(
             Long currentUserId,
             Long roomId,
@@ -85,6 +130,11 @@ public class ChattingService {
 
         OpponentInfoResponse opponent = chatRoomService.getOpponentInfo(room, currentUserId);
 
+        // 처음 채팅방 진입 시
+        if (cursorMessageId == null || cursorMessageId == 0) {
+            chattingRepository.markUnreadMessagesAsReadInRoom(room, currentUserId);
+        }
+
         /* --- 메세지 히스토리 관련 코드 ---- */
 
         Pageable pageable = PageRequest.of(0, size);
@@ -106,8 +156,26 @@ public class ChattingService {
 
         // 응답 변환
         List<ChatMessageResponse> messageResponses = new ArrayList<>();
-        for (Chatting chatting : messages) {
-            messageResponses.add(ChatMessageResponse.of(chatting));
+
+        // 이미지 조회 후 매핑
+        if (!messages.isEmpty()) {
+            // 해당 메시지들에 달린 모든 이미지 한 번에 조회
+            List<ChattingImage> allImages =
+                    chattingImageRepository.findAllByChattingIn(messages);
+
+            // chattingId 기준으로 그룹핑 (1:N)
+            Map<Long, List<String>> imageUrlMap = allImages.stream()
+                    .collect(Collectors.groupingBy(
+                            ci -> ci.getChatting().getId(),
+                            Collectors.mapping(ChattingImage::getImageUrl, Collectors.toList())
+                    ));
+
+            // 각 메시지에 해당하는 imageUrls 찾아서 DTO로 변환
+            for (Chatting chatting : messages) {
+                List<String> imageUrls =
+                        imageUrlMap.getOrDefault(chatting.getId(), List.of());
+                messageResponses.add(ChatMessageResponse.of(chatting, imageUrls));
+            }
         }
 
         // 다음 커서 (이번에 받은 것 중 "가장 오래된" 메시지의 id)
@@ -115,6 +183,7 @@ public class ChattingService {
 
         boolean hasNext = messages.size() == size; // 메세지와 반환 메세지 수가 다르다면 더이상 반환할 메세지가 없음
 
+        Long lastReadMessageId = chattingRepository.findLastReadMessageIdByRoomAndReader(room, currentUserId);
         /* 전체 응답 반환 */
         return ChatRoomDetailResponse.builder()
                 .roomId(room.getId())
@@ -122,6 +191,7 @@ public class ChattingService {
                 .messages(messageResponses)
                 .nextCursorMessageId(nextCursor)
                 .hasNext(hasNext)
+                .lastReadMessageId(lastReadMessageId)
                 .build();
     }
 }

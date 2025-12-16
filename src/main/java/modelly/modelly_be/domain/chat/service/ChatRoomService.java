@@ -140,21 +140,37 @@ public class ChatRoomService {
                         Function.identity()
                 ));
 
+        // 채팅방별 안읽은 메세지 개수 조회
+        List<ChattingRepository.UnreadCountProjection> unreadCounts =
+                chattingRepository.countUnreadByRooms(rooms, currentUserId);
+
+        Map<Long, Long> unreadMap = unreadCounts.stream()
+                .collect(Collectors.toMap(
+                        ChattingRepository.UnreadCountProjection::getRoomId,
+                        ChattingRepository.UnreadCountProjection::getUnreadCount
+                ));
+
         /* 응답 생성 */
         List<ChatRoomListResponse> result = new ArrayList<>();
 
         for (ChatRoom room : rooms) {
             OpponentInfoResponse opponent = getOpponentInfo(room, currentUserId);
 
+            // 마지막 메세지
             Chatting last = lastMessageMap.get(room.getId());
+
+            // 방별 안읽은 메세지 수
+            long unreadCount = unreadMap.getOrDefault(room.getId(), 0L);
 
             result.add(ChatRoomListResponse.builder()
                     .roomId(room.getId())
                     .otherUserId(opponent.getUserId())
                     .name(opponent.getName())
                     .profileImageUrl(opponent.getProfileImageUrl())
+                    .messageType(last != null ? last.getMessageType() : null)
                     .lastMessage(last != null ? last.getMessage() : null)
                     .lastMessageTime(last != null ? last.getCreatedAt() : null)
+                    .unreadMessages(unreadCount)
                     .role(opponent.getRole())
                     .build());
         }
@@ -197,5 +213,18 @@ public class ChatRoomService {
                 .profileImageUrl(opponentProfileImageUrl)
                 .role(opponentRole)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public void validateParticipation(Long userId, Long roomId) {
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_CHAT_ROOM));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+
+        if (!room.isParticipant(user)) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
     }
 }

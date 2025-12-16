@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import modelly.modelly_be.domain.chat.entity.ChatRoom;
 import modelly.modelly_be.domain.chat.entity.Chatting;
+import modelly.modelly_be.domain.chat.entity.enums.MessageType;
 import modelly.modelly_be.domain.user.entity.enums.UserRole;
 
 import java.time.LocalDateTime;
@@ -16,18 +17,22 @@ public class ChatRoomListResponse {
     private Long otherUserId;
     private String name;
     private String profileImageUrl;
-
+    MessageType messageType;
     private String lastMessage;
     private LocalDateTime lastMessageTime;
-
+    private long unreadMessages; // 안읽은 메세지 개수
     private UserRole role; // DESIGNER or MODEL
+
+
 
     public static ChatRoomListResponse of(
             ChatRoom room,
             Long otherUserId,
             String name,
             String profileImageUrl,
+            MessageType messageType,
             Chatting lastChatting,
+            long unreadMessages,
             UserRole role
     ) {
         return ChatRoomListResponse.builder()
@@ -35,8 +40,10 @@ public class ChatRoomListResponse {
                 .otherUserId(otherUserId)
                 .name(name)
                 .profileImageUrl(profileImageUrl)
+                .messageType(messageType)
                 .lastMessage(lastChatting != null ? lastChatting.getMessage() : null)
                 .lastMessageTime(lastChatting != null ? lastChatting.getCreatedAt() : null)
+                .unreadMessages(unreadMessages)
                 .role(role)
                 .build();
     }

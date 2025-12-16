@@ -56,6 +56,8 @@ public enum ErrorStatus implements BaseErrorCode {
     // 채팅
     INVALID_CHATROOM(HttpStatus.BAD_REQUEST, "CHAT400", "채팅방 생성이 불가능합니다."),
     NOT_FOUND_CHAT_ROOM(HttpStatus.NOT_FOUND, "CHAT404", "채팅방이 존재하지 않습니다."),
+    TOO_MANY_FILES(HttpStatus.BAD_REQUEST, "CHAT400", "첨부한 이미지 파일이 너무 많습니다."),
+    FILE_TOO_LARGE(HttpStatus.BAD_REQUEST, "CHAT400", "첨부한 파일의 크기가 너무 큽니다."),
 
     //무한스크롤 관련 에러
     SCROLL_ERROR(HttpStatus.BAD_REQUEST, "SCROLL400", "무한스크롤 변환을 지원하지않는 엔티티입니다. ScrollUtil에 엔티티를 추가해주세요"),
@@ -73,7 +75,10 @@ public enum ErrorStatus implements BaseErrorCode {
     REVIEW_ALREADY_EXIST(HttpStatus.CONFLICT, "REVIEW409", "해당 예약에 대한 리뷰를 이미 작성하셨습니다."),
     NOT_FOUND_REVIEW(HttpStatus.NOT_FOUND, "REVIEW404", "리뷰가 존재하지 않습니다."),
     RESERVATION_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "REVIEW400", "예약된 일정이 아직 완료되지않아 리뷰 작성이 불가능합니다."),
-    FORBIDDEN_DELETE_OR_MODIFY_REVIEW(HttpStatus.FORBIDDEN, "REVIEW403", "작성자만 리뷰 삭제 및 수정이 가능합니다.")
+    FORBIDDEN_DELETE_OR_MODIFY_REVIEW(HttpStatus.FORBIDDEN, "REVIEW403", "작성자만 리뷰 삭제 및 수정이 가능합니다."),
+
+    //s3
+    FILE_UPLOAD_FAIL(HttpStatus.BAD_REQUEST, "S3_ERROR", "파일 업로드에 실패했습니다.")
     ;
 
     private final HttpStatus httpStatus;
