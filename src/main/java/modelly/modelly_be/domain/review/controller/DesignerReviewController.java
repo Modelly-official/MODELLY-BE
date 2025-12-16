@@ -40,7 +40,7 @@ public class DesignerReviewController implements DesignerReviewSwagger {
     }
 
     @PutMapping("/designers/replies/{replyId}")
-    public ApiResponse<ReplyResponseDto> updateReply(AuthDetails authDetails, @PathVariable Long replyId, @RequestBody @Valid ReplyRequestDto requestDto) {
+    public ApiResponse<ReplyResponseDto> updateReply(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long replyId, @RequestBody @Valid ReplyRequestDto requestDto) {
 
         Reply reply = designerReviewService.updateReply(authDetails.user(), replyId, requestDto);
 

@@ -50,6 +50,7 @@ public class DesignerReviewService {
     }
 
 
+    @Transactional
     public Reply createReply(User user, Long reviewId, ReplyRequestDto requestDto) {
         Designer designer = designerService.getByUser(user);
         Review review = reviewService.getById(reviewId);
@@ -65,6 +66,7 @@ public class DesignerReviewService {
         return reply;
     }
 
+    @Transactional
     public Reply updateReply(User user, Long replyId, ReplyRequestDto requestDto) {
         Designer designer = designerService.getByUser(user);
         Reply reply = replyService.getById(replyId);
