@@ -4,9 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import modelly.modelly_be.domain.review.dto.request.ReplyRequestDto;
+import modelly.modelly_be.domain.review.dto.response.DesignerReviewListResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReplyResponseDto;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
+import modelly.modelly_be.global.utils.ScrollResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,4 +41,15 @@ public interface DesignerReviewSwagger {
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long replyId,
             @RequestBody @Valid ReplyRequestDto requestDto);
+
+    @Operation(summary = "나(디자이너)에 대한 리뷰 리스트 조회 API", description = """
+            디자이너가 본인에게 달린 리뷰 리스트를 조회하는 API입니다. \n
+            `cursorId`: response에서의 nextCursor값을 넣어주시면 됩니다. \n
+            `size` : 한 페이지에서 보여질 리뷰의 개수 \n
+            """)
+    ApiResponse<ScrollResponse<DesignerReviewListResponseDto>> getDesignerReviewList(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(defaultValue = "10") int size
+    );
 }

@@ -4,13 +4,18 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.review.controller.swagger.DesignerReviewSwagger;
 import modelly.modelly_be.domain.review.dto.request.ReplyRequestDto;
+import modelly.modelly_be.domain.review.dto.response.DesignerReviewListResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReplyResponseDto;
 import modelly.modelly_be.domain.review.entity.Reply;
 import modelly.modelly_be.domain.review.service.DesignerReviewService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
+import modelly.modelly_be.global.utils.ScrollResponse;
+import modelly.modelly_be.global.utils.ScrollUtil;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,5 +45,18 @@ public class DesignerReviewController implements DesignerReviewSwagger {
         Reply reply = designerReviewService.updateReply(authDetails.user(), replyId, requestDto);
 
         return ApiResponse.onSuccess(ReplyResponseDto.of(reply));
+    }
+
+    @GetMapping("/designers/reviews")
+    public ApiResponse<ScrollResponse<DesignerReviewListResponseDto>> getDesignerReviewList(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        List<DesignerReviewListResponseDto> dtoList = designerReviewService.getDesignerReviewList(authDetails.user(), cursorId, size);
+
+        ScrollResponse<DesignerReviewListResponseDto> responseDtos = ScrollUtil.paginate(dtoList, size);
+
+        return ApiResponse.onSuccess(responseDtos);
     }
 }

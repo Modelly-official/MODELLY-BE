@@ -1,6 +1,5 @@
 package modelly.modelly_be.domain.review.service;
 
-import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.review.entity.Reply;

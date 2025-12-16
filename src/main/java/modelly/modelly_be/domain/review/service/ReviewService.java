@@ -227,4 +227,8 @@ public class ReviewService {
     public void save(Review review) {
         reviewRepository.save(review);
     }
+
+    public Slice<Review> findAllByDesigner(Designer designer, Long cursorId, Pageable pageable) {
+        return reviewRepository.findAllByDesignerAndIdLessThanOrderByCreatedAtDesc(designer, cursorId, pageable);
+    }
 }
