@@ -38,7 +38,7 @@ public interface GuestReviewSwagger {
             @RequestParam(defaultValue = "10") int size);
 
     @Operation(summary = "리뷰 단건 조회 API", description = "특정 리뷰를 조회할 때 사용하는 API입니다.")
-    ApiResponse<ReviewResponseDto> getDesignerReviewList(
+    ApiResponse<ReviewResponseDto> getReview(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long reviewId);
 

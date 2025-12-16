@@ -15,6 +15,7 @@ public record ReviewListResponseDto(
         String content,
         String summary,
         List<String> reviewImages,
+        boolean isFixed,
         boolean isMine
 ) {
 
@@ -35,6 +36,7 @@ public record ReviewListResponseDto(
                 review.getContent(),
                 review.getSummary(),
                 imageUrls,
+                review.isFixed(),
                 isMine
         );
     }

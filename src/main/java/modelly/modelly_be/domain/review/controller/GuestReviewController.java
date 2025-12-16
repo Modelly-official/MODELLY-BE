@@ -5,7 +5,6 @@ import modelly.modelly_be.domain.review.controller.swagger.GuestReviewSwagger;
 import modelly.modelly_be.domain.review.dto.response.ReviewListResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReviewResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReviewThumbnailListResponseDto;
-import modelly.modelly_be.domain.review.entity.Review;
 import modelly.modelly_be.domain.review.service.ReviewService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
@@ -55,7 +54,7 @@ public class GuestReviewController implements GuestReviewSwagger {
     }
 
     @GetMapping("/reviews/{reviewId}")
-    public ApiResponse<ReviewResponseDto> getDesignerReviewList(
+    public ApiResponse<ReviewResponseDto> getReview(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long reviewId) {
 

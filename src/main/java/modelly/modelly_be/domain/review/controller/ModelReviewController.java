@@ -51,6 +51,7 @@ public class ModelReviewController implements ModelReviewSwagger {
         return ApiResponse.onSuccess("리뷰가 삭제되었습니다.");
     }
 
+    //자신이 작성한 리뷰 내역 조회
     @GetMapping("/reviews")
     public ApiResponse<ScrollResponse<MyReviewListResponseDto>> getReviewList(
             @AuthenticationPrincipal AuthDetails authDetails,
