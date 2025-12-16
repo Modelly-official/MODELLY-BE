@@ -169,13 +169,22 @@ public class ReviewService {
             modelId = null;
         }
 
+
+
         return reviews.getContent().stream()
                 .map(review -> {
                     boolean isMine = false;
                     if ( modelId != null){
                         isMine = review.getModel().getId().equals(modelId);
                     }
-                    return ReviewListResponseDto.of(review, review.getModel().getUser().getImageUrl(),isMine);
+                    Reply reply = replyService.getByReview(review)
+                            .orElse(null);
+                    if (reply != null){
+                        return ReviewListResponseDto.of(review, review.getModel().getUser().getImageUrl(),isMine, reply);
+                    } else {
+                        return ReviewListResponseDto.of(review, review.getModel().getUser().getImageUrl(),isMine);
+                    }
+
                 })
                 .toList();
 
