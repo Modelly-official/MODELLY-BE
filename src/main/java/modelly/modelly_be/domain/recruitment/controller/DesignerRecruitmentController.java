@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+@RequestMapping("/designers")
 @RestController
 @RequiredArgsConstructor
 public class DesignerRecruitmentController implements DesignerRecruitmentSwagger {
@@ -50,7 +51,7 @@ public class DesignerRecruitmentController implements DesignerRecruitmentSwagger
         return ApiResponse.onSuccess("공고가 삭제되었습니다.");
     }
 
-    @GetMapping("/designers/recruitments")
+    @GetMapping("/recruitments")
     public ApiResponse<ScrollResponse<DesignerRecruitmentListResponseDto>> getMyRecruitments(
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam String month,

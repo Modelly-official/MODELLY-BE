@@ -48,4 +48,9 @@ public class ReservationService {
             reservationRepository.save(r);
         }
     }
+
+    public Reservation getById(Long reservationId) {
+        return reservationRepository.findById(reservationId)
+                .orElseThrow(()-> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION));
+    }
 }

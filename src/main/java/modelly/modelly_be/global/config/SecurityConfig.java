@@ -57,8 +57,18 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/logout",
                                 "/auth/validate",
-                                "/api/recruitments/**"
+                                "/api/recruitments/**",
+                                "/models/**",
+                                "/designers/**",
+                                "/chat/**",
+                                "/likes/**"
                         ).authenticated()
+                        .requestMatchers(
+                                "/models/**"
+                        ).hasRole("MODEL")
+                        .requestMatchers(
+                                "/designers/**"
+                        ).hasRole("DESIGNER")
                         .anyRequest().permitAll()
                 );
 

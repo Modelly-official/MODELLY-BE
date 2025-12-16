@@ -1,8 +1,9 @@
-package modelly.modelly_be.domain.recruitment.dto.response;
-import java.time.LocalDateTime;
-import java.util.List;
+package modelly.modelly_be.domain.recruitment.dto.common;
+import modelly.modelly_be.global.entity.Category;
 
-public record RecruitmentListResponseDto(
+import java.time.LocalDateTime;
+
+public record RecruitmentBasic(
         Long recruitmentId,
         String title,
         String designerImage,
@@ -10,8 +11,7 @@ public record RecruitmentListResponseDto(
         String recruitmentThumbnail,
         String shop,
         String shopAddress,
-        String category,
-        List<String> subCategories,
+        Category category,
         Long reviewCount,
         Double distance,
         boolean isLiked,

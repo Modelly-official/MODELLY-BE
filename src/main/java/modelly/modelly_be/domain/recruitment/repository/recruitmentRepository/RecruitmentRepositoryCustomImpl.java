@@ -10,10 +10,11 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import modelly.modelly_be.domain.like.entity.QRecruitmentLike;
+import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentBasic;
 import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
-import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitment;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitmentDate;
+import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
 import modelly.modelly_be.domain.review.entity.QReview;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.QDesigner;
@@ -23,6 +24,9 @@ import modelly.modelly_be.global.utils.Coordinate;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -40,7 +44,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
         if (cond.category() != null) {
             b.and(r.category.eq(cond.category()));
             if (cond.subCategory() != null) {
-                b.and(r.subCategory.eq(cond.subCategory()));
+                b.and(r.subCategoryList.any().in(cond.subCategory()));
             }
         }
 
@@ -50,7 +54,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
     }
 
     @Override
-    public List<RecruitmentListResponseDto> findRecruitmentsByCreatedAt(Long userId, SearchCondition searchCondition, Long cursorId, int size) {
+    public List<RecruitmentBasic> findRecruitmentsByCreatedAt(Long userId, SearchCondition searchCondition, Long cursorId, int size) {
         QRecruitment qRecruitment = QRecruitment.recruitment;
         QDesigner qDesigner = QDesigner.designer;
         QRecruitmentLike qRecruitmentLike = QRecruitmentLike.recruitmentLike;
@@ -60,9 +64,9 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
             booleanBuilder.and(qRecruitment.id.lt(cursorId));
         }
 
-        List<RecruitmentListResponseDto> dtos = queryFactory
+        List<RecruitmentBasic> dtos = queryFactory
                 .select(Projections.constructor(
-                        RecruitmentListResponseDto.class,
+                        RecruitmentBasic.class,
                         qRecruitment.id,
                         qRecruitment.title,
                         qDesigner.user.imageUrl,
@@ -71,7 +75,6 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                         qDesigner.shop,
                         qDesigner.addressLine1,
                         qRecruitment.category,
-                        qRecruitment.subCategory,
                         Expressions.nullExpression(Long.class),
                         Expressions.nullExpression(Double.class),
                         qRecruitmentLike.id.isNotNull(),
@@ -90,7 +93,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
     }
 
     @Override
-    public List<RecruitmentListResponseDto> findRecruitmentsByReviews(Long userId, SearchCondition searchCondition, Long cursorId, Long cursorReviewCount, int size) {
+    public List<RecruitmentBasic> findRecruitmentsByReviews(Long userId, SearchCondition searchCondition, Long cursorId, Long cursorReviewCount, int size) {
         QRecruitment qRecruitment = QRecruitment.recruitment;
         QDesigner qDesigner = QDesigner.designer;
         QRecruitmentLike qRecruitmentLike = QRecruitmentLike.recruitmentLike;
@@ -114,9 +117,9 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
             );
         }
 
-        List<RecruitmentListResponseDto> dtos = queryFactory
+        List<RecruitmentBasic> dtos = queryFactory
                 .select(Projections.constructor(
-                        RecruitmentListResponseDto.class,
+                        RecruitmentBasic.class,
                         qRecruitment.id,
                         qRecruitment.title,
                         qDesigner.user.imageUrl,
@@ -125,7 +128,6 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                         qDesigner.shop,
                         qDesigner.addressLine1,
                         qRecruitment.category,
-                        qRecruitment.subCategory,
                         reviewCountExpression,
                         Expressions.nullExpression(Double.class),
                         qRecruitmentLike.id.isNotNull(),
@@ -144,7 +146,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
     }
 
     @Override
-    public List<RecruitmentListResponseDto> findRecruitmentsByDistance(Long userId, SearchCondition searchCondition, Long cursorId, Double cursorDistance, int size, Coordinate userCoordinate) {
+    public List<RecruitmentBasic> findRecruitmentsByDistance(Long userId, SearchCondition searchCondition, Long cursorId, Double cursorDistance, int size, Coordinate userCoordinate) {
         QRecruitment qRecruitment = QRecruitment.recruitment;
         QDesigner qDesigner = QDesigner.designer;
         QRecruitmentLike qRecruitmentLike = QRecruitmentLike.recruitmentLike;
@@ -175,10 +177,10 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
             );
         }
 
-        List<RecruitmentListResponseDto> dtos = queryFactory
+        List<RecruitmentBasic> dtos = queryFactory
                 .select(
                         Projections.constructor(
-                                RecruitmentListResponseDto.class,
+                                RecruitmentBasic.class,
                                 qRecruitment.id,
                                 qRecruitment.title,
                                 qDesigner.user.imageUrl,
@@ -187,7 +189,6 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                                 qDesigner.shop,
                                 qDesigner.addressLine1,
                                 qRecruitment.category,
-                                qRecruitment.subCategory,
                                 Expressions.nullExpression(Long.class),
                                 distance,
                                 qRecruitmentLike.id.isNotNull(),
@@ -248,6 +249,28 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                 .orderBy(earliestRecruitmentDate.asc(), qRecruitment.id.desc())
                 .limit(size+1)
                 .fetch();
+    }
+
+    @Override
+    public Map<Long, Set<SubCategory>> findSubCategoriesByRecruitmentIds(List<Long> recruitmentIds) {
+        QRecruitment qRecruitment = QRecruitment.recruitment;
+
+        EnumPath<SubCategory> sub = Expressions.enumPath(SubCategory.class, "subCategory");
+
+        return queryFactory
+                .select(qRecruitment.id, sub)
+                .from(qRecruitment)
+                .join(qRecruitment.subCategoryList, sub)
+                .where(qRecruitment.id.in(recruitmentIds))
+                .fetch()
+                .stream()
+                .collect(Collectors.groupingBy(
+                        tuple -> tuple.get(qRecruitment.id),
+                        Collectors.mapping(
+                                tuple -> tuple.get(sub),
+                                Collectors.toSet()
+                        )
+                ));
     }
 
 }

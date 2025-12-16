@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.review.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.entity.BaseEntity;
 
 @Entity
@@ -17,7 +18,11 @@ public class Reply extends BaseEntity {
     @Column(name = "content", length = 200)
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id")
     private Review review;
+
+    @ManyToOne
+    @JoinColumn(name = "designer_id")
+    private Designer designer;
 }
