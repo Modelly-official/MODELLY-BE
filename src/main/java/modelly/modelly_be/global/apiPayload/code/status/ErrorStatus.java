@@ -76,9 +76,13 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_FOUND_REVIEW(HttpStatus.NOT_FOUND, "REVIEW404", "리뷰가 존재하지 않습니다."),
     RESERVATION_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "REVIEW400", "예약된 일정이 아직 완료되지않아 리뷰 작성이 불가능합니다."),
     FORBIDDEN_DELETE_OR_MODIFY_REVIEW(HttpStatus.FORBIDDEN, "REVIEW403", "작성자만 리뷰 삭제 및 수정이 가능합니다."),
+    FORBIDDEN_UPDATE_FIX(HttpStatus.FORBIDDEN, "REVIEW403", "해당 리뷰의 디자이너만 리뷰 고정 / 고정 취소가 가능합니다."),
+    NOT_FOUND_REPLY(HttpStatus.NOT_FOUND, "REPLY404", "답글이 존재하지 않습니다."),
+    FORBIDDEN_MODIFY_REPLY(HttpStatus.FORBIDDEN, "REPLY403", "해당 답글의 디자이너만 답글 수정이 가능합니다."),
+    REPLY_ALREADY_EXIST(HttpStatus.CONFLICT, "REPLY409", "해당 리뷰에 대한 답글을 이미 작성하셨습니다."),
 
     //s3
-    FILE_UPLOAD_FAIL(HttpStatus.BAD_REQUEST, "S3_ERROR", "파일 업로드에 실패했습니다.")
+    FILE_UPLOAD_FAIL(HttpStatus.BAD_REQUEST, "S3_ERROR", "파일 업로드에 실패했습니다."),
     ;
 
     private final HttpStatus httpStatus;

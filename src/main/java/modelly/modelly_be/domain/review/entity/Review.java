@@ -63,4 +63,8 @@ public class Review extends BaseEntity {
         if (requestDto.rating() != null) rating = requestDto.rating();
         if (requestDto.content() != null) content = requestDto.content();
     }
+
+    public void updateFixStatus(boolean fixed) {
+        this.isFixed = fixed;
+    }
 }

@@ -25,4 +25,8 @@ public class Reply extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "designer_id")
     private Designer designer;
+
+    public void update(String content) {
+        this.content = content;
+    }
 }

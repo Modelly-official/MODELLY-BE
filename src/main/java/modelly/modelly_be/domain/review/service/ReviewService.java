@@ -223,4 +223,8 @@ public class ReviewService {
             throw new GeneralException(ErrorStatus.FORBIDDEN_DELETE_OR_MODIFY_REVIEW);
         }
     }
+
+    public void save(Review review) {
+        reviewRepository.save(review);
+    }
 }
