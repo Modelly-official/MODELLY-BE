@@ -223,4 +223,12 @@ public class ReviewService {
             throw new GeneralException(ErrorStatus.FORBIDDEN_DELETE_OR_MODIFY_REVIEW);
         }
     }
+
+    public void save(Review review) {
+        reviewRepository.save(review);
+    }
+
+    public Slice<Review> findAllByDesigner(Designer designer, Long cursorId, Pageable pageable) {
+        return reviewRepository.findAllByDesignerAndIdLessThanOrderByCreatedAtDesc(designer, cursorId, pageable);
+    }
 }

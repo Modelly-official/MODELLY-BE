@@ -9,7 +9,7 @@ import modelly.modelly_be.domain.review.entity.ReviewImage;
 import java.time.LocalDate;
 import java.util.List;
 
-public record ReviewListResponseDto(
+public record DesignerReviewListResponseDto(
         @Schema(description = "리뷰 id", example="1")
         Long reviewId,
         @Schema(description = "모델 프로필 사진")
@@ -28,13 +28,11 @@ public record ReviewListResponseDto(
         List<String> reviewImages,
         @Schema(description = "리뷰 고정 여부", example="false")
         boolean isFixed,
-        @Schema(description = "리뷰 작성자인지 여부", example="true")
-        boolean isMine,
         @Schema(description = "답글 정보")
         ReplyDto replyDto
 ) {
 
-    public static ReviewListResponseDto of(Review review, String modelImage, boolean isMine, Reply reply) {
+    public static DesignerReviewListResponseDto of(Review review, String modelImage, Reply reply) {
 
         List<String> imageUrls = review.getReviewImages().stream()
                 .map(ReviewImage::getImageUrl)
@@ -44,7 +42,7 @@ public record ReviewListResponseDto(
 
         ReplyDto replyDto = ReplyDto.of(reply);
 
-        return new ReviewListResponseDto(
+        return new DesignerReviewListResponseDto(
                 review.getId(),
                 modelImage,
                 review.getModel().getNickname(),
@@ -54,12 +52,11 @@ public record ReviewListResponseDto(
                 review.getSummary(),
                 imageUrls,
                 review.isFixed(),
-                isMine,
                 replyDto
         );
     }
 
-    public static ReviewListResponseDto of(Review review, String modelImage, boolean isMine) {
+    public static DesignerReviewListResponseDto of(Review review, String modelImage) {
 
         List<String> imageUrls = review.getReviewImages().stream()
                 .map(ReviewImage::getImageUrl)
@@ -67,7 +64,7 @@ public record ReviewListResponseDto(
 
         LocalDate createdDate = review.getCreatedAt().toLocalDate();
 
-        return new ReviewListResponseDto(
+        return new DesignerReviewListResponseDto(
                 review.getId(),
                 modelImage,
                 review.getModel().getNickname(),
@@ -77,7 +74,6 @@ public record ReviewListResponseDto(
                 review.getSummary(),
                 imageUrls,
                 review.isFixed(),
-                isMine,
                 null
         );
     }
