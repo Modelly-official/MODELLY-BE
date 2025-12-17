@@ -116,19 +116,23 @@ public class DesignerRecruitmentService {
 
         //스케줄 수정
         if (requestDto.recruitmentSchedule()!= null) {
+            recruitment.getRecruitmentDates().clear();
             updateSchedule(recruitment, requestDto.recruitmentSchedule());
         }
 
         //카테고리 수정
         if (requestDto.subCategoryList() != null && !requestDto.subCategoryList().isEmpty()) {
+            recruitment.getSubCategoryList().clear();
             updateSubCategory(recruitment, requestDto.category(), requestDto.subCategoryList());
         }
 
         if (requestDto.imageFolderId() != null && !requestDto.imageFolderId().equals(recruitment.getImageFolderId())) {
 
             //기존 S3 폴더 삭제
-            String oldFolderPath = "recruitments/" + recruitment.getImageFolderId() + "/";
-            s3Uploader.deleteFolder(oldFolderPath);
+            if (recruitment.getImageFolderId() != null) {
+                String oldFolderPath = "recruitments/" + recruitment.getImageFolderId() + "/";
+                s3Uploader.deleteFolder(oldFolderPath);
+            }
 
             //DB에서 공고 이미지 리스트 삭제
             recruitment.getRecruitmentImages().clear();
@@ -166,7 +170,9 @@ public class DesignerRecruitmentService {
         reservationService.hasPendingOrConfirmedReservation(recruitment);
 
         //기존 이미지 삭제
-        s3Uploader.deleteFolder("recruitments/"+recruitment.getImageFolderId() + "/");
+        if (recruitment.getImageFolderId() != null) {
+            s3Uploader.deleteFolder("recruitments/" + recruitment.getImageFolderId() + "/");
+        }
 
         recruitmentService.deleteRecruitment(recruitment);
     }

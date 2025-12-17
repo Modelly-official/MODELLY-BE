@@ -116,8 +116,10 @@ public class ReviewService {
                 && requestDto.thumbnail() !=null){
 
             //기존 S3 폴더 삭제
-            String oldFolderPath = "reviews/" + review.getImageFolderId() + "/";
-            s3Uploader.deleteFolder(oldFolderPath);
+            if (review.getImageFolderId() != null) {
+                String oldFolderPath = "reviews/" + review.getImageFolderId() + "/";
+                s3Uploader.deleteFolder(oldFolderPath);
+            }
 
             //DB에서 리뷰 이미지 리스트 삭제
             review.getReviewImages().clear();
@@ -161,7 +163,9 @@ public class ReviewService {
        }
 
         //기존 이미지 삭제
-        s3Uploader.deleteFolder("reviews/"+review.getImageFolderId() + "/");
+        if (review.getImageFolderId() != null) {
+            s3Uploader.deleteFolder("reviews/" + review.getImageFolderId() + "/");
+        }
 
         reviewRepository.delete(review);
     }

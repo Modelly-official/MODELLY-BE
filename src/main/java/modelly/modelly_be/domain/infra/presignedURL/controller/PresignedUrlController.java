@@ -9,6 +9,7 @@ import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.s3.PresignedUploadResponse;
 import modelly.modelly_be.global.security.AuthDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,7 +21,7 @@ public class PresignedUrlController implements PresignedUrlSwagger {
     @GetMapping("/presigned-url/recruitments")
     public ApiResponse<PresignedUrlListResponse> createRecruitmentImage(
             @AuthenticationPrincipal AuthDetails authDetails,
-            @RequestParam @Max(3) int imageCount
+            @RequestParam @Validated @Max(3) int imageCount
             ) {
 
         PresignedUrlListResponse response = presignedUrlService.createRecruitmentImage(authDetails.user(), imageCount);
@@ -31,7 +32,7 @@ public class PresignedUrlController implements PresignedUrlSwagger {
     public ApiResponse<PresignedUrlListResponse> createReviewsImage(
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam Long reservationId,
-            @RequestParam @Max(3) int imageCount
+            @RequestParam @Validated @Max(3) int imageCount
     ) {
 
         PresignedUrlListResponse response = presignedUrlService.createReviewsImage(authDetails.user(), reservationId, imageCount);

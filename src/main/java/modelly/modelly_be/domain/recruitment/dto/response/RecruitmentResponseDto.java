@@ -30,7 +30,7 @@ public record RecruitmentResponseDto(
         String goal3,
         @Schema(description = "공고 썸네일")
         String thumbnail,
-        @Schema(description = "공고 사진이 저장된 폴더 id. presignedUrl 발급 후, 응답 dto의 folderId을 넣어주세요.")
+        @Schema(description = "공고 이미지 URL 목록")
         List<String> imageUrls,
         @Schema(description = "영상촬영 동의", example = "false")
         boolean agreeVideo,

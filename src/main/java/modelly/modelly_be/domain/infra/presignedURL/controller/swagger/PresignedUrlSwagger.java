@@ -8,6 +8,7 @@ import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.s3.PresignedUploadResponse;
 import modelly.modelly_be.global.security.AuthDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +30,7 @@ public interface PresignedUrlSwagger {
             ---
             🧩 프론트엔드 처리 흐름 \n
             1️⃣ Presigned URL 발급 요청 \n
-            `POST /presigned-url/recruitments`
+            `GET /presigned-url/recruitments`
             
             2️⃣ S3에 직접 파일 업로드 \n
             ```
@@ -44,7 +45,7 @@ public interface PresignedUrlSwagger {
     @GetMapping("/presigned-url/recruitments")
     ApiResponse<PresignedUrlListResponse> createRecruitmentImage(
             @AuthenticationPrincipal AuthDetails authDetails,
-            @RequestParam @Max(3) int imageCount
+            @RequestParam @Validated @Max(3) int imageCount
     );
 
     @Operation(summary = "리뷰 이미지용 Presigned URL 발급 API", description = """
@@ -60,7 +61,7 @@ public interface PresignedUrlSwagger {
             ---
             🧩 프론트엔드 처리 흐름 \n
             1️⃣ Presigned URL 발급 요청 \n
-            `POST /presigned-url/reviews`
+            `GET /presigned-url/reviews`
             
             2️⃣ S3에 직접 파일 업로드 \n
             ```
@@ -76,7 +77,7 @@ public interface PresignedUrlSwagger {
     ApiResponse<PresignedUrlListResponse> createReviewsImage(
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam Long reservationId,
-            @RequestParam @Max(3) int imageCount
+            @RequestParam @Validated @Max(3) int imageCount
     );
 
     @Operation(
