@@ -11,6 +11,7 @@ import modelly.modelly_be.domain.recruitment.entity.RecruitmentDate;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentImage;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.entity.enums.RecruitmentStatus;
+import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.User;
@@ -18,6 +19,7 @@ import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
+import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.s3.S3Uploader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,9 +70,7 @@ public class DesignerRecruitmentService {
 
         if (recruitmentRequestDto.subCategoryList() != null
                 && !recruitmentRequestDto.subCategoryList().isEmpty()) {
-            //상위 카테고리랑 매칭되는지 확인하는 로직 추가
-            recruitment.getSubCategoryList()
-                    .addAll(recruitmentRequestDto.subCategoryList());
+            updateSubCategory(recruitment, recruitmentRequestDto.category(), recruitmentRequestDto.subCategoryList());
         }
 
         recruitmentService.save(recruitment);
@@ -117,6 +117,11 @@ public class DesignerRecruitmentService {
         //스케줄 수정
         if (requestDto.recruitmentSchedule()!= null) {
             updateSchedule(recruitment, requestDto.recruitmentSchedule());
+        }
+
+        //카테고리 수정
+        if (requestDto.subCategoryList() != null && !requestDto.subCategoryList().isEmpty()) {
+            updateSubCategory(recruitment, requestDto.category(), requestDto.subCategoryList());
         }
 
         if (requestDto.imageFolderId() != null && !requestDto.imageFolderId().equals(recruitment.getImageFolderId())) {
@@ -207,5 +212,20 @@ public class DesignerRecruitmentService {
                 date.addTime(recruitmentTime);
             }
         }
+    }
+
+    @Transactional
+    public void updateSubCategory(Recruitment recruitment, Category parentCategory,List<SubCategory> subCategoryList) {
+
+            // 모든 서브 카테고리가 상위 카테고리에 속하는지 검증
+            boolean isAllMatch = subCategoryList.stream()
+                    .allMatch(sub -> sub != SubCategory.ETC? sub.getParentCategory() == parentCategory : true);
+
+            if (!isAllMatch) {
+                throw new GeneralException(ErrorStatus.SUBCATEGORY_MISMATCH);
+            }
+
+            recruitment.getSubCategoryList()
+                    .addAll(subCategoryList);
     }
 }

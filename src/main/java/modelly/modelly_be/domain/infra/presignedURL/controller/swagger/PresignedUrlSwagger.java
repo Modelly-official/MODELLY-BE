@@ -5,9 +5,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import modelly.modelly_be.domain.infra.presignedURL.dto.PresignedUrlListResponse;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
+import modelly.modelly_be.global.s3.PresignedUploadResponse;
 import modelly.modelly_be.global.security.AuthDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "이미지 업로드 (Presigned URL) 관련 API")
@@ -74,5 +77,68 @@ public interface PresignedUrlSwagger {
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam Long reservationId,
             @RequestParam @Max(3) int imageCount
+    );
+
+    @Operation(
+            summary = "채팅 이미지 업로드용 Presigned URL 발급",
+            description = """
+                채팅방에 업로드할 파일을 위해 **S3 Presigned PUT URL**을 발급합니다.  
+                **프론트엔드가 S3로 직접 PUT 업로드**
+                
+                ---
+                ✅ 접근 제어
+                - 요청한 사용자가 해당 `roomId` 채팅방의 **참여자인지 검증**합니다.
+                - 채팅방 참여자가 아닌 경우 **403 Forbidden** 에러가 발생합니다.
+                
+                ---
+                📥 Request
+                
+                - Path Variable
+                  - `roomId` : 채팅방 ID
+                
+                
+                ---
+                📤 Response (PresignedUploadResponse)
+                
+                - `uploadUrl`  
+                  - S3에 **PUT 업로드**할 Presigned URL  
+                  - 유효시간: **5분**
+                
+                - `imageUrl`  
+                  - 업로드 완료 후 채팅 메시지로 사용할 **S3 객체 접근 URL**
+                
+                ---
+                🧩 프론트엔드 처리 흐름
+                
+                1️⃣ Presigned URL 발급 요청  
+                ```
+                POST /chat/rooms/{roomId}/images/presigned
+                ```
+                
+                2️⃣ S3에 직접 파일 업로드  
+                ```
+                PUT {uploadUrl}
+                Body: file(binary)
+                ```
+                
+                3️⃣ 업로드가 완료되면 `imageUrl`을 STOMP로 전송  
+                - destination: `/pub/chat/rooms/{roomId}`
+                - payload 예시:
+                ```json
+                {
+                  "messageType": "IMAGE",
+                  "imageUrls": ["{imageUrl}"]
+                }
+                ```
+                
+                4️⃣ 서버는 전달받은 URL들을 `chatting_image` 테이블에 저장하고,  
+                같은 채팅방을 구독 중인 사용자들에게 IMAGE 메시지를 브로드캐스트합니다.
+                
+                """
+    )
+    @PostMapping("/chat/rooms/{roomId}/images/presigned")
+    ApiResponse<PresignedUploadResponse> createPresignedUrl(
+            @PathVariable Long roomId,
+            @AuthenticationPrincipal AuthDetails auth
     );
 }

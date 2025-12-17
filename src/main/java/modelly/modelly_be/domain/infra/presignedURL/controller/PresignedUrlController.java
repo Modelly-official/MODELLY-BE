@@ -6,11 +6,10 @@ import modelly.modelly_be.domain.infra.presignedURL.controller.swagger.Presigned
 import modelly.modelly_be.domain.infra.presignedURL.dto.PresignedUrlListResponse;
 import modelly.modelly_be.domain.infra.presignedURL.service.PresignedUrlService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
+import modelly.modelly_be.global.s3.PresignedUploadResponse;
 import modelly.modelly_be.global.security.AuthDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,6 +36,15 @@ public class PresignedUrlController implements PresignedUrlSwagger {
 
         PresignedUrlListResponse response = presignedUrlService.createReviewsImage(authDetails.user(), reservationId, imageCount);
 
+        return ApiResponse.onSuccess(response);
+    }
+
+    @PostMapping("/presigned-url/chats/{roomId}/")
+    public ApiResponse<PresignedUploadResponse> createPresignedUrl(
+            @PathVariable Long roomId,
+            @AuthenticationPrincipal AuthDetails auth
+    ) {
+        PresignedUploadResponse response = presignedUrlService.createChattingImage(auth.user(), roomId);
         return ApiResponse.onSuccess(response);
     }
 }

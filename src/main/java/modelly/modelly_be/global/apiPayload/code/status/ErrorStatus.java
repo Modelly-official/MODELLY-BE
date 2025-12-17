@@ -52,6 +52,7 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_FOUND_RECRUITMENT(HttpStatus.NOT_FOUND,"RECRUITMENT404", "공고를 찾을 수 없습니다."),
     FORBIDDEN_DELETE_OR_MODIFY_RECRUITMENT(HttpStatus.FORBIDDEN, "RECRUITMENT403", "작성자만 공고 삭제 및 수정이 가능합니다."),
     CAN_NOT_RECRUITMENT_DELETE_OR_MODIFY(HttpStatus.CONFLICT, "RECRUITMENT409", "현재 진행중이거나 확정된 예약이 있어 삭제 및 수정이 불가능합니다."),
+    SUBCATEGORY_MISMATCH(HttpStatus.BAD_REQUEST, "RECRUITMENT400", "선택한 서브 카테고리가 상위 카테고리와 일치하지 않습니다."),
 
     // 채팅
     INVALID_CHATROOM(HttpStatus.BAD_REQUEST, "CHAT400", "채팅방 생성이 불가능합니다."),
