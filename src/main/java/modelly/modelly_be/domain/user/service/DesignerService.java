@@ -5,6 +5,7 @@ import modelly.modelly_be.domain.recruitment.dto.common.CursorInformation;
 import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.User;
+import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.domain.user.repository.designerRepository.DesignerRepository;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
@@ -53,5 +54,11 @@ public class DesignerService {
     public Designer getById(Long designerId) {
         return designerRepository.findById(designerId)
                 .orElseThrow(()-> new GeneralException(ErrorStatus.NOT_FOUND_DESIGNER));
+    }
+
+    public void checkDesigner(User user) {
+        if (user.getUserRole() != UserRole.DESIGNER) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
     }
 }
