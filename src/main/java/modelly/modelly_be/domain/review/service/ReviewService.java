@@ -21,6 +21,7 @@ import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.domain.user.service.ModelService;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
+import modelly.modelly_be.global.s3.S3Uploader;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -42,6 +43,7 @@ public class ReviewService {
     private final ReplyService replyService;
     private final DesignerService designerService;
     private final ReviewRepository reviewRepository;
+    private final S3Uploader s3Uploader;
 
     @Transactional
     public Review createReview(User user, Long reservationId, ReviewCreateRequestDto requestDto) {
@@ -82,6 +84,7 @@ public class ReviewService {
 
         //리뷰 이미지 추가
         if (requestDto.imageUrlList() != null){
+            review.updateImageInf(requestDto.imageFolderId(), requestDto.thumbnail());
             for (String imageUrl : requestDto.imageUrlList()){
                 ReviewImage reviewImage = ReviewImage.builder()
                         .review(review)
@@ -107,22 +110,36 @@ public class ReviewService {
 
         isReviewAuthor(model, review);
 
-        review.update(requestDto);
-        reviewRepository.save(review);
-
         //기존에 있던 리뷰 이미지들 삭제 후, 다시 생성
-        if (requestDto.imageUrlList() != null){
+        if (requestDto.imageFolderId() != null
+                && !requestDto.imageFolderId().equals(review.getImageFolderId())
+                && requestDto.thumbnail() !=null){
+
+            //기존 S3 폴더 삭제
+            String oldFolderPath = "reviews/" + review.getImageFolderId() + "/";
+            s3Uploader.deleteFolder(oldFolderPath);
+
+            //DB에서 리뷰 이미지 리스트 삭제
             review.getReviewImages().clear();
 
-            for (String imageUrl : requestDto.imageUrlList()){
-                ReviewImage reviewImage = ReviewImage.builder()
-                        .imageUrl(imageUrl)
-                        .review(review)
-                        .build();
+            if (requestDto.imageUrlList() != null){
+                review.getReviewImages().clear();
 
-                review.addReviewImage(reviewImage);
+                for (String imageUrl : requestDto.imageUrlList()){
+                    ReviewImage reviewImage = ReviewImage.builder()
+                            .imageUrl(imageUrl)
+                            .review(review)
+                            .build();
+
+                    review.addReviewImage(reviewImage);
+                }
             }
+
+            review.updateImageInf(requestDto.imageFolderId(), requestDto.thumbnail());
         }
+
+        review.update(requestDto);
+        reviewRepository.save(review);
 
         return review;
     }
@@ -142,6 +159,9 @@ public class ReviewService {
        if (reply != null){
            replyService.delete(reply);
        }
+
+        //기존 이미지 삭제
+        s3Uploader.deleteFolder("reviews/"+review.getImageFolderId() + "/");
 
         reviewRepository.delete(review);
     }

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface PresignedUrlSwagger {
 
     @Operation(summary = "공고 이미지용 Presigned URL 발급 API", description = """
-            디자이너가 공고 생성 시 이미지 업로드할 때 필요한 Presigned URL을 발급받는 API입니다. \n
+            디자이너가 공고 생성 / 수정 시 이미지 업로드할 때 필요한 Presigned URL을 발급받는 API입니다. \n
             ---
             ✅ 접근 제어
             - 요청한 사용자가 디자이너인지 확인합니다.
@@ -45,7 +45,7 @@ public interface PresignedUrlSwagger {
     );
 
     @Operation(summary = "리뷰 이미지용 Presigned URL 발급 API", description = """
-            디자이너가 공고 생성 시 이미지 업로드할 때 필요한 Presigned URL을 발급받는 API입니다. \n
+            모델이 리뷰 생성 / 수정 시 이미지 업로드할 때 필요한 Presigned URL을 발급받는 API입니다. \n
             ---
             ✅ 접근 제어
             - 요청한 사용자가 모델인지 확인하고, 해당 예약의 주인이 맞는지 확인합니다.

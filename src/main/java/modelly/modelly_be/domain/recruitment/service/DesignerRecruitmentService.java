@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.recruitment.service;
 
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentSchedule;
 import modelly.modelly_be.domain.recruitment.dto.request.RecruitmentRequestDto;
 import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentRequestDto;
 import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
@@ -17,6 +18,7 @@ import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
+import modelly.modelly_be.global.s3.S3Uploader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,7 @@ public class DesignerRecruitmentService {
     private final RecruitmentService recruitmentService;
     private final DesignerService designerService;
     private final ReservationService reservationService;
+    private final S3Uploader s3Uploader;
 
     @Transactional
     public Recruitment createRecruitment(User user, RecruitmentRequestDto recruitmentRequestDto) {
@@ -65,6 +68,7 @@ public class DesignerRecruitmentService {
 
         if (recruitmentRequestDto.subCategoryList() != null
                 && !recruitmentRequestDto.subCategoryList().isEmpty()) {
+            //상위 카테고리랑 매칭되는지 확인하는 로직 추가
             recruitment.getSubCategoryList()
                     .addAll(recruitmentRequestDto.subCategoryList());
         }
@@ -72,26 +76,11 @@ public class DesignerRecruitmentService {
         recruitmentService.save(recruitment);
 
         //스케줄 설정
-        for (var scheduleDto : recruitmentRequestDto.recruitmentSchedule()) {
-            RecruitmentDate date = RecruitmentDate.builder()
-                    .recruitment(recruitment)
-                    .date(scheduleDto.recruitmentDate())
-                    .build();
-            recruitment.addDate(date);
-
-            for (String time : scheduleDto.recruitmentTimes()) {
-                LocalTime localTime = LocalTime.parse(time);
-                RecruitmentTime recruitmentTime = RecruitmentTime.builder()
-                        .recruitmentDate(date)
-                        .startTime(localTime)
-                        .build();
-
-                date.addTime(recruitmentTime);
-            }
-        }
+        updateSchedule(recruitment, recruitmentRequestDto.recruitmentSchedule());
 
         //공고 이미지 엔티티
         if (recruitmentRequestDto.imageUrls() != null) {
+            recruitment.updateImageInf(recruitmentRequestDto.imageFolderId(), recruitmentRequestDto.thumbnail());
             for (String imageUrl : recruitmentRequestDto.imageUrls()) {
                 if (imageUrl != null) {
                     RecruitmentImage recruitmentImage = RecruitmentImage.builder()
@@ -125,6 +114,33 @@ public class DesignerRecruitmentService {
         //이미 확정된 예약이 있는 경우 예외처리
         reservationService.hasPendingOrConfirmedReservation(recruitment);
 
+        //스케줄 수정
+        if (requestDto.recruitmentSchedule()!= null) {
+            updateSchedule(recruitment, requestDto.recruitmentSchedule());
+        }
+
+        if (requestDto.imageFolderId() != null && !requestDto.imageFolderId().equals(recruitment.getImageFolderId())) {
+
+            //기존 S3 폴더 삭제
+            String oldFolderPath = "recruitments/" + recruitment.getImageFolderId() + "/";
+            s3Uploader.deleteFolder(oldFolderPath);
+
+            //DB에서 공고 이미지 리스트 삭제
+            recruitment.getRecruitmentImages().clear();
+
+            // 새로운 이미지 리스트 추가
+            if (requestDto.imageUrls() != null) {
+                for (String imageUrl : requestDto.imageUrls()) {
+                    RecruitmentImage recruitmentImage = RecruitmentImage.builder()
+                            .recruitment(recruitment)
+                            .imageUrl(imageUrl)
+                            .build();
+                    recruitment.addImage(recruitmentImage);
+                }
+            }
+            recruitment.updateImageInf(requestDto.imageFolderId(), requestDto.thumbnail());
+        }
+
         //수정 로직
         recruitment.updateRecruitment(requestDto);
         recruitmentService.save(recruitment);
@@ -143,6 +159,9 @@ public class DesignerRecruitmentService {
 
         //제약조건 체크
         reservationService.hasPendingOrConfirmedReservation(recruitment);
+
+        //기존 이미지 삭제
+        s3Uploader.deleteFolder("recruitments/"+recruitment.getImageFolderId() + "/");
 
         recruitmentService.deleteRecruitment(recruitment);
     }
@@ -167,5 +186,26 @@ public class DesignerRecruitmentService {
         List<DesignerRecruitmentListResponseDto> responseDtos = recruitmentService.getByDesignerAndRecruitmentDate(designer, yearMonth, size,cursorEarliestDate,cursorId);
 
         return responseDtos;
+    }
+
+    @Transactional
+    public void updateSchedule(Recruitment recruitment, List<RecruitmentSchedule> recruitmentScheduleList){
+        for (var scheduleDto : recruitmentScheduleList) {
+            RecruitmentDate date = RecruitmentDate.builder()
+                    .recruitment(recruitment)
+                    .date(scheduleDto.recruitmentDate())
+                    .build();
+            recruitment.addDate(date);
+
+            for (String time : scheduleDto.recruitmentTimes()) {
+                LocalTime localTime = LocalTime.parse(time);
+                RecruitmentTime recruitmentTime = RecruitmentTime.builder()
+                        .recruitmentDate(date)
+                        .startTime(localTime)
+                        .build();
+
+                date.addTime(recruitmentTime);
+            }
+        }
     }
 }
