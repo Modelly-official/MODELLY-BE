@@ -12,19 +12,6 @@ import modelly.modelly_be.domain.chat.dto.response.SendMessageResponse;
         description = """
                 STOMP WebSocket을 통해 채팅 기능을 사용할 때 필요한 프로토콜 문서입니다.
                 이 엔드포인트들은 Swagger 문서 전용이며 실제 동작은 WebSocket/STOMP로만 이루어집니다.
-
-                🔐 인증 (중요)
-                - WebSocket CONNECT 시 JWT를 함께 전송해야 합니다.
-                - 예시:
-                    Authorization: Bearer {accessToken}
-
-                🔌 WebSocket 연결 URL
-                - wss://{host}/api/ws/chat
-
-                📌 Publish / Subscribe destination
-                - Publish:   /pub/chat/rooms/{roomId}
-                             /pub/chat/rooms/{roomId}/read
-                - Subscribe: /sub/chat/rooms/{roomId}
                 """
 )
 public interface WebSocketSwagger {
