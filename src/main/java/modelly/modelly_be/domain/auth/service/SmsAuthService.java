@@ -46,7 +46,7 @@ public class SmsAuthService {
             ops.set(codeKey, authCode, AUTH_TTL_SECONDS, TimeUnit.SECONDS);
 
             // 문자 발송
-            String message = "[Modelly] 본인확인 인증번호 [" + authCode + "]를 화면에 입력해주세요.";
+            String message = "[Monde] 본인확인 인증번호 [" + authCode + "]를 화면에 입력해주세요.";
             smsSender.send(phoneNumber, message);
         } catch (GeneralException e) {
             // 문자 발송 실패 시 Redis 롤백

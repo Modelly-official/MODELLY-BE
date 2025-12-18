@@ -442,8 +442,8 @@ public class AuthService {
 
         // 응답 생성
         SocialLoginResponse loginResponse = registered
-                ? SocialLoginResponse.existing(user.getId(), tokens.getAccessToken(), user.getUserRole().getDescription())
-                : SocialLoginResponse.newUser(user.getId(), tokens.getAccessToken(), user.getUserRole().getDescription());
+                ? SocialLoginResponse.existing(user.getId(), tokens.getAccessToken(), user.getUserRole())
+                : SocialLoginResponse.newUser(user.getId(), tokens.getAccessToken(), user.getUserRole());
 
         return SocialLoginResult.of(loginResponse, refreshToken, ttlSec);
     }
