@@ -21,6 +21,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -32,6 +35,9 @@ public class AuthController {
 
     @Value("${security.cookie.secure:true}")
     private boolean refreshCookieSecure;
+
+    @Value("${security.oauth2.frontend.callback-uri}")
+    private String callbackUrl;
 
     /* ---------- 회원가입/로그인/로그아웃 ----------*/
     @Operation(summary = "회원가입", description = "회원가입 완료 메시지, loginId, 이름, 닉네임을 반환합니다.")
@@ -138,7 +144,7 @@ public class AuthController {
                     "성공 시 Refresh Token은 쿠키로, Access Token/회원가입 여부는 응답 바디로 반환합니다."
     )
     @GetMapping("/auth/kakao/login")
-    public ApiResponse<SocialLoginResponse> kakaoLogin(
+    public void kakaoLogin(
             @RequestParam("code") String code,
             HttpServletResponse response
     ) {
@@ -153,7 +159,20 @@ public class AuthController {
         );
         response.addHeader("Set-Cookie", cookie.toString());
 
-        return ApiResponse.onSuccess(result.getLoginResponse());
+        // 프론트로 넘길 값들
+        SocialLoginResponse body = result.getLoginResponse();
+        String userId = String.valueOf(body.getUserId());
+        String registered = String.valueOf(body.isRegistered());
+        String accessToken = body.getAccessToken();
+
+        // callback 설정
+        String redirect = callbackUrl
+                + "?userId=" + URLEncoder.encode(userId, StandardCharsets.UTF_8)
+                + "&registered=" + URLEncoder.encode(registered, StandardCharsets.UTF_8)
+                + "&accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
+
+        response.setStatus(302);
+        response.setHeader("Location", redirect);
     }
 
     /* 네이버 로그인 */
@@ -163,7 +182,7 @@ public class AuthController {
                     "성공 시 Refresh Token은 쿠키로, Access Token/회원가입 여부는 응답 바디로 반환합니다."
     )
     @GetMapping("/auth/naver/login")
-    public ApiResponse<SocialLoginResponse> naverLogin(
+    public void naverLogin(
             @RequestParam("code") String code,
             @RequestParam("state") String state,
             HttpServletResponse response
@@ -179,7 +198,20 @@ public class AuthController {
         );
         response.addHeader("Set-Cookie", cookie.toString());
 
-        return ApiResponse.onSuccess(result.getLoginResponse());
+        // 프론트로 넘길 값들
+        SocialLoginResponse body = result.getLoginResponse();
+        String userId = String.valueOf(body.getUserId());
+        String registered = String.valueOf(body.isRegistered());
+        String accessToken = body.getAccessToken();
+
+        // callback 설정
+        String redirect = callbackUrl
+                + "?userId=" + URLEncoder.encode(userId, StandardCharsets.UTF_8)
+                + "&registered=" + URLEncoder.encode(registered, StandardCharsets.UTF_8)
+                + "&accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
+
+        response.setStatus(302);
+        response.setHeader("Location", redirect);
     }
 
     /* 구글 로그인 */
@@ -189,7 +221,7 @@ public class AuthController {
                     "Refresh Token은 쿠키로, Access Token은 바디로 반환합니다."
     )
     @GetMapping("/auth/google/login")
-    public ApiResponse<SocialLoginResponse> googleLogin(
+    public void googleLogin(
             @RequestParam("code") String code,
             HttpServletResponse response
     ) {
@@ -204,7 +236,20 @@ public class AuthController {
         );
         response.addHeader("Set-Cookie", cookie.toString());
 
-        return ApiResponse.onSuccess(result.getLoginResponse());
+        // 프론트로 넘길 값들
+        SocialLoginResponse body = result.getLoginResponse();
+        String userId = String.valueOf(body.getUserId());
+        String registered = String.valueOf(body.isRegistered());
+        String accessToken = body.getAccessToken();
+
+        // callback 설정
+        String redirect = callbackUrl
+                + "?userId=" + URLEncoder.encode(userId, StandardCharsets.UTF_8)
+                + "&registered=" + URLEncoder.encode(registered, StandardCharsets.UTF_8)
+                + "&accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
+
+        response.setStatus(302);
+        response.setHeader("Location", redirect);
     }
 
     /* ---------- SMS 전송 및 인증 ---------- */
