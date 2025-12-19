@@ -1,5 +1,6 @@
 package modelly.modelly_be.domain.review.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Size;
@@ -12,7 +13,11 @@ public record ReviewUpdateRequestDto(
         Float rating,
         @Size(min = 10, max = 1000, message = "content 는 10자 이상, 1000자 이하여야 합니다.")
         String content,
+        @Schema(description = "공고 썸네일")
+        String thumbnail,
         @Size(max = 3, message = "이미지는 최대 3장까지 업로드 가능합니다.")
-        List<String> imageUrlList
+        List<String> imageUrlList,
+        @Schema(description = "공고 사진이 저장된 폴더 id. presignedUrl 발급 후, 응답 dto의 folderId을 넣어주세요.")
+        String imageFolderId
 ) {
 }

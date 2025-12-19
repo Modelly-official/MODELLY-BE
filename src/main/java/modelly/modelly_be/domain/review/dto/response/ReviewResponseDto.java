@@ -14,6 +14,8 @@ public record ReviewResponseDto(
         String content,
         @Schema(description = "시술 내용", example="커트, 파마")
         String summary,
+        @Schema(description = "리뷰 이미지 썸네일")
+        String thumbnail,
         @Schema(description = "리뷰 이미지 리스트")
         List<String> imageUrls,
         @Schema(description = "작성자인지 여부", example="true")
@@ -31,6 +33,7 @@ public record ReviewResponseDto(
                 review.getRating(),
                 review.getContent(),
                 review.getSummary(),
+                review.getThumbnail(),
                 imageUrls,
                 isMine);
     }

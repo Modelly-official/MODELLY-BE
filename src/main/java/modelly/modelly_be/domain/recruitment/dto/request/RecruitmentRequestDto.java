@@ -34,8 +34,12 @@ public record RecruitmentRequestDto(
         String goal2,
         @Schema(description = "모델 목적3", example = "포트폴리오를 위해서")
         String goal3,
+        @Schema(description = "공고 썸네일")
+        String thumbnail,
         @Schema(description = "공고관련 사진")
         List<String> imageUrls,
+        @Schema(description = "공고 사진이 저장된 폴더 id. presignedUrl 발급 후, 응답 dto의 folderId을 넣어주세요.")
+        String imageFolderId,
         @Schema(description = "영상촬영 동의", example = "false")
         @NotNull(message = "영상촬영 동의 여부는 필수입니다.")
         boolean agreeVideo,

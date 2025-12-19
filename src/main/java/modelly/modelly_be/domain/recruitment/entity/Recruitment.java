@@ -61,7 +61,7 @@ public class Recruitment extends BaseEntity {
     @Column(name = "etc", length = 100)
     private String etc;
 
-    @Column(name = "thumbnail", length = 100)
+    @Column(name = "thumbnail", length = 254)
     private String thumbnail;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -83,6 +83,9 @@ public class Recruitment extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private RecruitmentStatus recruitmentStatus=RecruitmentStatus.OPEN;
 
+    @Column(name = "folder_id", length = 36)
+    private String imageFolderId;
+
     public void addDate(RecruitmentDate date) {
         recruitmentDates.add(date);
     }
@@ -94,11 +97,6 @@ public class Recruitment extends BaseEntity {
     public void updateRecruitment(UpdateRecruitmentRequestDto dto) {
         if (dto.title() != null) this.title = dto.title();
         if (dto.category() != null) this.category = dto.category();
-        if (dto.subCategoryList() != null) {
-            this.subCategoryList.clear();
-            this.subCategoryList.addAll(dto.subCategoryList());
-        }
-
         if (dto.content() != null) this.content = dto.content();
         if (dto.notice() != null) this.notice = dto.notice();
         this.goal1 = dto.goal1();
@@ -108,5 +106,10 @@ public class Recruitment extends BaseEntity {
         this.agreeInsta = dto.agreeInsta();
         this.agreeMosaic = dto.agreeMosaic();
         this.etc = dto.etc();
+    }
+
+    public void updateImageInf(String imageFolderId, String thumbnail) {
+        this.imageFolderId = imageFolderId;
+        this.thumbnail = thumbnail;
     }
 }

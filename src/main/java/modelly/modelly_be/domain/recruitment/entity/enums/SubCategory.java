@@ -1,30 +1,36 @@
 package modelly.modelly_be.domain.recruitment.entity.enums;
 
-public enum SubCategory {
-    //HAIR
-    HAIR_CUT("커트"),
-    HAIR_PERM("파마"),
-    HAIR_COLORING("염색"),
-    //NAIL
-    ONE_COLOR("원컬러"),
-    ART("네일아트"),
-    PEDICURE("페디큐어"),
-    //EYELASH
-    EYELASH_PERM("펌"),
-    EYELASH_EXTENSION("연장"),
-    //TATTOO
-    LIP_TATTOO("립"),
-    EYEBROW_TATTOO("눈썹"),
-    NORMAL_TATTOO("일반아트"),
+import lombok.Getter;
+import modelly.modelly_be.global.entity.Category;
 
-    ETC("기타")
-    ;
+@Getter
+public enum SubCategory {
+    // HAIR
+    HAIR_CUT("커트", Category.HAIR),
+    HAIR_PERM("파마", Category.HAIR),
+    HAIR_COLORING("염색", Category.HAIR),
+
+    // NAIL
+    ONE_COLOR("원컬러", Category.NAIL),
+    ART("네일아트", Category.NAIL),
+    PEDICURE("페디큐어", Category.NAIL),
+
+    // EYELASH
+    EYELASH_PERM("펌", Category.EYELASH),
+    EYELASH_EXTENSION("연장", Category.EYELASH),
+
+    // TATTOO
+    LIP_TATTOO("립", Category.TATTOO),
+    EYEBROW_TATTOO("눈썹", Category.TATTOO),
+    NORMAL_TATTOO("일반아트", Category.TATTOO),
+
+    ETC("기타", null); // 기타는 상황에 따라 처리
 
     private final String description;
+    private final Category parentCategory;
 
-    SubCategory(String description) {this.description = description;}
-
-    public String getDescription() {
-        return description;
+    SubCategory(String description, Category parentCategory) {
+        this.description = description;
+        this.parentCategory = parentCategory;
     }
 }

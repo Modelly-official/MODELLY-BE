@@ -22,7 +22,9 @@ public interface ModelReviewSwagger {
             모델이 리뷰를 작성할 때 사용하는 API입니다. \n
             `rating`: 별점 (ex. 5.0, 3.5 ...) \n
             `content`: 리뷰 내용으로, 10자 이상 1000자 이하여야합니다. \n
+            `thumbnail`: 썸네일 이미지로, 리뷰 이미지를 업로드할 경우 리뷰 이미지용 presignedURL 발급 api의 thumbnailUrl값을 넣어주시면 됩니다.  \n
             `imageUrlList`: 리뷰 사진으로 최대 3장까지만 가능합니다. \n
+            `imageFolderId`: 리뷰 사진이 저장된 폴더 id로, presignedUrl 발급 후, 응답 dto의 folderId을 넣어주세요. \n
             """)
     ApiResponse<ReviewResponseDto> createReview(
             @AuthenticationPrincipal AuthDetails authDetails,
@@ -33,7 +35,9 @@ public interface ModelReviewSwagger {
             모델이 리뷰를 수정할 때 사용하는 API입니다. \n
             `rating`: 별점 (ex. 5.0, 3.5 ...) \n
             `content`: 리뷰 내용으로, 10자 이상 1000자 이하여야합니다. \n
+            `thumbnail`: 썸네일 이미지로, 리뷰 이미지를 업로드할 경우 리뷰 이미지용 presignedURL 발급 api의 thumbnailUrl값을 넣어주시면 됩니다.  \n
             `imageUrlList`: 리뷰 사진으로 최대 3장까지만 가능합니다. \n
+            `imageFolderId`: 리뷰 사진이 저장된 폴더 id로, presignedUrl 발급 후, 응답 dto의 folderId을 넣어주세요. \n
             """)
     ApiResponse<ReviewResponseDto> updateReview(
             @AuthenticationPrincipal AuthDetails authDetails,

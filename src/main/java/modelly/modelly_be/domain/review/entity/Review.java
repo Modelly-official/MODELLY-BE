@@ -48,8 +48,11 @@ public class Review extends BaseEntity {
     @Column(name = "rating", nullable = false)
     private Float rating;
 
-    @Column(name = "thumbnail")
+    @Column(name = "thumbnail", length = 254)
     private String thumbnail;
+
+    @Column(name = "folder_id", length = 36)
+    private String imageFolderId;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -66,5 +69,10 @@ public class Review extends BaseEntity {
 
     public void updateFixStatus(boolean fixed) {
         this.isFixed = fixed;
+    }
+
+    public void updateImageInf(String imageFolderId, String thumbnail) {
+        this.imageFolderId = imageFolderId;
+        this.thumbnail = thumbnail;
     }
 }
