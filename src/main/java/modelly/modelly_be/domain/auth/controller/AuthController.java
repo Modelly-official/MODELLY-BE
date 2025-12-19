@@ -16,6 +16,7 @@ import modelly.modelly_be.domain.auth.service.SmsAuthService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.apiPayload.code.status.SuccessStatus;
+import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.security.jwt.CookieUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -148,31 +149,29 @@ public class AuthController {
             @RequestParam("code") String code,
             HttpServletResponse response
     ) {
-        SocialLoginResult result = authService.kakaoLogin(code);
+        try {
+            SocialLoginResult result = authService.kakaoLogin(code);
 
-        var cookie = CookieUtil.buildRefreshCookie(
-                result.getRefreshToken(),
-                result.getRefreshTtlSec(),
-                "",
-                refreshCookieSecure,
-                ""
-        );
-        response.addHeader("Set-Cookie", cookie.toString());
+            var cookie = CookieUtil.buildRefreshCookie(
+                    result.getRefreshToken(),
+                    result.getRefreshTtlSec(),
+                    "",
+                    refreshCookieSecure,
+                    ""
+            );
+            response.addHeader("Set-Cookie", cookie.toString());
 
-        // 프론트로 넘길 값들
-        SocialLoginResponse body = result.getLoginResponse();
-        String userId = String.valueOf(body.getUserId());
-        String registered = String.valueOf(body.isRegistered());
-        String accessToken = body.getAccessToken();
+            // 프론트로 넘길 값들
+            SocialLoginResponse body = result.getLoginResponse();
+            String redirect = buildSuccessRedirect(body);
+            response.setStatus(302);
+            response.setHeader("Location", redirect);
 
-        // callback 설정
-        String redirect = callbackUrl
-                + "?userId=" + URLEncoder.encode(userId, StandardCharsets.UTF_8)
-                + "&registered=" + URLEncoder.encode(registered, StandardCharsets.UTF_8)
-                + "&accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
-
-        response.setStatus(302);
-        response.setHeader("Location", redirect);
+        } catch (GeneralException e) {
+            String redirect = buildErrorRedirect(e);
+            response.setStatus(302);
+            response.setHeader("Location", redirect);
+        }
     }
 
     /* 네이버 로그인 */
@@ -187,31 +186,30 @@ public class AuthController {
             @RequestParam("state") String state,
             HttpServletResponse response
     ) {
-        SocialLoginResult result = authService.naverLogin(code, state);
+        try {
+            SocialLoginResult result = authService.naverLogin(code, state);
 
-        var cookie = CookieUtil.buildRefreshCookie(
-                result.getRefreshToken(),
-                result.getRefreshTtlSec(),
-                "",
-                refreshCookieSecure,
-                ""
-        );
-        response.addHeader("Set-Cookie", cookie.toString());
+            var cookie = CookieUtil.buildRefreshCookie(
+                    result.getRefreshToken(),
+                    result.getRefreshTtlSec(),
+                    "",
+                    refreshCookieSecure,
+                    ""
+            );
+            response.addHeader("Set-Cookie", cookie.toString());
 
-        // 프론트로 넘길 값들
-        SocialLoginResponse body = result.getLoginResponse();
-        String userId = String.valueOf(body.getUserId());
-        String registered = String.valueOf(body.isRegistered());
-        String accessToken = body.getAccessToken();
+            // 프론트로 넘길 값들
+            SocialLoginResponse body = result.getLoginResponse();
+            String redirect = buildSuccessRedirect(body);
+            response.setStatus(302);
+            response.setHeader("Location", redirect);
+        } catch (GeneralException e) {
+            String redirect = buildErrorRedirect(e);
+            response.setStatus(302);
+            response.setHeader("Location", redirect);
+        }
 
-        // callback 설정
-        String redirect = callbackUrl
-                + "?userId=" + URLEncoder.encode(userId, StandardCharsets.UTF_8)
-                + "&registered=" + URLEncoder.encode(registered, StandardCharsets.UTF_8)
-                + "&accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
 
-        response.setStatus(302);
-        response.setHeader("Location", redirect);
     }
 
     /* 구글 로그인 */
@@ -225,31 +223,53 @@ public class AuthController {
             @RequestParam("code") String code,
             HttpServletResponse response
     ) {
-        SocialLoginResult result = authService.googleLogin(code);
+        try{
+            SocialLoginResult result = authService.googleLogin(code);
 
-        var cookie = CookieUtil.buildRefreshCookie(
-                result.getRefreshToken(),
-                result.getRefreshTtlSec(),
-                "",
-                refreshCookieSecure,
-                ""
-        );
-        response.addHeader("Set-Cookie", cookie.toString());
+            var cookie = CookieUtil.buildRefreshCookie(
+                    result.getRefreshToken(),
+                    result.getRefreshTtlSec(),
+                    "",
+                    refreshCookieSecure,
+                    ""
+            );
+            response.addHeader("Set-Cookie", cookie.toString());
 
-        // 프론트로 넘길 값들
-        SocialLoginResponse body = result.getLoginResponse();
+            // 프론트로 넘길 값들
+            SocialLoginResponse body = result.getLoginResponse();
+            String redirect = buildSuccessRedirect(body);
+            response.setStatus(302);
+            response.setHeader("Location", redirect);
+        } catch (GeneralException e) {
+            String redirect = buildErrorRedirect(e);
+            response.setStatus(302);
+            response.setHeader("Location", redirect);
+        }
+    }
+
+    private String buildSuccessRedirect(SocialLoginResponse body) {
         String userId = String.valueOf(body.getUserId());
         String registered = String.valueOf(body.isRegistered());
         String accessToken = body.getAccessToken();
 
-        // callback 설정
-        String redirect = callbackUrl
-                + "?userId=" + URLEncoder.encode(userId, StandardCharsets.UTF_8)
-                + "&registered=" + URLEncoder.encode(registered, StandardCharsets.UTF_8)
-                + "&accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
+        return callbackUrl
+                + "?userId=" + url(userId)
+                + "&registered=" + url(registered)
+                + "&accessToken=" + url(accessToken);
+    }
 
-        response.setStatus(302);
-        response.setHeader("Location", redirect);
+    private String buildErrorRedirect(GeneralException e) {
+        var reason = e.getErrorReasonHttpStatus();
+        String code = reason.getCode();
+        String message = reason.getMessage();
+
+        return callbackUrl
+                + "?errorCode=" + url(code)
+                + "&errorMessage=" + url(message);
+    }
+
+    private String url(String v) {
+        return URLEncoder.encode(v, StandardCharsets.UTF_8);
     }
 
     /* ---------- SMS 전송 및 인증 ---------- */
