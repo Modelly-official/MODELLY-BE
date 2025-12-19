@@ -33,7 +33,7 @@ public class DeleteImageEventListener {
     }
 
     @Recover
-    public void recover(Exception e) {
+    public void recover(Exception e, S3FolderDeleteEvent event) {
         log.error("[ERROR] S3 folder failed to delete: {}", e);
     }
 }
