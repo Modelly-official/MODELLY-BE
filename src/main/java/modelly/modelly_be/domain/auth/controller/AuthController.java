@@ -251,11 +251,13 @@ public class AuthController {
         String userId = String.valueOf(body.getUserId());
         String registered = String.valueOf(body.isRegistered());
         String accessToken = body.getAccessToken();
+        String userRole = body.getUserRole() == null ? "" : body.getUserRole().name();
 
         return callbackUrl
                 + "?userId=" + url(userId)
                 + "&registered=" + url(registered)
-                + "&accessToken=" + url(accessToken);
+                + "&accessToken=" + url(accessToken)
+                + "&userRole=" + url(userRole);
     }
 
     private String buildErrorRedirect(GeneralException e) {
