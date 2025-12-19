@@ -21,7 +21,8 @@ import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.domain.user.service.ModelService;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
-import modelly.modelly_be.global.s3.S3Uploader;
+import modelly.modelly_be.global.listener.dto.S3FolderDeleteEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -43,7 +44,7 @@ public class ReviewService {
     private final ReplyService replyService;
     private final DesignerService designerService;
     private final ReviewRepository reviewRepository;
-    private final S3Uploader s3Uploader;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public Review createReview(User user, Long reservationId, ReviewCreateRequestDto requestDto) {
@@ -118,7 +119,7 @@ public class ReviewService {
             //기존 S3 폴더 삭제
             if (review.getImageFolderId() != null) {
                 String oldFolderPath = "reviews/" + review.getImageFolderId() + "/";
-                s3Uploader.deleteFolder(oldFolderPath);
+                eventPublisher.publishEvent(new S3FolderDeleteEvent(oldFolderPath));
             }
 
             //DB에서 리뷰 이미지 리스트 삭제
@@ -164,7 +165,8 @@ public class ReviewService {
 
         //기존 이미지 삭제
         if (review.getImageFolderId() != null) {
-            s3Uploader.deleteFolder("reviews/" + review.getImageFolderId() + "/");
+            String oldFolderPath = "reviews/" + review.getImageFolderId() + "/";
+            eventPublisher.publishEvent(new S3FolderDeleteEvent(oldFolderPath));
         }
 
         reviewRepository.delete(review);

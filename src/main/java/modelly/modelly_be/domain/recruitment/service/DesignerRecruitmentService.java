@@ -20,7 +20,9 @@ import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.Category;
+import modelly.modelly_be.global.listener.dto.S3FolderDeleteEvent;
 import modelly.modelly_be.global.s3.S3Uploader;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +41,7 @@ public class DesignerRecruitmentService {
     private final DesignerService designerService;
     private final ReservationService reservationService;
     private final S3Uploader s3Uploader;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public Recruitment createRecruitment(User user, RecruitmentRequestDto recruitmentRequestDto) {
@@ -131,7 +134,7 @@ public class DesignerRecruitmentService {
             //기존 S3 폴더 삭제
             if (recruitment.getImageFolderId() != null) {
                 String oldFolderPath = "recruitments/" + recruitment.getImageFolderId() + "/";
-                s3Uploader.deleteFolder(oldFolderPath);
+                eventPublisher.publishEvent(new S3FolderDeleteEvent(oldFolderPath));
             }
 
             //DB에서 공고 이미지 리스트 삭제
@@ -171,7 +174,8 @@ public class DesignerRecruitmentService {
 
         //기존 이미지 삭제
         if (recruitment.getImageFolderId() != null) {
-            s3Uploader.deleteFolder("recruitments/" + recruitment.getImageFolderId() + "/");
+            String oldFolderPath = "recruitments/" + recruitment.getImageFolderId() + "/";
+            eventPublisher.publishEvent(new S3FolderDeleteEvent(oldFolderPath));
         }
 
         recruitmentService.deleteRecruitment(recruitment);
