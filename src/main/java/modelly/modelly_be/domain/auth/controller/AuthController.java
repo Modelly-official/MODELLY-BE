@@ -16,15 +16,13 @@ import modelly.modelly_be.domain.auth.service.SmsAuthService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.apiPayload.code.status.SuccessStatus;
-import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.security.jwt.CookieUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.net.URLEncoder;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-
 
 @RestController
 @RequiredArgsConstructor
@@ -36,9 +34,6 @@ public class AuthController {
 
     @Value("${security.cookie.secure:true}")
     private boolean refreshCookieSecure;
-
-    @Value("${security.oauth2.frontend.callback-uri}")
-    private String callbackUrl;
 
     /* ---------- 회원가입/로그인/로그아웃 ----------*/
     @Operation(summary = "회원가입", description = "회원가입 완료 메시지, loginId, 이름, 닉네임을 반환합니다.")
@@ -142,73 +137,50 @@ public class AuthController {
     @Operation(
             summary = "카카오 로그인",
             description = "카카오에서 전달한 인가 코드(code)로 소셜 로그인을 처리합니다. " +
-                    "성공 시 Refresh Token은 쿠키로, Access Token/회원가입 여부는 응답 바디로 반환합니다."
+                    "성공 시 Refresh Token은 쿠키로, Access Token/회원가입 여부/UserRole을 응답 바디로 반환합니다."
     )
-    @GetMapping("/auth/kakao/login")
-    public void kakaoLogin(
-            @RequestParam("code") String code,
+    @PostMapping("/auth/kakao/login")
+    public ApiResponse<SocialLoginResponse> kakaoLogin(
+            @Valid @RequestBody SocialTokenRequest req,
             HttpServletResponse response
     ) {
-        try {
-            SocialLoginResult result = authService.kakaoLogin(code);
+        SocialLoginResult result = authService.kakaoLogin(req.getCode());
 
-            var cookie = CookieUtil.buildRefreshCookie(
-                    result.getRefreshToken(),
-                    result.getRefreshTtlSec(),
-                    "",
-                    refreshCookieSecure,
-                    ""
-            );
-            response.addHeader("Set-Cookie", cookie.toString());
+        var cookie = CookieUtil.buildRefreshCookie(
+                result.getRefreshToken(),
+                result.getRefreshTtlSec(),
+                "",
+                refreshCookieSecure,
+                ""
+        );
+        response.addHeader("Set-Cookie", cookie.toString());
 
-            // 프론트로 넘길 값들
-            SocialLoginResponse body = result.getLoginResponse();
-            String redirect = buildSuccessRedirect(body);
-            response.setStatus(302);
-            response.setHeader("Location", redirect);
-
-        } catch (GeneralException e) {
-            String redirect = buildErrorRedirect(e);
-            response.setStatus(302);
-            response.setHeader("Location", redirect);
-        }
+        return ApiResponse.onSuccess(result.getLoginResponse());
     }
 
     /* 네이버 로그인 */
     @Operation(
             summary = "네이버 로그인",
             description = "네이버에서 전달한 인가 코드(code)와 state로 소셜 로그인을 처리합니다. " +
-                    "성공 시 Refresh Token은 쿠키로, Access Token/회원가입 여부는 응답 바디로 반환합니다."
+                    "성공 시 Refresh Token은 쿠키로, Access Token/회원가입 여부/UserRole을 응답 바디로 반환합니다."
     )
-    @GetMapping("/auth/naver/login")
-    public void naverLogin(
-            @RequestParam("code") String code,
-            @RequestParam("state") String state,
+    @PostMapping("/auth/naver/login")
+    public ApiResponse<SocialLoginResponse> naverLogin(
+            @Valid @RequestBody SocialTokenRequest req,
             HttpServletResponse response
     ) {
-        try {
-            SocialLoginResult result = authService.naverLogin(code, state);
+        SocialLoginResult result = authService.naverLogin(req.getCode(), req.getState());
 
-            var cookie = CookieUtil.buildRefreshCookie(
-                    result.getRefreshToken(),
-                    result.getRefreshTtlSec(),
-                    "",
-                    refreshCookieSecure,
-                    ""
-            );
-            response.addHeader("Set-Cookie", cookie.toString());
+        var cookie = CookieUtil.buildRefreshCookie(
+                result.getRefreshToken(),
+                result.getRefreshTtlSec(),
+                "",
+                refreshCookieSecure,
+                ""
+        );
+        response.addHeader("Set-Cookie", cookie.toString());
 
-            // 프론트로 넘길 값들
-            SocialLoginResponse body = result.getLoginResponse();
-            String redirect = buildSuccessRedirect(body);
-            response.setStatus(302);
-            response.setHeader("Location", redirect);
-        } catch (GeneralException e) {
-            String redirect = buildErrorRedirect(e);
-            response.setStatus(302);
-            response.setHeader("Location", redirect);
-        }
-
+        return ApiResponse.onSuccess(result.getLoginResponse());
 
     }
 
@@ -216,62 +188,28 @@ public class AuthController {
     @Operation(
             summary = "구글 로그인",
             description = "구글에서 전달한 인가 코드(code)로 소셜 로그인을 처리합니다. " +
-                    "Refresh Token은 쿠키로, Access Token은 바디로 반환합니다."
+                    "Refresh Token은 쿠키로, Access Token/회원가입 여부/UserRole을 바디로 반환합니다."
     )
-    @GetMapping("/auth/google/login")
-    public void googleLogin(
-            @RequestParam("code") String code,
+    @PostMapping("/auth/google/login")
+    public ApiResponse<SocialLoginResponse> googleLogin(
+            @Valid @RequestBody SocialTokenRequest req,
             HttpServletResponse response
     ) {
-        try{
-            SocialLoginResult result = authService.googleLogin(code);
+        String code = URLDecoder.decode(req.getCode(), StandardCharsets.UTF_8);
+        code = code.trim();
 
-            var cookie = CookieUtil.buildRefreshCookie(
-                    result.getRefreshToken(),
-                    result.getRefreshTtlSec(),
-                    "",
-                    refreshCookieSecure,
-                    ""
-            );
-            response.addHeader("Set-Cookie", cookie.toString());
+        SocialLoginResult result = authService.googleLogin(code);
 
-            // 프론트로 넘길 값들
-            SocialLoginResponse body = result.getLoginResponse();
-            String redirect = buildSuccessRedirect(body);
-            response.setStatus(302);
-            response.setHeader("Location", redirect);
-        } catch (GeneralException e) {
-            String redirect = buildErrorRedirect(e);
-            response.setStatus(302);
-            response.setHeader("Location", redirect);
-        }
-    }
+        var cookie = CookieUtil.buildRefreshCookie(
+                result.getRefreshToken(),
+                result.getRefreshTtlSec(),
+                "",
+                refreshCookieSecure,
+                ""
+        );
+        response.addHeader("Set-Cookie", cookie.toString());
 
-    private String buildSuccessRedirect(SocialLoginResponse body) {
-        String userId = String.valueOf(body.getUserId());
-        String registered = String.valueOf(body.isRegistered());
-        String accessToken = body.getAccessToken();
-        String userRole = body.getUserRole() == null ? "" : body.getUserRole().name();
-
-        return callbackUrl
-                + "?userId=" + url(userId)
-                + "&registered=" + url(registered)
-                + "&accessToken=" + url(accessToken)
-                + "&userRole=" + url(userRole);
-    }
-
-    private String buildErrorRedirect(GeneralException e) {
-        var reason = e.getErrorReasonHttpStatus();
-        String code = reason.getCode();
-        String message = reason.getMessage();
-
-        return callbackUrl
-                + "?errorCode=" + url(code)
-                + "&errorMessage=" + url(message);
-    }
-
-    private String url(String v) {
-        return URLEncoder.encode(v, StandardCharsets.UTF_8);
+        return ApiResponse.onSuccess(result.getLoginResponse());
     }
 
     /* ---------- SMS 전송 및 인증 ---------- */
