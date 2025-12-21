@@ -194,7 +194,7 @@ public class ChatRoomService {
         if (iAmModel) {
             User designerUser = designer.getUser();
             opponentUserId = designerUser.getId();
-            opponentName = designerUser.getName();          // 활동명
+            opponentName = designer.getNickname();          // 활동명
             opponentProfileImageUrl = designerUser.getImageUrl();
             opponentRole = UserRole.DESIGNER;
         }
