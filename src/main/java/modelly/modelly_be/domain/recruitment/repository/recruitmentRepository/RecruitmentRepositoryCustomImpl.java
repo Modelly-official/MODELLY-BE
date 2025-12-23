@@ -10,7 +10,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import modelly.modelly_be.domain.like.entity.QRecruitmentLike;
-import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentBasic;
+import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentBasic;
 import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitment;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitmentDate;
@@ -159,15 +159,14 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
 
         // 기준점: WGS-84 + SRID 4326
         String pointWkt = String.format("POINT(%f %f)",
-                userCoordinate.longitude(), userCoordinate.latitude());
+                userCoordinate.latitude(), userCoordinate.longitude());
 
         NumberExpression<Double> distance = Expressions.numberTemplate(Double.class,
                 "ST_Distance_Sphere(ST_GeomFromText(CONCAT('POINT(', {0}, ' ', {1}, ')'), 4326), ST_GeomFromText({2}, 4326))",
-                qRecruitment.designer.longitude,
-                qRecruitment.designer.latitude,
+                qDesigner.latitude,
+                qDesigner.longitude,
                 Expressions.constant(pointWkt)
         );
-
 
         if (cursorId != null && cursorDistance != null) {
             booleanBuilder.and(

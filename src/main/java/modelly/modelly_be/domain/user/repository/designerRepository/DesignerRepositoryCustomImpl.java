@@ -10,10 +10,12 @@ import com.querydsl.jpa.JPQLSubQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.like.entity.QDesignerLike;
+import modelly.modelly_be.domain.map.dto.response.ShopResponse;
 import modelly.modelly_be.domain.portfolio.entity.QPortfolio;
 import modelly.modelly_be.domain.review.entity.QReview;
 import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
 import modelly.modelly_be.domain.user.entity.QDesigner;
+import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.utils.Coordinate;
 import modelly.modelly_be.global.utils.SearchCondition;
 
@@ -155,12 +157,12 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
 
         // 기준점: WGS-84 + SRID 4326
         String pointWkt = String.format("POINT(%f %f)",
-                userCoordinate.longitude(), userCoordinate.latitude());
+                userCoordinate.latitude(), userCoordinate.longitude());
 
         NumberExpression<Double> distance = Expressions.numberTemplate(Double.class,
                 "ST_Distance_Sphere(ST_GeomFromText(CONCAT('POINT(', {0}, ' ', {1}, ')'), 4326), ST_GeomFromText({2}, 4326))",
-                qDesigner.longitude,
                 qDesigner.latitude,
+                qDesigner.longitude,
                 Expressions.constant(pointWkt)
         );
 
@@ -197,6 +199,53 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
         return dtos;
     }
 
+    @Override
+    public List<ShopResponse> findShopsByDistance(Long userId, Category category, int size, Coordinate userCoordinate) {
+        QDesigner qDesigner = QDesigner.designer;
+        QDesignerLike qDesignerLike = QDesignerLike.designerLike;
+
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+
+        if (category != null) {
+            booleanBuilder.and(qDesigner.category.eq(category));
+        }
+
+        if (userCoordinate == null || userCoordinate.latitude() == null || userCoordinate.longitude() == null) {
+            throw new IllegalArgumentException("거리 정렬 시 사용자 좌표 필요");
+        }
+
+        // 기준점: WGS-84 + SRID 4326
+        String pointWkt = String.format("POINT(%f %f)",
+                userCoordinate.latitude(), userCoordinate.longitude());
+
+        NumberExpression<Double> distance = Expressions.numberTemplate(Double.class,
+                "ST_Distance_Sphere(ST_GeomFromText(CONCAT('POINT(', {0}, ' ', {1}, ')'), 4326), ST_GeomFromText({2}, 4326))",
+                qDesigner.latitude,
+                qDesigner.longitude,
+                Expressions.constant(pointWkt)
+        );
+
+        List<ShopResponse> dtos = queryFactory
+                .select(Projections.constructor(
+                        ShopResponse.class,
+                        qDesigner.id,
+                        qDesigner.nickname,
+                        qDesigner.category,
+                        qDesigner.latitude,
+                        qDesigner.longitude
+                ))
+                .from(qDesigner)
+                .leftJoin(qDesignerLike).on(qDesignerLike.designer.id.eq(qDesigner.id)
+                        .and(userId !=null ? qDesignerLike.model.user.id.eq(userId) : null))
+                .where(booleanBuilder)
+                .orderBy(distance.asc(), qDesigner.id.desc())
+                .limit(size)
+                .fetch();
+
+        return dtos;
+    }
+
+
     private BooleanBuilder buildCommonWhere(SearchCondition searchCondition) {
         QDesigner qDesigner = QDesigner.designer;
         BooleanBuilder booleanBuilder = new BooleanBuilder();
@@ -212,4 +261,5 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
 
         return booleanBuilder;
     }
+
 }

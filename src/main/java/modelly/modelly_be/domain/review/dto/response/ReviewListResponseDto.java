@@ -1,7 +1,7 @@
 package modelly.modelly_be.domain.review.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import modelly.modelly_be.domain.review.dto.common.ReplyDto;
+import modelly.modelly_be.domain.review.dto.internal.ReplyDto;
 import modelly.modelly_be.domain.review.entity.Reply;
 import modelly.modelly_be.domain.review.entity.Review;
 import modelly.modelly_be.domain.review.entity.ReviewImage;
