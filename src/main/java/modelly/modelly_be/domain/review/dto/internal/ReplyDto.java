@@ -1,4 +1,4 @@
-package modelly.modelly_be.domain.review.dto.common;
+package modelly.modelly_be.domain.review.dto.internal;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import modelly.modelly_be.domain.review.entity.Reply;
