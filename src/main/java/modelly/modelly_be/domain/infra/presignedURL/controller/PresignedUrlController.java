@@ -48,4 +48,10 @@ public class PresignedUrlController implements PresignedUrlSwagger {
         PresignedUploadResponse response = presignedUrlService.createChattingImage(auth.user(), roomId);
         return ApiResponse.onSuccess(response);
     }
+
+    @GetMapping("/presigned-url/profiles")
+    public ApiResponse<PresignedUploadResponse> createProfilePresignedUrl() {
+        PresignedUploadResponse response = presignedUrlService.createProfileImage();
+        return ApiResponse.onSuccess(response);
+    }
 }

@@ -53,4 +53,11 @@ public class PresignedUrlService {
 
         return response;
     }
+
+    public PresignedUploadResponse createProfileImage() {
+
+        PresignedUploadResponse response = s3Uploader.generatePresignedUrl("profile");
+
+        return response;
+    }
 }
