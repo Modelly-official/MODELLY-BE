@@ -142,4 +142,49 @@ public interface PresignedUrlSwagger {
             @PathVariable Long roomId,
             @AuthenticationPrincipal AuthDetails auth
     );
+
+    @Operation(
+            summary = "프로필 이미지 업로드용 Presigned URL 발급 (인증 불필요)",
+            description = """
+            회원가입/프로필 설정 시 사용할 **프로필 이미지 업로드용 S3 Presigned PUT URL**을 발급합니다.  
+            **프론트엔드가 S3로 직접 PUT 업로드**합니다.
+
+            ---
+            ✅ 접근 제어
+            - **인증 없이 누구나 호출 가능**합니다. (permitAll)
+            - 업로드 완료 후 반환된 `imageUrl`을 회원가입 또는 프로필 업데이트 요청에 담아 전송합니다.
+
+            ---
+            📤 Response (PresignedUploadResponse)
+
+            - `uploadUrl`
+              - S3에 **PUT 업로드**할 Presigned URL
+              - 유효시간: **5분**
+
+            - `imageUrl`
+              - 업로드 완료 후 DB에 저장할 **S3 객체 접근 URL**
+
+            ---
+            🧩 프론트엔드 처리 흐름
+
+            1️⃣ Presigned URL 발급 요청
+            ```
+            GET /presigned-url/profiles
+            ```
+
+            2️⃣ S3에 직접 파일 업로드
+            ```
+            PUT {uploadUrl}
+            Headers:
+              Content-Type: image/*   (프론트에서 파일 타입에 맞게 설정 권장)
+            Body: file(binary)
+            ```
+
+            3️⃣ 업로드가 완료되면 `imageUrl`을 저장 API에 전달
+            - 회원가입:
+              - `POST /auth/signup` 의 `base.imageUrl`에 `{imageUrl}` 포함
+            """
+    )
+    @GetMapping("/presigned-url/profiles")
+    ApiResponse<PresignedUploadResponse> createProfilePresignedUrl();
 }

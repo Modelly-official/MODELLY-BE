@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.auth.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -26,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "인증/인가 (Auth) 관련 API")
 public class AuthController {
 
     private final AuthService authService;
@@ -128,7 +130,7 @@ public class AuthController {
     /* 소셜 회원가입 */
     @Operation(summary = "소셜 회원가입", description = "회원가입 완료 메시지, 이메일, 이름, 닉네임을 반환합니다.")
     @PostMapping("/auth/social/signup")
-    public ApiResponse<SignupResponse> signupWithKakao(HttpServletRequest request, @RequestBody SocialSignupRequest req) {
+    public ApiResponse<SignupResponse> signupWithKakao(HttpServletRequest request, @Valid @RequestBody SocialSignupRequest req) {
         SignupResponse result = authService.SocialSignup(request, req);
         return ApiResponse.onSuccess(result);
     }

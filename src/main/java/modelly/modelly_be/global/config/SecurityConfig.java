@@ -52,6 +52,10 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                HttpMethod.GET,
+                                "/presigned-url/profiles"
+                        ).permitAll()
+                        .requestMatchers(
                                 HttpMethod.GET,"/api/recruitments/{recruitmentId}"
                         ).permitAll()
                         .requestMatchers(
