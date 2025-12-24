@@ -1,4 +1,4 @@
-package modelly.modelly_be.domain.recruitment.dto.common;
+package modelly.modelly_be.domain.recruitment.dto.internal;
 
 import jakarta.annotation.Nullable;
 

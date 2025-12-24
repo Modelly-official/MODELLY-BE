@@ -1,7 +1,7 @@
 package modelly.modelly_be.domain.recruitment.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentSchedule;
+import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentSchedule;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentImage;
 

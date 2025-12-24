@@ -2,13 +2,12 @@ package modelly.modelly_be.domain.recruitment.controller;
 
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.recruitment.controller.swagger.GuestRecruitmentSwagger;
-import modelly.modelly_be.domain.recruitment.dto.common.CursorInformation;
+import modelly.modelly_be.domain.recruitment.dto.internal.CursorInformation;
 import modelly.modelly_be.domain.recruitment.dto.response.GuestRecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
 import modelly.modelly_be.domain.recruitment.service.RecruitmentService;
 import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
-import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.entity.Category;
@@ -18,7 +17,6 @@ import modelly.modelly_be.global.utils.ScrollResponse;
 import modelly.modelly_be.global.utils.ScrollUtil;
 import modelly.modelly_be.global.utils.SearchCondition;
 import modelly.modelly_be.global.utils.Coordinate;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 

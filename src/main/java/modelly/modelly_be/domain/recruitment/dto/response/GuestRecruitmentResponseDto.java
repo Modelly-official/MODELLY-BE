@@ -1,6 +1,6 @@
 package modelly.modelly_be.domain.recruitment.dto.response;
 
-import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentSchedule;
+import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentSchedule;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentImage;
 import modelly.modelly_be.domain.user.dto.response.DesignerResponseDto;

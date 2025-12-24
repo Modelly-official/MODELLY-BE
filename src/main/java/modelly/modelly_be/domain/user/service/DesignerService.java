@@ -1,7 +1,8 @@
 package modelly.modelly_be.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
-import modelly.modelly_be.domain.recruitment.dto.common.CursorInformation;
+import modelly.modelly_be.domain.map.dto.response.ShopResponse;
+import modelly.modelly_be.domain.recruitment.dto.internal.CursorInformation;
 import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.User;
@@ -9,6 +10,7 @@ import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.domain.user.repository.designerRepository.DesignerRepository;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
+import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.entity.SortOption;
 import modelly.modelly_be.global.utils.Coordinate;
 import modelly.modelly_be.global.utils.SearchCondition;
@@ -60,5 +62,9 @@ public class DesignerService {
         if (user.getUserRole() != UserRole.DESIGNER) {
             throw new GeneralException(ErrorStatus._FORBIDDEN);
         }
+    }
+
+    public List<ShopResponse> getShopList(Long userId, Category category, int size, Coordinate coordinate){
+        return designerRepository.findShopsByDistance(userId,category,size,coordinate);
     }
 }

@@ -1,7 +1,7 @@
 package modelly.modelly_be.domain.recruitment.service;
 
 import lombok.RequiredArgsConstructor;
-import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentSchedule;
+import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentSchedule;
 import modelly.modelly_be.domain.recruitment.dto.request.RecruitmentRequestDto;
 import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentRequestDto;
 import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
