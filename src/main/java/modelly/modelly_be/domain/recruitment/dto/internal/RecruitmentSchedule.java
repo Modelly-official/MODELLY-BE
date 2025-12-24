@@ -1,4 +1,4 @@
-package modelly.modelly_be.domain.recruitment.dto.common;
+package modelly.modelly_be.domain.recruitment.dto.internal;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;

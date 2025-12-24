@@ -10,7 +10,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import modelly.modelly_be.domain.like.entity.QRecruitmentLike;
-import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentBasic;
+import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentBasic;
 import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitment;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitmentDate;
@@ -157,17 +157,16 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
             throw new IllegalArgumentException("거리 정렬 시 사용자 좌표 필요");
         }
 
-        // 기준점: WGS-84 + SRID 4326
+        // MySQL ST_Distance_Sphere with SRID 4326: 실제 테스트 결과 POINT(latitude, longitude) 순서 사용
         String pointWkt = String.format("POINT(%f %f)",
-                userCoordinate.longitude(), userCoordinate.latitude());
+                userCoordinate.latitude(), userCoordinate.longitude());
 
         NumberExpression<Double> distance = Expressions.numberTemplate(Double.class,
                 "ST_Distance_Sphere(ST_GeomFromText(CONCAT('POINT(', {0}, ' ', {1}, ')'), 4326), ST_GeomFromText({2}, 4326))",
-                qRecruitment.designer.longitude,
                 qRecruitment.designer.latitude,
+                qRecruitment.designer.longitude,
                 Expressions.constant(pointWkt)
         );
-
 
         if (cursorId != null && cursorDistance != null) {
             booleanBuilder.and(

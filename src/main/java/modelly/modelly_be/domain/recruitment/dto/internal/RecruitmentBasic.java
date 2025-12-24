@@ -1,4 +1,4 @@
-package modelly.modelly_be.domain.recruitment.dto.common;
+package modelly.modelly_be.domain.recruitment.dto.internal;
 import modelly.modelly_be.global.entity.Category;
 
 import java.time.LocalDateTime;

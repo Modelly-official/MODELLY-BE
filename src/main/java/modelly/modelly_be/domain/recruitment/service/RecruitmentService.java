@@ -2,8 +2,8 @@ package modelly.modelly_be.domain.recruitment.service;
 
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.like.service.RecruitmentLikeService;
-import modelly.modelly_be.domain.recruitment.dto.common.CursorInformation;
-import modelly.modelly_be.domain.recruitment.dto.common.RecruitmentBasic;
+import modelly.modelly_be.domain.recruitment.dto.internal.CursorInformation;
+import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentBasic;
 import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.GuestRecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
