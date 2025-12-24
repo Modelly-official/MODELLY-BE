@@ -65,8 +65,9 @@ public enum ErrorStatus implements BaseErrorCode {
     CURSOR_BAD_REQUEST(HttpStatus.BAD_REQUEST, "CURSOR400", "커서 정보가 유효하지않습니다. 형식에 맞춰서 다시 입력해주세요."),
     MONTH_BAD_REQUEST(HttpStatus.BAD_REQUEST, "MONTH400","잘못된 month 형식입니다. 형식은 yyyy-MM 이어야 합니다"),
 
-
+    //GEOCODING
     GEOCODING_FAILED(HttpStatus.BAD_REQUEST, "GEOCODING400", "지오코딩에 실패하였습니다. 주소를 정확히 입력해주세요."),
+    COORDINATE_BAD_REQUEST(HttpStatus.BAD_REQUEST, "COORDINATE400", "거리 정렬 시 사용자 좌표가 필요합니다."),
 
     //Reservation
     NOT_FOUND_RESERVATION(HttpStatus.NOT_FOUND, "RESERVATION404", "예약이 존재하지 않습니다."),

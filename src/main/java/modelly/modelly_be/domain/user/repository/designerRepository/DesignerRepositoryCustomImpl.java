@@ -15,6 +15,8 @@ import modelly.modelly_be.domain.portfolio.entity.QPortfolio;
 import modelly.modelly_be.domain.review.entity.QReview;
 import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
 import modelly.modelly_be.domain.user.entity.QDesigner;
+import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
+import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.utils.Coordinate;
 import modelly.modelly_be.global.utils.SearchCondition;
@@ -151,11 +153,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
 
         BooleanBuilder booleanBuilder = buildCommonWhere(searchCondition);
 
-        if (userCoordinate == null || userCoordinate.latitude() == null || userCoordinate.longitude() == null) {
-            throw new IllegalArgumentException("거리 정렬 시 사용자 좌표 필요");
-        }
-
-        // 기준점: WGS-84 + SRID 4326
+        // MySQL ST_Distance_Sphere with SRID 4326: 실제 테스트 결과 POINT(latitude, longitude) 순서 사용
         String pointWkt = String.format("POINT(%f %f)",
                 userCoordinate.latitude(), userCoordinate.longitude());
 
@@ -211,10 +209,10 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
         }
 
         if (userCoordinate == null || userCoordinate.latitude() == null || userCoordinate.longitude() == null) {
-            throw new IllegalArgumentException("거리 정렬 시 사용자 좌표 필요");
+            throw new GeneralException(ErrorStatus.COORDINATE_BAD_REQUEST);
         }
 
-        // 기준점: WGS-84 + SRID 4326
+        // MySQL ST_Distance_Sphere with SRID 4326: 실제 테스트 결과 POINT(latitude, longitude) 순서 사용
         String pointWkt = String.format("POINT(%f %f)",
                 userCoordinate.latitude(), userCoordinate.longitude());
 
