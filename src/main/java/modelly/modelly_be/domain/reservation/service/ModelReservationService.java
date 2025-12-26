@@ -15,6 +15,7 @@ import modelly.modelly_be.domain.reservation.repository.ReservationQueryReposito
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
+import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.domain.user.service.ModelService;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;

@@ -1,6 +1,5 @@
 package modelly.modelly_be.domain.reservation.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
@@ -12,11 +11,9 @@ import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.entity.SubCategory;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
+
 
 @Entity
 @Getter
