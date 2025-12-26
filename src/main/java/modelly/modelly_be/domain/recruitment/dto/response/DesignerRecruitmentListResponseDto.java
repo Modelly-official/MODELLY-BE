@@ -6,7 +6,7 @@ import java.time.LocalDate;
 public record DesignerRecruitmentListResponseDto(
         Long recruitmentId,
         String title,
-        LocalDate earliestRecruitmentDate,
+        String period,
         Long reviewCount,
         double averageRating
 ) {
