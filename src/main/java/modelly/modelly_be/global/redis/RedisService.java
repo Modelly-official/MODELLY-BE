@@ -32,7 +32,7 @@ public class RedisService {
         }
     }
 
-    public void setValue(String key, String value, long ttlSeconds) {
+    public void setValue(String key, Object value, long ttlSeconds) {
         try {
             ValueOperations<String, Object> values = redisTemplate.opsForValue();
             values.set(key, value, Duration.ofSeconds(ttlSeconds));
@@ -42,7 +42,7 @@ public class RedisService {
     }
 
     // 값 조회(없으면 빈 문자열)
-    public String getValue(String key) {
+    public Object getValue(String key) {
         try {
             ValueOperations<String, Object> values = redisTemplate.opsForValue();
             Object value = values.get(key);

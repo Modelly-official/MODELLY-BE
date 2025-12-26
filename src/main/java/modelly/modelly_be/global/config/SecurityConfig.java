@@ -56,6 +56,10 @@ public class SecurityConfig {
                                 "/presigned-url/profiles"
                         ).permitAll()
                         .requestMatchers(
+                                HttpMethod.GET,
+                                "/designers"
+                        ).permitAll()
+                        .requestMatchers(
                                 HttpMethod.GET,"/api/recruitments/{recruitmentId}"
                         ).permitAll()
                         .requestMatchers(

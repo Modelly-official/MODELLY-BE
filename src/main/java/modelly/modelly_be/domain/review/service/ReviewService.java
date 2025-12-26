@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
+import modelly.modelly_be.domain.review.dto.internal.AverageReview;
 import modelly.modelly_be.domain.review.dto.request.ReviewCreateRequestDto;
 import modelly.modelly_be.domain.review.dto.request.ReviewUpdateRequestDto;
 import modelly.modelly_be.domain.review.dto.response.MyReviewListResponseDto;
@@ -237,6 +238,29 @@ public class ReviewService {
         }
 
         return ReviewResponseDto.of(review, isMine);
+    }
+
+    public AverageReview calculateRating(Designer designer){
+        List<Review> reviewList = reviewRepository.findAllByDesigner(designer);
+        Integer totalCount = reviewRepository.countAllByDesigner(designer);
+
+        if (reviewList == null || reviewList.isEmpty()) {
+            return AverageReview.builder()
+                    .totalCount(0)
+                    .averageRating(0.0)
+                    .build();
+        }
+
+        Double average = reviewList.stream()
+                .mapToDouble(Review::getRating)
+                .average()
+                .orElseThrow(()-> new GeneralException(ErrorStatus._INTERNAL_SERVER_ERROR));
+
+        return AverageReview.builder()
+                .averageRating(average)
+                .totalCount(totalCount)
+                .build();
+
     }
 
     public Review getById(Long reviewId) {

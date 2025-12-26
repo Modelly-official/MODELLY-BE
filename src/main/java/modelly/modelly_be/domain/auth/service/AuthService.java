@@ -195,7 +195,7 @@ public class AuthService {
 
         // Redis의 refresh 토큰과 비교
         String key = RT_KEY_PREFIX + userId;
-        String stored = redisService.getValue(key);
+        String stored = (String) redisService.getValue(key);
         if (stored == null || stored.isEmpty()) {
             // 만료/로그아웃 등으로 없는 상태
             throw new GeneralException(ErrorStatus.REFRESH_TOKEN_EXPIRED);

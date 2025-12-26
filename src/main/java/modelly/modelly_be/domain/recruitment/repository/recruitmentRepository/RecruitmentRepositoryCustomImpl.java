@@ -58,11 +58,20 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
         QRecruitment qRecruitment = QRecruitment.recruitment;
         QDesigner qDesigner = QDesigner.designer;
         QRecruitmentLike qRecruitmentLike = QRecruitmentLike.recruitmentLike;
+        QReview qReview = QReview.review;
 
         BooleanBuilder booleanBuilder = buildCommonWhere(searchCondition);
         if (cursorId != null) {
             booleanBuilder.and(qRecruitment.id.lt(cursorId));
         }
+
+        NumberPath<Long> reviewCount = Expressions.numberPath(Long.class, "reviewCount");
+        JPQLSubQuery<Long> reviewCountSubQuery=JPAExpressions
+                .select(qReview.count())
+                .from(qReview)
+                .where(qReview.designer.eq(qRecruitment.designer));
+
+        NumberExpression<Long> reviewCountExpression = Expressions.asNumber(ExpressionUtils.as(reviewCountSubQuery, reviewCount));
 
         List<RecruitmentBasic> dtos = queryFactory
                 .select(Projections.constructor(
@@ -75,10 +84,17 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                         qDesigner.shop,
                         qDesigner.addressLine1,
                         qRecruitment.category,
-                        Expressions.nullExpression(Long.class),
+                        reviewCountExpression,
                         Expressions.nullExpression(Double.class),
                         qRecruitmentLike.id.isNotNull(),
-                        qRecruitment.createdAt
+                        qRecruitment.createdAt,
+                        // 2. 평균 평점 계산 서브쿼리 (null일 경우 0.0 처리)
+                        ExpressionUtils.as(
+                                JPAExpressions.select(qReview.rating.avg().coalesce(0.0))
+                                        .from(qReview)
+                                        .where(qReview.designer.eq(qDesigner)),
+                                "averageRating"
+                        )
                 ))
                 .from(qRecruitment)
                 .join(qRecruitment.designer, qDesigner)
@@ -131,7 +147,14 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                         reviewCountExpression,
                         Expressions.nullExpression(Double.class),
                         qRecruitmentLike.id.isNotNull(),
-                        qRecruitment.createdAt
+                        qRecruitment.createdAt,
+                        // 2. 평균 평점 계산 서브쿼리 (null일 경우 0.0 처리)
+                        ExpressionUtils.as(
+                                JPAExpressions.select(qReview.rating.avg().coalesce(0.0))
+                                        .from(qReview)
+                                        .where(qReview.designer.eq(qDesigner)),
+                                "averageRating"
+                        )
                 ))
                 .from(qRecruitment)
                 .join(qRecruitment.designer, qDesigner)
@@ -150,12 +173,21 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
         QRecruitment qRecruitment = QRecruitment.recruitment;
         QDesigner qDesigner = QDesigner.designer;
         QRecruitmentLike qRecruitmentLike = QRecruitmentLike.recruitmentLike;
+        QReview qReview = QReview.review;
 
         BooleanBuilder booleanBuilder = buildCommonWhere(searchCondition);
 
         if (userCoordinate == null || userCoordinate.latitude() == null || userCoordinate.longitude() == null) {
             throw new IllegalArgumentException("거리 정렬 시 사용자 좌표 필요");
         }
+
+        NumberPath<Long> reviewCount = Expressions.numberPath(Long.class, "reviewCount");
+        JPQLSubQuery<Long> reviewCountSubQuery=JPAExpressions
+                .select(qReview.count())
+                .from(qReview)
+                .where(qReview.designer.eq(qRecruitment.designer));
+
+        NumberExpression<Long> reviewCountExpression = Expressions.asNumber(ExpressionUtils.as(reviewCountSubQuery, reviewCount));
 
         // MySQL ST_Distance_Sphere with SRID 4326: 실제 테스트 결과 POINT(latitude, longitude) 순서 사용
         String pointWkt = String.format("POINT(%f %f)",
@@ -188,10 +220,17 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                                 qDesigner.shop,
                                 qDesigner.addressLine1,
                                 qRecruitment.category,
-                                Expressions.nullExpression(Long.class),
+                                reviewCountExpression,
                                 distance,
                                 qRecruitmentLike.id.isNotNull(),
-                                qRecruitment.createdAt
+                                qRecruitment.createdAt,
+                                // 2. 평균 평점 계산 서브쿼리 (null일 경우 0.0 처리)
+                                ExpressionUtils.as(
+                                        JPAExpressions.select(qReview.rating.avg().coalesce(0.0))
+                                                .from(qReview)
+                                                .where(qReview.designer.eq(qDesigner)),
+                                        "averageRating"
+                                )
                         ))
                 .from(qRecruitment)
                 .join(qRecruitment.designer, qDesigner)
@@ -209,6 +248,8 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
     public List<DesignerRecruitmentListResponseDto> findRecruitmentsByDesignerAndDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId) {
         QRecruitment qRecruitment = QRecruitment.recruitment;
         QRecruitmentDate qRecruitmentDate = QRecruitmentDate.recruitmentDate;
+        QReview qReview = QReview.review;
+        QDesigner qDesigner = QDesigner.designer;
 
 
         BooleanBuilder booleanBuilder = new BooleanBuilder();
@@ -217,7 +258,13 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
         booleanBuilder.and(qRecruitmentDate.date.year().eq(yearMonth.getYear())
                 .and(qRecruitmentDate.date.month().eq(yearMonth.getMonthValue())));
 
+        NumberPath<Long> reviewCount = Expressions.numberPath(Long.class, "reviewCount");
+        JPQLSubQuery<Long> reviewCountSubQuery=JPAExpressions
+                .select(qReview.count())
+                .from(qReview)
+                .where(qReview.designer.eq(qRecruitment.designer));
 
+        NumberExpression<Long> reviewCountExpression = Expressions.asNumber(ExpressionUtils.as(reviewCountSubQuery, reviewCount));
 
         DatePath<LocalDate> earliestRecruitmentDate = Expressions.datePath(LocalDate.class, "earliestRecruitmentDate");
 
@@ -239,7 +286,15 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                 DesignerRecruitmentListResponseDto.class,
                 qRecruitment.id,
                 qRecruitment.title,
-                earliestDateExpression
+                earliestDateExpression,
+                reviewCountExpression,
+                        // 2. 평균 평점 계산 서브쿼리 (null일 경우 0.0 처리)
+                        ExpressionUtils.as(
+                                JPAExpressions.select(qReview.rating.avg().coalesce(0.0))
+                                        .from(qReview)
+                                        .where(qReview.designer.eq(qDesigner)),
+                                "averageRating"
+                        )
         ))
                 .from(qRecruitment)
                 .join(qRecruitment.recruitmentDates, qRecruitmentDate)
