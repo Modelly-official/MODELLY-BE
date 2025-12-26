@@ -40,7 +40,6 @@ public class DesignerRecruitmentService {
     private final RecruitmentService recruitmentService;
     private final DesignerService designerService;
     private final ReservationService reservationService;
-    private final S3Uploader s3Uploader;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional

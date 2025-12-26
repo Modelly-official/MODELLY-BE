@@ -36,7 +36,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
 
         StringPath thumbnail = Expressions.stringPath("thumbnail");
         JPQLSubQuery<String> firstImgSub = JPAExpressions
-                .select(qPortfolio.imageUrl)
+                .select(qPortfolio.thumbnail)
                 .from(qPortfolio)
                 .where(qPortfolio.designer.eq(qDesigner))
                 .orderBy(qPortfolio.createdAt.desc())
@@ -86,7 +86,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
 
         StringPath thumbnail = Expressions.stringPath("thumbnail");
         JPQLSubQuery<String> firstImgSub = JPAExpressions
-                .select(qPortfolio.imageUrl)
+                .select(qPortfolio.thumbnail)
                 .from(qPortfolio)
                 .where(qPortfolio.designer.eq(qDesigner))
                 .orderBy(qPortfolio.createdAt.desc())
@@ -143,7 +143,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
 
         StringPath thumbnail = Expressions.stringPath("thumbnail");
         JPQLSubQuery<String> firstImgSub = JPAExpressions
-                .select(qPortfolio.imageUrl)
+                .select(qPortfolio.thumbnail)
                 .from(qPortfolio)
                 .where(qPortfolio.designer.eq(qDesigner))
                 .orderBy(qPortfolio.createdAt.desc())

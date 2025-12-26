@@ -85,6 +85,11 @@ public enum ErrorStatus implements BaseErrorCode {
 
     //s3
     FILE_UPLOAD_FAIL(HttpStatus.BAD_REQUEST, "S3_ERROR", "파일 업로드에 실패했습니다."),
+
+    //Portfolio
+    NOT_FOUND_PORTFOLIO(HttpStatus.NOT_FOUND, "PORTFOLIO404", "포트폴리오가 존재하지 않습니다."),
+    FORBIDDEN_MODIFY_OR_DELETE_PORTFOLIO(HttpStatus.FORBIDDEN,"PORTFOLIO403", "작성자만 포트폴리오 수정 및 삭제가 가능합니다."),
+
     ;
 
     private final HttpStatus httpStatus;
