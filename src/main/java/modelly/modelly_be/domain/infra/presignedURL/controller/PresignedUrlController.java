@@ -40,6 +40,16 @@ public class PresignedUrlController implements PresignedUrlSwagger {
         return ApiResponse.onSuccess(response);
     }
 
+    @Override
+    public ApiResponse<PresignedUrlListResponse> createPortfolioImage(
+            @AuthenticationPrincipal AuthDetails authDetails,
+            @RequestParam @Validated @Max(3) int imageCount) {
+
+        PresignedUrlListResponse response = presignedUrlService.createPortfolioImage(authDetails.user(), imageCount);
+        return ApiResponse.onSuccess(response);
+
+    }
+
     @PostMapping("/presigned-url/chats/{roomId}/")
     public ApiResponse<PresignedUploadResponse> createPresignedUrl(
             @PathVariable Long roomId,
