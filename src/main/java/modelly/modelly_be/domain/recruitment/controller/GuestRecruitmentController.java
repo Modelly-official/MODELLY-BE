@@ -5,7 +5,7 @@ import modelly.modelly_be.domain.recruitment.controller.swagger.GuestRecruitment
 import modelly.modelly_be.domain.recruitment.dto.internal.CursorInformation;
 import modelly.modelly_be.domain.recruitment.dto.response.GuestRecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
-import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
+import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.domain.recruitment.service.RecruitmentService;
 import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
 import modelly.modelly_be.domain.user.service.DesignerService;

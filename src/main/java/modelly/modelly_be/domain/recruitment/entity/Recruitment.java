@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentRequestDto;
 import modelly.modelly_be.domain.recruitment.entity.enums.RecruitmentStatus;
-import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
+import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.entity.BaseEntity;
 import modelly.modelly_be.global.entity.Category;

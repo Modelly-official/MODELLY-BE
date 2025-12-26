@@ -8,7 +8,9 @@ import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentLis
 import modelly.modelly_be.domain.recruitment.dto.response.GuestRecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
-import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
+import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
+import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
+import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.domain.recruitment.repository.recruitmentRepository.RecruitmentRepository;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.domain.review.dto.internal.AverageReview;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +38,7 @@ import java.util.stream.Collectors;
 public class RecruitmentService {
 
     private final RecruitmentRepository recruitmentRepository;
+    private final RecruitmentTimeRepository recruitmentTimeRepository;
     private final RecruitmentLikeService recruitmentLikeService;
     private final ReservationService reservationService;
     private final ReviewService reviewService;
@@ -135,4 +139,14 @@ public class RecruitmentService {
         return recruitmentRepository.findRecruitmentsByDesignerAndDate(designer,yearMonth,size,cursorEarliestDate,cursorId);
     }
 
+    /*---------- 공고의 특정 시간대 Lock(디자이너 기준으로 동일 시간대 전부) ----------*/
+    @Transactional
+    public List<RecruitmentTime> getAllRecruitmentTimesForUpdate(Long designerId, LocalDate date, LocalTime startTime) {
+        List<RecruitmentTime> slots = recruitmentTimeRepository.findAllTimeForUpdateByDesigner(designerId, date, startTime);
+
+        if (slots.isEmpty()) {
+            throw new GeneralException(ErrorStatus.NOT_FOUND_RECRUITMENT_TIME);
+        }
+        return slots;
+    }
 }

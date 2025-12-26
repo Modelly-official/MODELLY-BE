@@ -64,6 +64,11 @@ public class DesignerService {
         }
     }
 
+    // lock 조회용
+    public Designer getByIdForUpdate(Long designerId) {
+        return designerRepository.findByIdForUpdate(designerId);
+    }
+
     public List<ShopResponse> getShopList(Long userId, Category category, int size, Coordinate coordinate){
         return designerRepository.findShopsByDistance(userId,category,size,coordinate);
     }

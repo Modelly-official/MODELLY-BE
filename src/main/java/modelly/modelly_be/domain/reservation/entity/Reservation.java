@@ -1,5 +1,6 @@
 package modelly.modelly_be.domain.reservation.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
@@ -7,9 +8,14 @@ import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.global.entity.BaseEntity;
+import modelly.modelly_be.global.entity.Category;
+import modelly.modelly_be.global.entity.SubCategory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -22,14 +28,27 @@ public class Reservation extends BaseEntity {
     @Column(name = "reservation_id")
     private Long id;
 
-    @Column(name = "start_time", nullable = false)
-    private LocalDateTime startTime;
+    @Column(name = "date", nullable = false)
+    private LocalDate date;
 
-    @Column(name = "end_time", nullable = false)
-    private LocalDateTime endTime;
+    @Column(name = "start_time", columnDefinition = "TIME", nullable = false)
+    private LocalTime startTime;
 
-    @Column(name = "content", columnDefinition = "text", nullable = false)
-    private String content;
+    @Column(name = "end_time", columnDefinition = "TIME", nullable = false)
+    private LocalTime endTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name="category", nullable=false, length=20)
+    private Category category;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "reservation_sub_category",
+            joinColumns = @JoinColumn(name = "reservation_id")
+    )
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sub_category", length = 50)
+    private List<SubCategory> subCategories;
 
     @Column(name = "designer_name", length = 20)
     private String designerName;
@@ -44,6 +63,12 @@ public class Reservation extends BaseEntity {
     @Column(name = "cancel_reason", length = 100)
     private String cancelReason;
 
+    @Column(name = "image_url", nullable = false, length = 254)
+    private String imageUrl;
+
+    @Column(name = "comment", nullable = false, length = 254)
+    private String comment;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recruitment_id", nullable = true)
     private Recruitment recruitment;
@@ -56,14 +81,6 @@ public class Reservation extends BaseEntity {
     @JoinColumn(name = "designer_id")
     private Designer designer;
 
-    @OneToMany(
-            mappedBy = "reservation",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    @OrderBy("createdAt ASC")
-    @Builder.Default
-    private Set<ReservationImage> reservationImages = new LinkedHashSet<>();
 
     public void deleteRelationShip(){
         this.recruitment = null;

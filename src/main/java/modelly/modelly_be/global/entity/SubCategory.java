@@ -1,7 +1,6 @@
-package modelly.modelly_be.domain.recruitment.entity.enums;
+package modelly.modelly_be.global.entity;
 
 import lombok.Getter;
-import modelly.modelly_be.global.entity.Category;
 
 @Getter
 public enum SubCategory {

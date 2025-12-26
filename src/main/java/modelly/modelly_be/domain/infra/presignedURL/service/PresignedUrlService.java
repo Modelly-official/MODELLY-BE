@@ -54,6 +54,14 @@ public class PresignedUrlService {
         return response;
     }
 
+    // 예약 도메인 관련 presigned url
+    public PresignedUploadResponse createReservationImage(User user) {
+        modelService.checkModel(user);
+
+        PresignedUploadResponse response = s3Uploader.generatePresignedUrl("reservations/" + user.getId());
+        return response;
+    }
+
     public PresignedUploadResponse createProfileImage() {
 
         PresignedUploadResponse response = s3Uploader.generatePresignedUrl("profile");

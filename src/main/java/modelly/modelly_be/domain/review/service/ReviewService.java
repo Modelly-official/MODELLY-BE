@@ -60,7 +60,7 @@ public class ReviewService {
         }
 
         //완료된 예약에 대해서만 작성가능하도록 체크
-        if (reservation.getEndTime().isAfter(LocalDateTime.now(ZoneId.of("Asia/Seoul")))){
+        if (LocalDateTime.of(reservation.getDate(),reservation.getEndTime()).isAfter(LocalDateTime.now(ZoneId.of("Asia/Seoul")))){
             throw new GeneralException(ErrorStatus.RESERVATION_NOT_COMPLETED);
         }
 

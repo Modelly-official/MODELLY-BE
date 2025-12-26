@@ -2,7 +2,7 @@ package modelly.modelly_be.domain.recruitment.repository.recruitmentRepository;
 
 import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentBasic;
 import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
-import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
+import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.utils.SearchCondition;
 import modelly.modelly_be.global.utils.Coordinate;
