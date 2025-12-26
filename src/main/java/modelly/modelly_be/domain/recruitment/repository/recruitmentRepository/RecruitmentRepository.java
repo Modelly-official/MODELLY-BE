@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -25,5 +26,22 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
             "SET r.recruitmentStatus = 'CLOSED' " +
             "WHERE r.deadline < :today AND r.recruitmentStatus = 'OPEN'")
     int updateStatusToClosed(LocalDate today);
+
+
+    /*---------- ----------*/
+    @Query("""
+    select distinct r
+    from Recruitment r
+    left join fetch r.recruitmentDates rd
+    left join fetch rd.recruitmentTimes rt
+    where r.id = :recruitmentId
+      and rd.date >= :startDate
+      and rd.date < :endDate
+    """)
+    Optional<Recruitment> findByIdWithScheduleInRange(
+            @Param("recruitmentId") Long recruitmentId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 
 }
