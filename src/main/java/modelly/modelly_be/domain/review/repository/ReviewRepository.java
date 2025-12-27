@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.review.repository;
 
 import modelly.modelly_be.domain.reservation.entity.Reservation;
+import modelly.modelly_be.domain.review.dto.internal.AverageReview;
 import modelly.modelly_be.domain.review.dto.response.MyReviewListResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReviewThumbnailListResponseDto;
 import modelly.modelly_be.domain.review.entity.Review;
@@ -36,5 +37,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findAllByDesigner(Designer designer); //N+1문제 리팩토링해야함
 
-    Integer countAllByDesigner(Designer designer);
+    @Query("SELECT COUNT(r), AVG(r.rating) " +
+            "FROM Review r " +
+            "WHERE r.designer = :designer")
+    AverageReview findAverageRatingByDesigner(Designer designer);
+
 }

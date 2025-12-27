@@ -4,7 +4,7 @@ import lombok.Builder;
 
 @Builder
 public record AverageReview(
-        Integer totalCount,
+        Long totalCount,
         Double averageRating
 ) {
 }

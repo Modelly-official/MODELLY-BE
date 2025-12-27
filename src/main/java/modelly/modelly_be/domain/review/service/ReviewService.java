@@ -241,26 +241,13 @@ public class ReviewService {
     }
 
     public AverageReview calculateRating(Designer designer){
-        List<Review> reviewList = reviewRepository.findAllByDesigner(designer);
-        Integer totalCount = reviewRepository.countAllByDesigner(designer);
+        AverageReview result = reviewRepository.findAverageRatingByDesigner(designer);
 
-        if (reviewList == null || reviewList.isEmpty()) {
-            return AverageReview.builder()
-                    .totalCount(0)
-                    .averageRating(0.0)
-                    .build();
+        if (result == null || result.totalCount() == 0) {
+            return new AverageReview(0L, 0.0);
         }
 
-        Double average = reviewList.stream()
-                .mapToDouble(Review::getRating)
-                .average()
-                .orElseThrow(()-> new GeneralException(ErrorStatus._INTERNAL_SERVER_ERROR));
-
-        return AverageReview.builder()
-                .averageRating(average)
-                .totalCount(totalCount)
-                .build();
-
+        return result;
     }
 
     public Review getById(Long reviewId) {

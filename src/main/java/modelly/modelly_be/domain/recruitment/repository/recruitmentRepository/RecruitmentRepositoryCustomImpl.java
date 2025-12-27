@@ -269,7 +269,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
         DateExpression<LocalDate> maxDate = qRecruitmentDate.date.max();
 
         StringExpression dateRangeExpression = Expressions.stringTemplate(
-                "CONCAT(CAST({0} AS string), ' ~ ', CAST({1} AS string))",
+                "CONCAT(CAST({0} AS CHAR), ' ~ ', CAST({1} AS CHAR))",
                 minDate, maxDate
         );
 
@@ -293,7 +293,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                         ExpressionUtils.as(
                                 JPAExpressions.select(qReview.rating.avg().coalesce(0.0))
                                         .from(qReview)
-                                        .where(qReview.designer.eq(qDesigner)),
+                                        .where(qReview.designer.id.eq(designer.getId())),
                                 "averageRating"
                         )
         ))

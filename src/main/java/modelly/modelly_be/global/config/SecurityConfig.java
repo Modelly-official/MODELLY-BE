@@ -63,6 +63,12 @@ public class SecurityConfig {
                                 HttpMethod.GET,"/api/recruitments/{recruitmentId}"
                         ).permitAll()
                         .requestMatchers(
+                                "/models/**"
+                        ).hasRole("MODEL")
+                        .requestMatchers(
+                                "/designers/**"
+                        ).hasRole("DESIGNER")
+                        .requestMatchers(
                                 "/auth/logout",
                                 "/auth/validate",
                                 "/api/recruitments/**",
@@ -71,12 +77,6 @@ public class SecurityConfig {
                                 "/chat/**",
                                 "/likes/**"
                         ).authenticated()
-                        .requestMatchers(
-                                "/models/**"
-                        ).hasRole("MODEL")
-                        .requestMatchers(
-                                "/designers/**"
-                        ).hasRole("DESIGNER")
                         .anyRequest().permitAll()
                 );
 

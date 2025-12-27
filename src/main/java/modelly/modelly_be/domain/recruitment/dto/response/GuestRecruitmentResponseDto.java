@@ -25,7 +25,7 @@ public record GuestRecruitmentResponseDto(
     boolean agreeInsta,
     boolean agreeMosaic,
     String etc,
-    int reviewCount,
+    Long reviewCount,
     double averageRating
 ) {
 
