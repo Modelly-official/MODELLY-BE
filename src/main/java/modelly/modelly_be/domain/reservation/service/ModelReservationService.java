@@ -45,7 +45,7 @@ public class ModelReservationService {
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
 
 
-    // 예약 신청
+    /*----------- 예약 신청 ----------*/
     @Transactional
     public void createReservation(User user, ReservationCreateRequest req) {
         modelService.checkModel(user);
@@ -93,7 +93,7 @@ public class ModelReservationService {
         reservationService.save(reservation);
     }
 
-    // 예약 조회(다가오는 일정, 완료된 일정)
+    /*----------- 예약 조회(다가오는 일정, 완료된 일정) ----------*/
     @Transactional(readOnly = true)
     public ReservationScrollResponse<ModelReservationItem> getModelReservations(
             User user,
@@ -186,6 +186,88 @@ public class ModelReservationService {
         return new ReservationScrollResponse<>(items, totalCount, hasNext, nextDate, nextTime, nextId);
     }
 
+    /* ---------- 리뷰 미작성 일정 조회 ---------- */
+    @Transactional(readOnly = true)
+    public ReservationScrollResponse<ModelReservationItem> getModelCompletedUnreviewedReservations(
+            User user,
+            String month,               // yyyy-MM (없으면 현재달)
+            Category category,          // null이면 전체
+            int size,
+            LocalDate cursorDate,
+            String cursorTime,          // HH:mm
+            Long cursorId
+    ) {
+        modelService.checkModel(user);
+        Model model = modelService.getModelByUser(user);
+
+        YearMonth ym = parseYearMonthOrNow(month);
+
+        LocalTime cursorTimeParsed = (cursorTime == null || cursorTime.isBlank())
+                ? null
+                : LocalTime.parse(cursorTime, HM);
+
+        // totalCount (월 + 카테고리 + 완료 + 미작성 조건)
+        long totalCount = reservationQueryRepository.countModelCompletedUnreviewedReservations(
+                model.getId(), ym, category
+        );
+
+        List<ModelReservationRow> rows =
+                reservationQueryRepository.findModelCompletedUnreviewedReservations(
+                        model.getId(),
+                        ym,
+                        category,
+                        cursorDate,
+                        cursorTimeParsed,
+                        cursorId,
+                        size + 1
+                );
+
+        boolean hasNext = rows.size() > size;
+        if (hasNext) rows = rows.subList(0, size);
+
+        List<Long> ids = rows.stream().map(ModelReservationRow::reservationId).toList();
+
+        Map<Long, List<SubCategory>> subMap =
+                reservationQueryRepository.findSubCategoriesByReservationIds(ids).stream()
+                        .collect(Collectors.groupingBy(
+                                ReservationQueryRepository.ReservationSubCategoryRow::reservationId,
+                                Collectors.mapping(
+                                        ReservationQueryRepository.ReservationSubCategoryRow::subCategory,
+                                        Collectors.toList()
+                                )
+                        ));
+
+        List<ModelReservationItem> items = rows.stream()
+                .map(r -> new ModelReservationItem(
+                        r.reservationId(),
+                        r.recruitmentId(),
+                        r.recruitmentTitle(),
+                        r.designerUserId(),
+                        r.designerId(),
+                        r.designerNickname(),
+                        r.shop(),
+                        r.category(),
+                        subMap.getOrDefault(r.reservationId(), List.of()),
+                        r.date(),
+                        r.startTime().format(HM),
+                        r.endTime().format(HM),
+                        r.status()
+                ))
+                .toList();
+
+        LocalDate nextDate = null;
+        String nextTime = null;
+        Long nextId = null;
+
+        if (hasNext && !items.isEmpty()) {
+            ModelReservationItem last = items.get(items.size() - 1);
+            nextDate = last.date();
+            nextTime = last.startTime(); // ✅ 커서는 정렬키(startTime)
+            nextId = last.reservationId();
+        }
+
+        return new ReservationScrollResponse<>(items, totalCount, hasNext, nextDate, nextTime, nextId);
+    }
 
     // month 파싱
     private YearMonth parseYearMonthOrNow(String month) {

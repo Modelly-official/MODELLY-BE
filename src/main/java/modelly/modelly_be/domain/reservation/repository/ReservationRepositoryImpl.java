@@ -24,6 +24,7 @@ import static modelly.modelly_be.domain.reservation.entity.QReservation.reservat
 import static modelly.modelly_be.domain.recruitment.entity.QRecruitment.recruitment;
 import static modelly.modelly_be.domain.user.entity.QDesigner.designer;
 import static modelly.modelly_be.domain.user.entity.QModel.model;
+import static modelly.modelly_be.domain.review.entity.QReview.review;
 
 @Repository
 @RequiredArgsConstructor
@@ -33,6 +34,7 @@ public class ReservationRepositoryImpl implements ReservationQueryRepository {
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     /* ---------- 모델 예약 조회 쿼리 ---------- */
+
     private BooleanBuilder modelBaseWhere(
             Long modelId,
             YearMonth ym,
@@ -137,6 +139,131 @@ public class ReservationRepositoryImpl implements ReservationQueryRepository {
         Long cnt = queryFactory
                 .select(reservation.id.count())
                 .from(reservation)
+                .where(where)
+                .fetchOne();
+
+        return cnt == null ? 0L : cnt;
+    }
+
+    /* ---------- 모델 완료 + 리뷰 미작성 예약 조회 쿼리 ---------- */
+
+    // 공통 where: 모델 + 월 + CONFIRMED + (완료 endTime 기준) + (카테고리 optional) + (리뷰 미작성)
+    private BooleanBuilder baseWhereForModelCompletedUnreviewed(
+            Long modelId,
+            YearMonth ym,
+            Category category
+    ) {
+        LocalDate start = ym.atDay(1);
+        LocalDate end = ym.plusMonths(1).atDay(1);
+
+        LocalDate today = LocalDate.now(KST);
+        LocalTime now = LocalTime.now(KST);
+
+        BooleanBuilder where = new BooleanBuilder();
+
+        // 모델 + 월범위
+        where.and(reservation.model.id.eq(modelId));
+        where.and(reservation.date.goe(start));
+        where.and(reservation.date.lt(end));
+
+        // CONFIRMED만
+        where.and(reservation.status.eq(ReservationStatus.RESERVATION_CONFIRMED));
+
+        // 완료 판정: endTime 기준
+        where.and(
+                reservation.date.lt(today)
+                        .or(reservation.date.eq(today).and(reservation.endTime.lt(now)))
+        );
+
+        // 카테고리 필터 (전체면 null)
+        if (category != null) {
+            where.and(reservation.category.eq(category));
+        }
+
+        // 리뷰 미작성: left join review 후 review.id is null
+        where.and(review.id.isNull());
+
+        return where;
+    }
+
+    // 공통 커서 (date, startTime, id) - 정렬키랑 동일
+    private BooleanBuilder keysetAfter(
+            LocalDate cursorDate,
+            LocalTime cursorTime,
+            Long cursorId
+    ) {
+        BooleanBuilder b = new BooleanBuilder();
+        if (cursorDate != null && cursorTime != null && cursorId != null) {
+            b.and(
+                    reservation.date.gt(cursorDate)
+                            .or(reservation.date.eq(cursorDate).and(reservation.startTime.gt(cursorTime)))
+                            .or(reservation.date.eq(cursorDate)
+                                    .and(reservation.startTime.eq(cursorTime))
+                                    .and(reservation.id.gt(cursorId)))
+            );
+        }
+        return b;
+    }
+
+    @Override
+    public List<ModelReservationRow> findModelCompletedUnreviewedReservations(
+            Long modelId,
+            YearMonth ym,
+            Category category,
+            LocalDate cursorDate,
+            LocalTime cursorTime,
+            Long cursorId,
+            int sizePlusOne
+    ) {
+        BooleanBuilder where = baseWhereForModelCompletedUnreviewed(modelId, ym, category);
+        where.and(keysetAfter(cursorDate, cursorTime, cursorId));
+
+        return queryFactory
+                .select(Projections.constructor(
+                        ModelReservationRow.class,
+                        reservation.id,
+                        reservation.date,
+                        reservation.startTime,
+                        reservation.endTime,
+                        reservation.status,
+                        reservation.category,
+
+                        recruitment.id,
+                        recruitment.title,
+
+                        designer.user.id,
+                        designer.id,
+                        designer.nickname,
+                        designer.shop
+                ))
+                .from(reservation)
+                .leftJoin(review).on(
+                        review.reservation.eq(reservation)
+                                .and(review.model.id.eq(reservation.model.id))
+                )
+                .leftJoin(reservation.recruitment, recruitment)
+                .join(reservation.designer, designer)
+                .where(where)
+                .orderBy(reservation.date.asc(), reservation.startTime.asc(), reservation.id.asc())
+                .limit(sizePlusOne)
+                .fetch();
+    }
+
+    @Override
+    public long countModelCompletedUnreviewedReservations(
+            Long modelId,
+            YearMonth ym,
+            Category category
+    ) {
+        BooleanBuilder where = baseWhereForModelCompletedUnreviewed(modelId, ym, category);
+
+        Long cnt = queryFactory
+                .select(reservation.id.count())
+                .from(reservation)
+                .leftJoin(review).on(
+                        review.reservation.eq(reservation)
+                                .and(review.model.id.eq(reservation.model.id))
+                )
                 .where(where)
                 .fetchOne();
 

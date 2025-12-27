@@ -51,6 +51,25 @@ public interface ReservationQueryRepository {
             ReservationListType type
     );
 
+
+    // 완료 + 리뷰 미작성 예약 리스트
+    List<ModelReservationRow> findModelCompletedUnreviewedReservations(
+            Long modelId,
+            YearMonth yearMonth,
+            Category category,          // null이면 전체
+            LocalDate cursorDate,
+            LocalTime cursorTime,
+            Long cursorId,
+            int sizePlusOne
+    );
+
+    // 완료 + 리뷰 미작성 예약 totalCount
+    long countModelCompletedUnreviewedReservations(
+            Long modelId,
+            YearMonth yearMonth,
+            Category category           // null이면 전체
+    );
+
     // subCategories를 한 번에 가져오기
     List<ReservationSubCategoryRow> findSubCategoriesByReservationIds(List<Long> reservationIds);
 

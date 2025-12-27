@@ -79,6 +79,30 @@ public class ReservationController {
         );
     }
 
+    // 리뷰 미작성 예약 조회
+    @GetMapping("/models/reservations/unreviewed")
+    public ApiResponse<ReservationScrollResponse<ModelReservationItem>> getUnreviewedCompletedReservations(
+            @AuthenticationPrincipal AuthDetails auth,
+            @RequestParam(required = false) String month, // yyyy-MM
+            @RequestParam(required = false) Category category, // 전체면 안 보냄
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(required = false) LocalDate cursorDate,
+            @RequestParam(required = false) String cursorTime,
+            @RequestParam(required = false) Long cursorId
+    ) {
+        return ApiResponse.onSuccess(
+                modelReservationService.getModelCompletedUnreviewedReservations(
+                        auth.user(),
+                        month,
+                        category,
+                        size,
+                        cursorDate,
+                        cursorTime,
+                        cursorId
+                )
+        );
+    }
+
     /* ---------- 디자이너 관련 예약 API ---------- */
     @GetMapping("/designers/reservations")
     public ApiResponse<ReservationScrollResponse<DesignerReservationItem>> getDesignerReservations(
