@@ -467,6 +467,17 @@ public class ReservationService {
             throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
         }
 
+        // 72시간(3일) 전까지만 취소 가능
+        LocalDateTime now = LocalDateTime.now(KST);
+        LocalDateTime startAt = LocalDateTime.of(reservation.getDate(), reservation.getStartTime());
+
+        long hoursUntilStart = Duration.between(now, startAt).toHours();
+
+        // 예약 시작이 이미 지났거나, 72시간 미만으로 남았으면 취소 불가
+        if (hoursUntilStart < 72) {
+            throw new GeneralException(ErrorStatus.RESERVATION_CANCEL_TOO_LATE);
+        }
+
         // roomId 없으면 채팅방 오픈(없으면 생성)
         Long finalRoomId = roomId;
         if (finalRoomId == null) {
@@ -519,5 +530,49 @@ public class ReservationService {
         chattingService.publishReservationPayload(me.getId(), finalRoomId, payload);
 
         return new SimpleMessageDTO("예약이 취소되었습니다.");
+    }
+
+    // 예약 변경 요청 거절
+    @Transactional
+    public SimpleMessageDTO rejectReservationChange(Long changeId, User me) {
+
+        ReservationChange change = reservationChangeRepository.findById(changeId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION_CHANGE));
+
+        if (!change.isPending()) {
+            throw new GeneralException(ErrorStatus.RESERVATION_CHANGE_NOT_PENDING);
+        }
+
+        Reservation reservation = change.getReservation();
+
+        // 참여자 검증
+        boolean meIsModel = reservation.getModel() != null
+                && reservation.getModel().getUser().getId().equals(me.getId());
+        boolean meIsDesigner = reservation.getDesigner() != null
+                && reservation.getDesigner().getUser().getId().equals(me.getId());
+
+        if (!meIsModel && !meIsDesigner) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        // 요청자가 응답(수락/거절)하는 거 방지
+        if (change.getRequesterUserId().equals(me.getId())) {
+            throw new GeneralException(ErrorStatus.RESERVATION_CHANGE_SELF_RESPONSE_NOT_ALLOWED);
+        }
+
+        // 확정 예약만 응답 허용
+        if (reservation.getStatus() != ReservationStatus.RESERVATION_CONFIRMED) {
+            throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
+        }
+
+        // 상태 변경
+        change.reject(me.getId());
+
+        // 채팅 payload
+        Long roomId = change.getChatRoom().getId();
+
+        String text = "예약 일정 변경 요청이 거절되었습니다. 기존 예약 일정 진행 여부를 선택해주세요.";
+        chattingService.publishReservationText(me.getId(), roomId, text);
+        return new SimpleMessageDTO("예약 변경 요청을 거절했습니다.");
     }
 }

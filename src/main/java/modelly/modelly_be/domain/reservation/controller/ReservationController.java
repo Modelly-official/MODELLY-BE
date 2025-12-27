@@ -72,6 +72,17 @@ public class ReservationController {
         return ApiResponse.onSuccess(res);
     }
 
+    // 예약 변경 요청 거절
+    @PostMapping("/reservations/changes/{reservationChangeId}/reject")
+    public ApiResponse<SimpleMessageDTO> rejectReservationChange(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long reservationChangeId
+    ) {
+        SimpleMessageDTO result =
+                reservationService.rejectReservationChange(reservationChangeId, auth.user());
+        return ApiResponse.onSuccess(result);
+    }
+
     // 예약 취소
     @PostMapping("/reservations/{reservationId}/cancel")
     public ApiResponse<SimpleMessageDTO> cancelReservation(
