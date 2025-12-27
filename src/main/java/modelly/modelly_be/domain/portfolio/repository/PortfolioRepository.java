@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
 
-    @Query("SELECT p.id, p.thumbnail " +
+    @Query("SELECT new modelly.modelly_be.domain.portfolio.dto.response.PortfolioListResponse(p.id, p.thumbnail) " +
             "FROM Portfolio p " +
             "WHERE p.designer = :designer AND (:cursorId IS NULL OR p.id < :cursorId) " +
             "ORDER BY p.createdAt desc , p.id desc ")
@@ -21,7 +21,7 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     @Query("SELECT p " +
             "FROM Portfolio p " +
             "LEFT JOIN FETCH p.subCategoryList " +
-            "LEFT JOIN fetch p.portfolioImages " +
+            "LEFT JOIN FETCH p.portfolioImages " +
             "WHERE p.id = :portfolioId")
     Optional<Portfolio> findByPortfolioId(Long portfolioId);
 }

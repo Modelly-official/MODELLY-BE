@@ -1,6 +1,5 @@
 package modelly.modelly_be.domain.infra.presignedURL.service;
 
-import jakarta.validation.constraints.Max;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.chat.service.ChatRoomService;
 import modelly.modelly_be.domain.infra.presignedURL.dto.PresignedUrlListResponse;

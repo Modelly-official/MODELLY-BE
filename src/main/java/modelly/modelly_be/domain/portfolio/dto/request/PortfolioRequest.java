@@ -2,7 +2,7 @@ package modelly.modelly_be.domain.portfolio.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
 
@@ -22,7 +22,7 @@ public record PortfolioRequest(
         @Schema(description = "시술 상세 내용")
         String content,
         @Schema(description = "세부 카테고리")
-        @NotNull(message = "하나 이상은 필수입니다.")
+        @NotEmpty(message = "하나 이상은 필수입니다.")
         List<SubCategory> subCategoryList
 ) {
 }

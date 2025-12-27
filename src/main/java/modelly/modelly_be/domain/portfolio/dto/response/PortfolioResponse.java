@@ -4,7 +4,6 @@ import modelly.modelly_be.domain.portfolio.entity.Portfolio;
 import modelly.modelly_be.domain.portfolio.entity.PortfolioImage;
 import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public record PortfolioResponse(

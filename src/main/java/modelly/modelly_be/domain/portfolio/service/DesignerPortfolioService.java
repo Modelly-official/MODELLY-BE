@@ -73,7 +73,6 @@ public class DesignerPortfolioService {
             }
 
             portfolio.getPortfolioImages().clear();
-            portfolio.updateImageInf(null, null);
 
             if (request.imageUrls() != null) {
                 uploadPortfolioImage(portfolio, request.imageUrls(), request.thumbnail(), portfolio.getImageFolderId());
