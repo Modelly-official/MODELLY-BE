@@ -60,4 +60,11 @@ public class PresignedUrlService {
 
         return response;
     }
+
+    public PresignedUrlListResponse createPortfolioImage(User user, int imageCount) {
+        designerService.checkDesigner(user);
+
+        PresignedUrlListResponse response = s3Uploader.generatePresignedUrlList("portfolios", imageCount);
+        return response;
+    }
 }

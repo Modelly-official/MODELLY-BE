@@ -130,7 +130,7 @@ public class AuthController {
     /* 소셜 회원가입 */
     @Operation(summary = "소셜 회원가입", description = "회원가입 완료 메시지, 이메일, 이름, 닉네임을 반환합니다.")
     @PostMapping("/auth/social/signup")
-    public ApiResponse<SignupResponse> signupWithKakao(HttpServletRequest request, @Valid @RequestBody SocialSignupRequest req) {
+    public ApiResponse<SignupResponse> signupWithKakao(HttpServletRequest request, @RequestBody SocialSignupRequest req) {
         SignupResponse result = authService.SocialSignup(request, req);
         return ApiResponse.onSuccess(result);
     }

@@ -35,8 +35,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             " ORDER BY r.isFixed desc, r.id desc, r.createdAt desc ")
     Slice<ReviewThumbnailListResponseDto> findThumbNailByDesignerAndIdLessThanOrderByCreatedAtDesc(Designer designer, Long cursorId, Pageable pageable);
 
-    List<Review> findAllByDesigner(Designer designer); //N+1문제 리팩토링해야함
-
     @Query("SELECT COUNT(r), AVG(r.rating) " +
             "FROM Review r " +
             "WHERE r.designer = :designer")
