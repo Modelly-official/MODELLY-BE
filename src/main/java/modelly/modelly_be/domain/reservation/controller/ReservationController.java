@@ -55,10 +55,19 @@ public class ReservationController {
     @PostMapping("reservations/changes/{reservationChangeId}/accept")
     public ApiResponse<SimpleMessageDTO> acceptReservationChange(
             @AuthenticationPrincipal AuthDetails auth,
-            @PathVariable Long changeId
+            @PathVariable Long reservationChangeId
     ) {
-        SimpleMessageDTO result = reservationService.acceptReservationChange(changeId, auth.user());
+        SimpleMessageDTO result = reservationService.acceptReservationChange(reservationChangeId, auth.user());
         return ApiResponse.onSuccess(result);
+    }
+
+    @PostMapping("/reservations/changes/{reservationChangeId}/cancel")
+    public ApiResponse<SimpleMessageDTO> cancelReservationChange(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long reservationChangeId
+    ) {
+        SimpleMessageDTO res = reservationService.cancelReservationChange(reservationChangeId, auth.user());
+        return ApiResponse.onSuccess(res);
     }
 
     /* ---------- 모델 관련 예약 API ---------- */

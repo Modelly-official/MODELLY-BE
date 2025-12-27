@@ -9,6 +9,8 @@ import modelly.modelly_be.domain.chat.entity.enums.MessageType;
 import modelly.modelly_be.domain.chat.service.ChatRoomService;
 import modelly.modelly_be.domain.chat.service.ChattingService;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
+import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
+import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationChangeCreateRequest;
 import modelly.modelly_be.domain.reservation.dto.response.ChatRoomReservationSummary;
 import modelly.modelly_be.domain.reservation.dto.response.ReservationChangeCreateResponse;
@@ -37,6 +39,7 @@ import java.util.List;
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final ReservationChangeRepository reservationChangeRepository;
+    private final RecruitmentTimeRepository recruitmentTimeRepository;
 
     private final ChatRoomService chatRoomService;
     private final ChattingService chattingService;
@@ -207,13 +210,55 @@ public class ReservationService {
         long minutes = Duration.between(reservation.getStartTime(), reservation.getEndTime()).toMinutes();
         LocalTime proposedEnd = proposedStart.plusMinutes(minutes);
 
-        // 디자이너 스케줄 conflict 체크
+        // 전역 슬롯 RecruitmentTime 락 + 비어있는지 체크
+        Long designerId = reservation.getDesigner().getId();
+        List<RecruitmentTime> proposedTimes =
+                recruitmentTimeRepository.findAllTimeForUpdateByDesigner(
+                        designerId, req.proposedDate(), proposedStart
+                );
+
+        // 요청 시간대가 디자이너가 정한 모든 공고 시간대에 없으면 요청 불가
+        if (proposedTimes.isEmpty()) {
+            throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
+        }
+
+        // 변경하려는 시간대가 현재 예약과 연결된 공고의 time slot인지 확인
+        Long recruitmentId = reservation.getRecruitment() != null ? reservation.getRecruitment().getId() : null;
+        if (recruitmentId == null) {
+            throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
+        }
+        boolean hasMyRecruitmentSlot = proposedTimes.stream().anyMatch(rt ->
+                rt.getRecruitmentDate().getRecruitment().getId().equals(recruitmentId)
+        );
+        if (!hasMyRecruitmentSlot) {
+            throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
+        }
+
+        // 하나라도 isReserved=true면 요청 불가(예약된 시간대면 요청 불가)
+        boolean reservedAny = proposedTimes.stream().anyMatch(RecruitmentTime::isReserved);
+        if (reservedAny) {
+            throw new GeneralException(ErrorStatus.RESERVATION_TIME_CONFLICT);
+        }
+
+        // pending change 슬롯 겹침 방지
+        boolean pendingConflict = reservationChangeRepository.existsPendingOnSlot(
+                designerId,
+                ReservationChangeStatus.PENDING,
+                req.proposedDate(),
+                proposedStart
+        );
+
+        if (pendingConflict) {
+            throw new GeneralException(ErrorStatus.RESERVATION_TIME_CONFLICT);
+        }
+
+        // 실제 Reservation(confirmed/pending) 스케줄 겹침 체크
         boolean conflict = reservationRepository.existsConflictOnDesignerSchedule(
-                reservation.getDesigner().getId(),
+                designerId,
                 req.proposedDate(),
                 proposedStart,
                 proposedEnd,
-                ReservationStatus.RESERVATION_CONFIRMED,
+                List.of(ReservationStatus.RESERVATION_CONFIRMED, ReservationStatus.RESERVATION_PENDING),
                 reservation.getId()
         );
         if (conflict) {
@@ -286,19 +331,66 @@ public class ReservationService {
             throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
         }
 
-        // 수락 시점에 conflict 재검증
+
+        // 예약이 공고와 연결되어 있어야 슬롯 검증 가능
+        Recruitment recruitment = reservation.getRecruitment();
+        if (recruitment == null) {
+            throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
+        }
+
+        Long designerId = reservation.getDesigner().getId();
+
+        // old time slot(현재 예약의 slot)
+        LocalDate oldDate = reservation.getDate();
+        LocalTime oldStart = reservation.getStartTime();
+
+        // new time slot(변경 요청 slot)
+        LocalDate newDate = change.getProposedDate();
+        LocalTime newStart = change.getProposedStartTime();
+
+        // new slot 전역 RecruitmentTime row들 전부 락 + 검증
+        List<RecruitmentTime> newTimes = recruitmentTimeRepository
+                .findAllTimeForUpdateByDesigner(designerId, newDate, newStart);
+
+        // new 슬롯이 어떤 공고에도 없으면 불가
+        if (newTimes.isEmpty()) {
+            throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
+        }
+
+        // newTimes 중 현재 예약의 recruitment에 해당하는 row가 포함되었는지 검증
+        boolean hasMyRecruitmentSlotInNew = newTimes.stream().anyMatch(rt ->
+                rt.getRecruitmentDate().getRecruitment().getId().equals(recruitment.getId())
+        );
+        if (!hasMyRecruitmentSlotInNew) {
+            throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
+        }
+
+        // new slot이 하나라도 reserved=true면 수락 불가
+        boolean reservedAny = newTimes.stream().anyMatch(RecruitmentTime::isReserved);
+        if (reservedAny) {
+            throw new GeneralException(ErrorStatus.RESERVATION_TIME_CONFLICT);
+        }
+
+        // Reservation 스케줄 conflict 재검증 (CONFIRMED + PENDING 기준, 자기 예약 제외)
         boolean conflict = reservationRepository.existsConflictOnDesignerSchedule(
-                reservation.getDesigner().getId(),
-                change.getProposedDate(),
+                designerId,
+                newDate,
                 change.getProposedStartTime(),
                 change.getProposedEndTime(),
-                ReservationStatus.RESERVATION_CONFIRMED,
-                reservation.getId() // 자기 예약 제외
+                List.of(ReservationStatus.RESERVATION_CONFIRMED, ReservationStatus.RESERVATION_PENDING),
+                reservation.getId()
         );
-
         if (conflict) {
             throw new GeneralException(ErrorStatus.RESERVATION_TIME_CONFLICT);
         }
+
+        // old 슬롯 전역 RecruitmentTime row들 전부 락
+        List<RecruitmentTime> oldTimes = recruitmentTimeRepository
+                .findAllTimeForUpdateByDesigner(designerId, oldDate, oldStart);
+
+        // old 전부 unreserve, new 전부 reserve
+        oldTimes.forEach(RecruitmentTime::unreserve);
+        newTimes.forEach(RecruitmentTime::reserve);
 
         // 예약에 반영
         reservation.applySchedule(
@@ -310,13 +402,41 @@ public class ReservationService {
         // 변경요청 ACCEPTED 처리
         change.accept(me.getId());
 
-        // 채팅 시스템 메시지 저장 + 브로드캐스트
+        //  채팅 시스템 메시지 저장 + 브로드캐스트
         Long roomId = change.getChatRoom().getId();
-
         String text = "예약 일정 변경 요청이 수락되었습니다. 변경 일정은 예약 내역에서 확인하실 수 있습니다.";
         chattingService.publishReservationText(me.getId(), roomId, text);
 
         return new SimpleMessageDTO("예약이 변경되었습니다.");
+    }
+
+    // 예약 변경 요청 취소
+    @Transactional
+    public SimpleMessageDTO cancelReservationChange(Long changeId, User me) {
+
+        // 변경요청 조회
+        ReservationChange change = reservationChangeRepository.findById(changeId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION_CHANGE));
+
+        // PENDING만 취소 가능
+        if (!change.isPending()) {
+            throw new GeneralException(ErrorStatus.RESERVATION_CHANGE_NOT_PENDING);
+        }
+
+        // 요청자 본인만 취소 가능
+        if (!change.getRequesterUserId().equals(me.getId())) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        // 상태 변경
+        change.cancel(me.getId());
+
+        // 채팅 시스템 메시지 저장 + 브로드캐스트
+        Long roomId = change.getChatRoom().getId();
+        String text = "변경 요청이 취소되었습니다.";
+        chattingService.publishReservationText(me.getId(), roomId, text);
+
+        return new SimpleMessageDTO("변경 요청이 취소되었습니다.");
     }
 
 }

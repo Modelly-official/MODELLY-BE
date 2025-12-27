@@ -29,4 +29,6 @@ public interface RecruitmentTimeRepository extends JpaRepository<RecruitmentTime
             LocalDate date,
             LocalTime startTime
     );
+
+
 }

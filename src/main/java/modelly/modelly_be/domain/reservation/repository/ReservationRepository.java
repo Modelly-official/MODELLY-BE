@@ -58,17 +58,17 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         from Reservation r
         where r.designer.id = :designerId
           and r.date = :date
-          and r.status = :status
-          and r.id <> :excludeReservationId
+          and r.status in :statuses
           and r.startTime < :endTime
           and r.endTime > :startTime
+          and r.id <> :excludeReservationId
         """)
         boolean existsConflictOnDesignerSchedule(
-                @Param("designerId") Long designerId,
-                @Param("date") LocalDate date,
-                @Param("startTime") LocalTime startTime,
-                @Param("endTime") LocalTime endTime,
-                @Param("status") ReservationStatus status,
-                @Param("excludeReservationId") Long excludeReservationId
+                Long designerId,
+                LocalDate date,
+                LocalTime startTime,
+                LocalTime endTime,
+                List<ReservationStatus> statuses,
+                Long excludeReservationId
         );
 }
