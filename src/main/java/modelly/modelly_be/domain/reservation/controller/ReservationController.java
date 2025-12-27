@@ -3,14 +3,13 @@ package modelly.modelly_be.domain.reservation.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.recruitment.service.RecruitmentService;
+import modelly.modelly_be.domain.reservation.dto.request.ReservationChangeCreateRequest;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationCreateRequest;
-import modelly.modelly_be.domain.reservation.dto.response.AvailableReservationScheduleResponse;
-import modelly.modelly_be.domain.reservation.dto.response.DesignerReservationItem;
-import modelly.modelly_be.domain.reservation.dto.response.ModelReservationItem;
-import modelly.modelly_be.domain.reservation.dto.response.ReservationScrollResponse;
+import modelly.modelly_be.domain.reservation.dto.response.*;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationListType;
 import modelly.modelly_be.domain.reservation.service.DesignerReservationService;
 import modelly.modelly_be.domain.reservation.service.ModelReservationService;
+import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.domain.user.service.ModelService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
@@ -26,12 +25,34 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class ReservationController {
 
+    private final ReservationService reservationService;
     private final ModelReservationService modelReservationService;
     private final DesignerReservationService designerReservationService;
     private final RecruitmentService recruitmentService;
     private final ModelService modelService;
 
+    /* ---------- 모델/디자이너 공통 API ---------- */
+
+    // 예약 변경 요청
+    @PostMapping("/reservations/{reservationId}/changes")
+    public ApiResponse<ReservationChangeCreateResponse> createReservationChangeRequest(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long reservationId,
+            @RequestParam(required = false) Long roomId,
+            @Valid @RequestBody ReservationChangeCreateRequest request
+    ) {
+        return ApiResponse.onSuccess(
+                reservationService.createChangeRequest(
+                        reservationId,
+                        roomId,
+                        auth.user(),
+                        request
+                )
+        );
+    }
+
     /* ---------- 모델 관련 예약 API ---------- */
+
     // 예약하기
     @PostMapping("/models/reservations")
     public ApiResponse<SimpleMessageDTO> createReservation(

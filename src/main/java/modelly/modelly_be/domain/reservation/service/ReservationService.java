@@ -4,9 +4,14 @@ import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.chat.entity.ChatRoom;
 import modelly.modelly_be.domain.chat.service.ChatRoomService;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
+import modelly.modelly_be.domain.reservation.dto.request.ReservationChangeCreateRequest;
 import modelly.modelly_be.domain.reservation.dto.response.ChatRoomReservationSummary;
+import modelly.modelly_be.domain.reservation.dto.response.ReservationChangeCreateResponse;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
+import modelly.modelly_be.domain.reservation.entity.ReservationChange;
+import modelly.modelly_be.domain.reservation.entity.enums.ReservationChangeStatus;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
+import modelly.modelly_be.domain.reservation.repository.ReservationChangeRepository;
 import modelly.modelly_be.domain.reservation.repository.ReservationRepository;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.User;
@@ -16,10 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -27,6 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReservationService {
     private final ReservationRepository reservationRepository;
+    private final ReservationChangeRepository reservationChangeRepository;
     private final ChatRoomService chatRoomService;
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
@@ -136,6 +139,100 @@ public class ReservationService {
                 r.getEndTime().format(HM),
                 opponentUserId,
                 opponentName
+        );
+    }
+
+    @Transactional
+    public ReservationChangeCreateResponse createChangeRequest(
+            Long reservationId,
+            Long roomId, // nullable
+            User me,
+            ReservationChangeCreateRequest req
+    ) {
+        // 예약 존재 여부 확인
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION));
+
+        // 요청자가 예약의 참가자인지 확인
+        boolean meIsModel = reservation.getModel() != null
+                && reservation.getModel().getUser().getId().equals(me.getId());
+        boolean meIsDesigner = reservation.getDesigner() != null
+                && reservation.getDesigner().getUser().getId().equals(me.getId());
+
+        if (!meIsModel && !meIsDesigner) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        // 확정된 예약만 변경 요청 가능
+        if (reservation.getStatus() != ReservationStatus.RESERVATION_CONFIRMED) {
+            throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
+        }
+
+        // roomId가 없으면 상대 userId 구해서 채팅방 open(없으면 생성)
+        Long finalRoomId = roomId;
+        if (finalRoomId == null) {
+            Long opponentUserId = meIsModel
+                    ? reservation.getDesigner().getUser().getId()
+                    : reservation.getModel().getUser().getId();
+
+            // openRoom: 있으면 반환, 없으면 생성
+            finalRoomId = chatRoomService.openRoom(me.getId(), opponentUserId).getChatRoomId();
+        }
+
+        ChatRoom room = chatRoomService.getById(finalRoomId);
+
+        // room의 pair가 reservation의 pair랑 맞는지 검증
+        if (!room.getModel().getId().equals(reservation.getModel().getId())
+                || !room.getDesigner().getId().equals(reservation.getDesigner().getId())) {
+            throw new GeneralException(ErrorStatus.INVALID_CHATROOM);
+        }
+
+        // PENDING 중복 방지 (예약 1개당 PENDING 1개)
+        if (reservationChangeRepository.existsByReservation_IdAndStatus(reservationId, ReservationChangeStatus.PENDING)) {
+            throw new GeneralException(ErrorStatus.RESERVATION_CHANGE_ALREADY_PENDING);
+        }
+
+        // proposed time 파싱 + endTime 계산
+        LocalTime proposedStart = LocalTime.parse(req.proposedStartTime(), HM);
+        long minutes = Duration.between(reservation.getStartTime(), reservation.getEndTime()).toMinutes();
+        LocalTime proposedEnd = proposedStart.plusMinutes(minutes);
+
+        // 디자이너 스케줄 conflict 체크
+        boolean conflict = reservationRepository.existsConflictOnDesignerSchedule(
+                reservation.getDesigner().getId(),
+                req.proposedDate(),
+                proposedStart,
+                proposedEnd,
+                ReservationStatus.RESERVATION_CONFIRMED,
+                reservation.getId()
+        );
+        if (conflict) {
+            throw new GeneralException(ErrorStatus.RESERVATION_TIME_CONFLICT);
+        }
+
+        // 저장
+        ReservationChange change = ReservationChange.builder()
+                .reservation(reservation)
+                .chatRoom(room)
+                .requesterUserId(me.getId())
+                .proposedDate(req.proposedDate())
+                .proposedStartTime(proposedStart)
+                .proposedEndTime(proposedEnd)
+                .reason(req.reason())
+                .status(ReservationChangeStatus.PENDING)
+                .build();
+
+        ReservationChange saved = reservationChangeRepository.save(change);
+
+        // 응답 생성
+        return new ReservationChangeCreateResponse(
+                saved.getId(),
+                reservationId,
+                saved.getStatus(),
+                saved.getProposedDate(),
+                saved.getProposedStartTime().format(HM),
+                saved.getProposedEndTime().format(HM),
+                saved.getReason()
         );
     }
 }

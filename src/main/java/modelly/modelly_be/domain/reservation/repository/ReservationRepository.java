@@ -51,4 +51,24 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("now") LocalTime now,
             Pageable pageable
     );
+
+        // 예약 변경 시 변경 시간대에 예약이 있는지 확인
+        @Query("""
+        select (count(r) > 0)
+        from Reservation r
+        where r.designer.id = :designerId
+          and r.date = :date
+          and r.status = :status
+          and r.id <> :excludeReservationId
+          and r.startTime < :endTime
+          and r.endTime > :startTime
+        """)
+        boolean existsConflictOnDesignerSchedule(
+                @Param("designerId") Long designerId,
+                @Param("date") LocalDate date,
+                @Param("startTime") LocalTime startTime,
+                @Param("endTime") LocalTime endTime,
+                @Param("status") ReservationStatus status,
+                @Param("excludeReservationId") Long excludeReservationId
+        );
 }

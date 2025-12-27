@@ -73,6 +73,8 @@ public enum ErrorStatus implements BaseErrorCode {
     //Reservation
     NOT_FOUND_RESERVATION(HttpStatus.NOT_FOUND, "RESERVATION404", "예약이 존재하지 않습니다."),
     RESERVATION_TIME_CONFLICT(HttpStatus.CONFLICT, "RESERVATION409", "이미 예약된 시간대입니다. 다른 시간을 선택해주세요."),
+    RESERVATION_BAD_REQUEST(HttpStatus.BAD_REQUEST, "RESERVATION400", "확정된 예약만 변경 가능합니다."),
+    RESERVATION_CHANGE_ALREADY_PENDING(HttpStatus.CONFLICT, "RESERVATION409", "이미 변경 요청한 예약입니다."),
 
     //Review
     FORBIDDEN_CREATE_REVIEW(HttpStatus.FORBIDDEN, "REVIEW403", "예약자만 리뷰 작성이 가능합니다."),
