@@ -6,6 +6,9 @@ import modelly.modelly_be.domain.chat.dto.request.OpenRoomRequest;
 import modelly.modelly_be.domain.chat.dto.response.*;
 import modelly.modelly_be.domain.chat.service.ChatRoomService;
 import modelly.modelly_be.domain.chat.service.ChattingService;
+import modelly.modelly_be.domain.reservation.dto.response.ChatRoomReservationSummary;
+import modelly.modelly_be.domain.reservation.dto.response.ChatRoomReservationSummaryResponse;
+import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,6 +22,7 @@ public class ChatController implements ChatSwagger {
 
     private final ChatRoomService chatRoomService;
     private final ChattingService chattingService;
+    private final ReservationService reservationService;
 
     @PostMapping("/chat/rooms")
     public ApiResponse<OpenRoomResponse> openRoom(
@@ -54,6 +58,20 @@ public class ChatController implements ChatSwagger {
                 chattingService.getChatRoomDetail(currentUserId, roomId, cursorMessageId, size);
 
         return ApiResponse.onSuccess(response);
+    }
+
+    // 해당 채팅방에 엮인 예약 조회
+    @GetMapping("/chat/rooms/{roomId}/reservation")
+    public ApiResponse<ChatRoomReservationSummaryResponse> getRoomReservation(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long roomId
+    ) {
+        ChatRoomReservationSummary summary =
+                reservationService.getChatRoomReservationSummary(roomId, auth.user());
+
+        return ApiResponse.onSuccess(
+                new ChatRoomReservationSummaryResponse(summary != null, summary)
+        );
     }
 
 }

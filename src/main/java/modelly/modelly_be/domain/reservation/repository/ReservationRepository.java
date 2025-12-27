@@ -4,7 +4,10 @@ import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.domain.user.entity.Designer;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,5 +29,26 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             Collection<ReservationStatus> statuses,
             LocalTime end,
             LocalTime start
+    );
+
+    // 모델 아이디와 디자이너 아이디로 특정 예약 조회
+    @Query("""
+    select r
+    from Reservation r
+    where r.model.id = :modelId
+      and r.designer.id = :designerId
+      and r.status = modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus.RESERVATION_CONFIRMED
+      and (
+            r.date > :today
+         or (r.date = :today and r.endTime >= :now)
+      )
+    order by r.date asc, r.startTime asc, r.id asc
+    """)
+    List<Reservation> findUpcomingConfirmedForChatRoom(
+            @Param("modelId") Long modelId,
+            @Param("designerId") Long designerId,
+            @Param("today") LocalDate today,
+            @Param("now") LocalTime now,
+            Pageable pageable
     );
 }
