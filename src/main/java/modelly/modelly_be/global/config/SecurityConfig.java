@@ -63,10 +63,10 @@ public class SecurityConfig {
                                 HttpMethod.GET,"/api/recruitments/{recruitmentId}"
                         ).permitAll()
                         .requestMatchers(
-                                "/models/**"
+                                "/api/models/**"
                         ).hasRole("MODEL")
                         .requestMatchers(
-                                "/designers/**"
+                                "/api/designers/**"
                         ).hasRole("DESIGNER")
                         .requestMatchers(
                                 "/auth/logout",
