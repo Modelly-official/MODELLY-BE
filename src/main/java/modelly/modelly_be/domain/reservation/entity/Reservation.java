@@ -91,4 +91,8 @@ public class Reservation extends BaseEntity {
         this.recruitment = null;
     }
 
+    public void cancel(String reason) {
+        this.status = ReservationStatus.RESERVATION_CANCELLED;
+        this.cancelReason = reason;
+    }
 }

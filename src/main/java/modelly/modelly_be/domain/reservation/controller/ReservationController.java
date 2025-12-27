@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.reservation.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.recruitment.service.RecruitmentService;
+import modelly.modelly_be.domain.reservation.dto.request.ReservationCancelRequest;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationChangeCreateRequest;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationCreateRequest;
 import modelly.modelly_be.domain.reservation.dto.response.*;
@@ -61,12 +62,30 @@ public class ReservationController {
         return ApiResponse.onSuccess(result);
     }
 
+    // 예약 변경 요청 취소
     @PostMapping("/reservations/changes/{reservationChangeId}/cancel")
     public ApiResponse<SimpleMessageDTO> cancelReservationChange(
             @AuthenticationPrincipal AuthDetails auth,
             @PathVariable Long reservationChangeId
     ) {
         SimpleMessageDTO res = reservationService.cancelReservationChange(reservationChangeId, auth.user());
+        return ApiResponse.onSuccess(res);
+    }
+
+    // 예약 취소
+    @PostMapping("/reservations/{reservationId}/cancel")
+    public ApiResponse<SimpleMessageDTO> cancelReservation(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long reservationId,
+            @RequestParam(required = false) Long roomId,
+            @RequestBody @Valid ReservationCancelRequest request
+    ) {
+        SimpleMessageDTO res = reservationService.cancelReservation(
+                reservationId,
+                roomId,
+                auth.user(),
+                request
+        );
         return ApiResponse.onSuccess(res);
     }
 

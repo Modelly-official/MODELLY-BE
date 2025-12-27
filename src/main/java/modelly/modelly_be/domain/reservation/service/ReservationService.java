@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.reservation.service;
 
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.chat.dto.response.ReservationCancelChatPayload;
 import modelly.modelly_be.domain.chat.dto.response.ReservationChangeChatPayload;
 import modelly.modelly_be.domain.chat.dto.response.SendMessageResponse;
 import modelly.modelly_be.domain.chat.entity.ChatRoom;
@@ -11,6 +12,7 @@ import modelly.modelly_be.domain.chat.service.ChattingService;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
+import modelly.modelly_be.domain.reservation.dto.request.ReservationCancelRequest;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationChangeCreateRequest;
 import modelly.modelly_be.domain.reservation.dto.response.ChatRoomReservationSummary;
 import modelly.modelly_be.domain.reservation.dto.response.ReservationChangeCreateResponse;
@@ -281,7 +283,7 @@ public class ReservationService {
 
         // 채팅 payload 만들기
         ReservationChangeChatPayload payload = new ReservationChangeChatPayload(
-                "CHANGE_REQUEST",
+                "CHANGE",
                 saved.getId(),
                 reservationId,
                 reservation.getDate(),
@@ -439,4 +441,83 @@ public class ReservationService {
         return new SimpleMessageDTO("변경 요청이 취소되었습니다.");
     }
 
+    // 예약 취소
+    @Transactional
+    public SimpleMessageDTO cancelReservation(
+            Long reservationId,
+            Long roomId,      // nullable
+            User me,
+            ReservationCancelRequest req
+    ) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION));
+
+        // 참여자 검증
+        boolean meIsModel = reservation.getModel() != null
+                && reservation.getModel().getUser().getId().equals(me.getId());
+        boolean meIsDesigner = reservation.getDesigner() != null
+                && reservation.getDesigner().getUser().getId().equals(me.getId());
+
+        if (!meIsModel && !meIsDesigner) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        // 이미 취소면 방어
+        if (reservation.getStatus() == ReservationStatus.RESERVATION_CANCELLED) {
+            throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
+        }
+
+        // roomId 없으면 채팅방 오픈(없으면 생성)
+        Long finalRoomId = roomId;
+        if (finalRoomId == null) {
+            Long opponentUserId = meIsModel
+                    ? reservation.getDesigner().getUser().getId()
+                    : reservation.getModel().getUser().getId();
+
+            finalRoomId = chatRoomService.openRoom(me.getId(), opponentUserId).getChatRoomId();
+        }
+
+        ChatRoom room = chatRoomService.getById(finalRoomId);
+
+        // room의 pair가 reservation의 pair랑 맞는지 검증
+        if (!room.getModel().getId().equals(reservation.getModel().getId())
+                || !room.getDesigner().getId().equals(reservation.getDesigner().getId())) {
+            throw new GeneralException(ErrorStatus.INVALID_CHATROOM);
+        }
+
+        // RecruitmentTime 전역 슬롯 해제
+        Long designerId = reservation.getDesigner().getId();
+        LocalDate date = reservation.getDate();
+        LocalTime start = reservation.getStartTime();
+
+        List<RecruitmentTime> times = recruitmentTimeRepository
+                .findAllTimeForUpdateByDesigner(designerId, date, start);
+
+        if (times.isEmpty()) {
+            throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
+        }
+
+        // 전부 예약 가능 상태로 변경
+        times.forEach(RecruitmentTime::unreserve);
+
+        //  Reservation 취소 반영
+        reservation.cancel(req.reason());
+
+        // 채팅 브로드캐스트
+        String notice = "예약이 취소되었어요.\n해당 시간대에 다시 예약 신청을 받을 수 있습니다.";
+
+        ReservationCancelChatPayload payload = new ReservationCancelChatPayload(
+                "CANCEL",
+                reservation.getId(),
+                reservation.getDate(),
+                reservation.getStartTime().format(HM),
+                reservation.getEndTime().format(HM),
+                req.reason(),
+                notice
+        );
+
+        chattingService.publishReservationPayload(me.getId(), finalRoomId, payload);
+
+        return new SimpleMessageDTO("예약이 취소되었습니다.");
+    }
 }
