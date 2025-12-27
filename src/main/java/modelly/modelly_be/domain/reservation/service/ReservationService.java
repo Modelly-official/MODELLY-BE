@@ -1,8 +1,11 @@
 package modelly.modelly_be.domain.reservation.service;
 
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.chat.dto.response.ReservationChangeChatPayload;
+import modelly.modelly_be.domain.chat.dto.response.SendMessageResponse;
 import modelly.modelly_be.domain.chat.entity.ChatRoom;
 import modelly.modelly_be.domain.chat.service.ChatRoomService;
+import modelly.modelly_be.domain.chat.service.ChattingService;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationChangeCreateRequest;
 import modelly.modelly_be.domain.reservation.dto.response.ChatRoomReservationSummary;
@@ -18,6 +21,7 @@ import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +34,10 @@ import java.util.List;
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final ReservationChangeRepository reservationChangeRepository;
+
     private final ChatRoomService chatRoomService;
+    private final ChattingService chattingService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
@@ -142,8 +149,9 @@ public class ReservationService {
         );
     }
 
+    // 예약 변경 요청
     @Transactional
-    public ReservationChangeCreateResponse createChangeRequest(
+    public void createChangeRequest(
             Long reservationId,
             Long roomId, // nullable
             User me,
@@ -175,7 +183,6 @@ public class ReservationService {
                     ? reservation.getDesigner().getUser().getId()
                     : reservation.getModel().getUser().getId();
 
-            // openRoom: 있으면 반환, 없으면 생성
             finalRoomId = chatRoomService.openRoom(me.getId(), opponentUserId).getChatRoomId();
         }
 
@@ -224,15 +231,28 @@ public class ReservationService {
 
         ReservationChange saved = reservationChangeRepository.save(change);
 
-        // 응답 생성
-        return new ReservationChangeCreateResponse(
+        // 채팅 payload 만들기
+        ReservationChangeChatPayload payload = new ReservationChangeChatPayload(
+                "CHANGE_REQUEST",
                 saved.getId(),
                 reservationId,
-                saved.getStatus(),
+                reservation.getDate(),
+                reservation.getStartTime().format(HM),
+                reservation.getEndTime().format(HM),
                 saved.getProposedDate(),
                 saved.getProposedStartTime().format(HM),
                 saved.getProposedEndTime().format(HM),
                 saved.getReason()
         );
+
+        // 채팅 저장 + STOMP 브로드캐스트
+        SendMessageResponse chatMessage =
+                chattingService.sendReservationMessage(me.getId(), finalRoomId, payload);
+
+        messagingTemplate.convertAndSend(
+                "/sub/chat/rooms/" + finalRoomId,
+                chatMessage
+        );
+        
     }
 }

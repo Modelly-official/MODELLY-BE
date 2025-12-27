@@ -1,5 +1,7 @@
 package modelly.modelly_be.domain.chat.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.chat.dto.request.SendMessageRequest;
 import modelly.modelly_be.domain.chat.dto.response.ChatMessageResponse;
@@ -36,6 +38,7 @@ public class ChattingService {
     private final UserRepository userRepository;
     private final ChatRoomService chatRoomService;
     private final ChattingImageRepository chattingImageRepository;
+    private final ObjectMapper objectMapper;
 
     // 메세지 보내기(DB 저장)
     @Transactional
@@ -193,5 +196,43 @@ public class ChattingService {
                 .hasNext(hasNext)
                 .lastReadMessageId(lastReadMessageId)
                 .build();
+    }
+
+    @Transactional
+    public SendMessageResponse sendReservationMessage(Long senderUserId, Long roomId, Object payload) {
+
+        // sender 존재 검증
+        User sender = userRepository.findById(senderUserId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+
+        // room 검증
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_CHAT_ROOM));
+
+        // 참여자 검증
+        if (!room.isParticipant(sender)) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        // payload -> JSON string
+        String json;
+        try {
+            json = objectMapper.writeValueAsString(payload);
+        } catch (JsonProcessingException e) {
+            throw new GeneralException(ErrorStatus._INTERNAL_SERVER_ERROR);
+        }
+
+        // Chatting 저장 (senderId는 요청자 id로 박자)
+        Chatting chatting = Chatting.of(
+                sender.getId(),
+                json,                 // message에 JSON 저장
+                false,
+                MessageType.RESERVATION,
+                room
+        );
+        Chatting saved = chattingRepository.save(chatting);
+
+        // 이미지 없음
+        return SendMessageResponse.of(saved, List.of());
     }
 }

@@ -35,20 +35,20 @@ public class ReservationController {
 
     // 예약 변경 요청
     @PostMapping("/reservations/{reservationId}/changes")
-    public ApiResponse<ReservationChangeCreateResponse> createReservationChangeRequest(
+    public ApiResponse<SimpleMessageDTO> createReservationChangeRequest(
             @AuthenticationPrincipal AuthDetails auth,
             @PathVariable Long reservationId,
             @RequestParam(required = false) Long roomId,
             @Valid @RequestBody ReservationChangeCreateRequest request
     ) {
-        return ApiResponse.onSuccess(
-                reservationService.createChangeRequest(
-                        reservationId,
-                        roomId,
-                        auth.user(),
-                        request
-                )
+        reservationService.createChangeRequest(
+                reservationId,
+                roomId,
+                auth.user(),
+                request
         );
+
+        return ApiResponse.onSuccess(new SimpleMessageDTO("변경 요청이 전송되었습니다."));
     }
 
     /* ---------- 모델 관련 예약 API ---------- */
