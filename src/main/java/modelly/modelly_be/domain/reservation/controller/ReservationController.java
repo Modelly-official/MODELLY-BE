@@ -100,6 +100,15 @@ public class ReservationController {
         return ApiResponse.onSuccess(res);
     }
 
+    // 기존대로 진행
+    @PostMapping("/reservations/changes/{reservationChangeId}/proceed")
+    public ApiResponse<SimpleMessageDTO> proceedAsIs(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long reservationChangeId
+    ) {
+        SimpleMessageDTO result = reservationService.proceedReservation(reservationChangeId, auth.user());
+        return ApiResponse.onSuccess(result);
+    }
     /* ---------- 모델 관련 예약 API ---------- */
 
     // 예약하기

@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.reservation.service;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.chat.dto.response.ReservationCancelChatPayload;
 import modelly.modelly_be.domain.chat.dto.response.ReservationChangeChatPayload;
+import modelly.modelly_be.domain.chat.dto.response.ReservationProceedChatPayload;
 import modelly.modelly_be.domain.chat.dto.response.SendMessageResponse;
 import modelly.modelly_be.domain.chat.entity.ChatRoom;
 import modelly.modelly_be.domain.chat.entity.Chatting;
@@ -283,7 +284,7 @@ public class ReservationService {
 
         // 채팅 payload 만들기
         ReservationChangeChatPayload payload = new ReservationChangeChatPayload(
-                "CHANGE",
+                "CHANGE_REQUEST",
                 saved.getId(),
                 reservationId,
                 reservation.getDate(),
@@ -575,4 +576,54 @@ public class ReservationService {
         chattingService.publishReservationText(me.getId(), roomId, text);
         return new SimpleMessageDTO("예약 변경 요청을 거절했습니다.");
     }
+
+    // 기존대로 진행 (변경 요청 거절 후)
+    @Transactional
+    public SimpleMessageDTO proceedReservation(Long changeId, User me) {
+
+        ReservationChange change = reservationChangeRepository.findById(changeId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION_CHANGE));
+
+        // 거절된 요청에 대해서만 가능
+        if (change.getStatus() != ReservationChangeStatus.REJECTED) {
+            throw new GeneralException(ErrorStatus.RESERVATION_CHANGE_NOT_REJECTED);
+        }
+
+        // 요청자만 "기존대로 진행" 가능
+        if (!change.getRequesterUserId().equals(me.getId())) {
+            throw new GeneralException(ErrorStatus.RESERVATION_CHANGE_ONLY_REQUESTER_CAN_PROCEED);
+        }
+
+        Reservation reservation = change.getReservation();
+
+        // 참여자 검증
+        boolean meIsModel = reservation.getModel() != null
+                && reservation.getModel().getUser().getId().equals(me.getId());
+        boolean meIsDesigner = reservation.getDesigner() != null
+                && reservation.getDesigner().getUser().getId().equals(me.getId());
+
+        if (!meIsModel && !meIsDesigner) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        Long roomId = change.getChatRoom().getId();
+
+        String notice = "변경 없이 기존 예약 일정으로 진행합니다.";
+
+        ReservationProceedChatPayload payload = new ReservationProceedChatPayload(
+                "CHANGE_PROCEED",
+                change.getId(),
+                reservation.getId(),
+                reservation.getDate(),
+                reservation.getStartTime().format(HM),
+                reservation.getEndTime().format(HM),
+                notice
+        );
+
+        // 채팅 저장 + 브로드캐스트
+        chattingService.publishReservationPayload(me.getId(), roomId, payload);
+
+        return new SimpleMessageDTO("기존 예약 일정으로 진행합니다.");
+    }
+
 }
