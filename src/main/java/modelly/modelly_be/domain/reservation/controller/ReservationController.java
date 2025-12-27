@@ -89,11 +89,13 @@ public class ReservationController {
             @AuthenticationPrincipal AuthDetails auth,
             @PathVariable Long reservationId,
             @RequestParam(required = false) Long roomId,
+            @RequestParam(required = false) Long reservationChangeId,
             @RequestBody @Valid ReservationCancelRequest request
     ) {
         SimpleMessageDTO res = reservationService.cancelReservation(
                 reservationId,
                 roomId,
+                reservationChangeId,
                 auth.user(),
                 request
         );

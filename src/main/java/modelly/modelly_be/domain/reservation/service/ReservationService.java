@@ -447,6 +447,7 @@ public class ReservationService {
     public SimpleMessageDTO cancelReservation(
             Long reservationId,
             Long roomId,      // nullable
+            Long changeId, // nullable
             User me,
             ReservationCancelRequest req
     ) {
@@ -471,12 +472,32 @@ public class ReservationService {
         // 72시간(3일) 전까지만 취소 가능
         LocalDateTime now = LocalDateTime.now(KST);
         LocalDateTime startAt = LocalDateTime.of(reservation.getDate(), reservation.getStartTime());
-
         long hoursUntilStart = Duration.between(now, startAt).toHours();
 
         // 예약 시작이 이미 지났거나, 72시간 미만으로 남았으면 취소 불가
         if (hoursUntilStart < 72) {
             throw new GeneralException(ErrorStatus.RESERVATION_CANCEL_TOO_LATE);
+        }
+
+        // changeId가 있으면 예약 변경 요청 거절 후 취소는 요청자만 가능
+        if (changeId != null) {
+            ReservationChange change = reservationChangeRepository.findById(changeId)
+                    .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION_CHANGE));
+
+            // change가 이 reservation의 change가 맞는지
+            if (!change.getReservation().getId().equals(reservationId)) {
+                throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
+            }
+
+            // 거절된 change만 해당 플로우 허용
+            if (change.getStatus() != ReservationChangeStatus.REJECTED) {
+                throw new GeneralException(ErrorStatus.RESERVATION_CHANGE_NOT_REJECTED);
+            }
+
+            // 요청자만 취소 가능
+            if (!change.getRequesterUserId().equals(me.getId())) {
+                throw new GeneralException(ErrorStatus.RESERVATION_CHANGE_ONLY_REQUESTER_CAN_PROCEED_OR_CANCEL);
+            }
         }
 
         // roomId 없으면 채팅방 오픈(없으면 생성)
@@ -591,7 +612,7 @@ public class ReservationService {
 
         // 요청자만 "기존대로 진행" 가능
         if (!change.getRequesterUserId().equals(me.getId())) {
-            throw new GeneralException(ErrorStatus.RESERVATION_CHANGE_ONLY_REQUESTER_CAN_PROCEED);
+            throw new GeneralException(ErrorStatus.RESERVATION_CHANGE_ONLY_REQUESTER_CAN_PROCEED_OR_CANCEL);
         }
 
         Reservation reservation = change.getReservation();
