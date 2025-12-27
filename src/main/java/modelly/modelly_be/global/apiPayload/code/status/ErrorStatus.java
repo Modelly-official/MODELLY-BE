@@ -75,6 +75,9 @@ public enum ErrorStatus implements BaseErrorCode {
     RESERVATION_TIME_CONFLICT(HttpStatus.CONFLICT, "RESERVATION409", "이미 예약된 시간대입니다. 다른 시간을 선택해주세요."),
     RESERVATION_BAD_REQUEST(HttpStatus.BAD_REQUEST, "RESERVATION400", "확정된 예약만 변경 가능합니다."),
     RESERVATION_CHANGE_ALREADY_PENDING(HttpStatus.CONFLICT, "RESERVATION409", "이미 변경 요청한 예약입니다."),
+    NOT_FOUND_RESERVATION_CHANGE(HttpStatus.NOT_FOUND, "RESERVATION404", "예약 변경 요청이 존재하지 않습니다."),
+    RESERVATION_CHANGE_NOT_PENDING(HttpStatus.FORBIDDEN, "RESERVATION403", "예약 변경 대기 중인 요청이 아닙니다."),
+    RESERVATION_CHANGE_SELF_RESPONSE_NOT_ALLOWED(HttpStatus.FORBIDDEN,"RESERVATION403", "예약 변경 요청한 본인이 수락/거절할 수 없습니다."),
 
     //Review
     FORBIDDEN_CREATE_REVIEW(HttpStatus.FORBIDDEN, "REVIEW403", "예약자만 리뷰 작성이 가능합니다."),

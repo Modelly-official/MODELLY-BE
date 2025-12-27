@@ -51,6 +51,16 @@ public class ReservationController {
         return ApiResponse.onSuccess(new SimpleMessageDTO("변경 요청이 전송되었습니다."));
     }
 
+    // 예약 변경 요청 수락
+    @PostMapping("reservations/changes/{reservationChangeId}/accept")
+    public ApiResponse<SimpleMessageDTO> acceptReservationChange(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long changeId
+    ) {
+        SimpleMessageDTO result = reservationService.acceptReservationChange(changeId, auth.user());
+        return ApiResponse.onSuccess(result);
+    }
+
     /* ---------- 모델 관련 예약 API ---------- */
 
     // 예약하기

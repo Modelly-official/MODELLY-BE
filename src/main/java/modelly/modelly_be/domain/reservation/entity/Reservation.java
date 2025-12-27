@@ -81,6 +81,11 @@ public class Reservation extends BaseEntity {
     @JoinColumn(name = "designer_id")
     private Designer designer;
 
+    public void applySchedule(LocalDate date, LocalTime start, LocalTime end) {
+        this.date = date;
+        this.startTime = start;
+        this.endTime = end;
+    }
 
     public void deleteRelationShip(){
         this.recruitment = null;
