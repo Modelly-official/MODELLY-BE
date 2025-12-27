@@ -14,6 +14,7 @@ public record DesignerListResponseDto(
         Long reviewCount,
         Double distance,
         boolean isLiked,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        double averageRating
 ) {
 }

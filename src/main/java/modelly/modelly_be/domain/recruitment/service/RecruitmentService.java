@@ -11,6 +11,8 @@ import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
 import modelly.modelly_be.domain.recruitment.repository.recruitmentRepository.RecruitmentRepository;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
+import modelly.modelly_be.domain.review.dto.internal.AverageReview;
+import modelly.modelly_be.domain.review.service.ReviewService;
 import modelly.modelly_be.domain.user.dto.response.DesignerResponseDto;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
@@ -35,6 +37,7 @@ public class RecruitmentService {
     private final RecruitmentRepository recruitmentRepository;
     private final RecruitmentLikeService recruitmentLikeService;
     private final ReservationService reservationService;
+    private final ReviewService reviewService;
 
     public void save(Recruitment recruitment) {
         recruitmentRepository.save(recruitment);
@@ -59,10 +62,14 @@ public class RecruitmentService {
 
     @Transactional(readOnly = true)
     public GuestRecruitmentResponseDto getByIdWithDesigner(Long recruitmentId) {
-        Recruitment recruitment = recruitmentRepository.findByIdWithAllDetails(recruitmentId);
+        Recruitment recruitment = recruitmentRepository.findByIdWithAllDetails(recruitmentId)
+                .orElseThrow(()-> new GeneralException(ErrorStatus.NOT_FOUND_RECRUITMENT));
+        AverageReview averageReview = reviewService.calculateRating(recruitment.getDesigner());
+
         return GuestRecruitmentResponseDto.of(
                 DesignerResponseDto.from(recruitment.getDesigner()),
-                recruitment
+                recruitment,
+                averageReview
         );
     }
 
@@ -113,7 +120,8 @@ public class RecruitmentService {
                             basic.reviewCount(),
                             basic.distance(),
                             basic.isLiked(),
-                            basic.createdAt()
+                            basic.createdAt(),
+                            basic.averageRating()
                     );
                 }).toList();
     }

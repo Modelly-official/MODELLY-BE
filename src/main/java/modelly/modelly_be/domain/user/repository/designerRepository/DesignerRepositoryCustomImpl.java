@@ -5,7 +5,6 @@ import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.JPQLSubQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +32,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
         QDesigner qDesigner = QDesigner.designer;
         QPortfolio qPortfolio = QPortfolio.portfolio;
         QDesignerLike qDesignerLike = QDesignerLike.designerLike;
+        QReview qReview = QReview.review;
 
         StringPath thumbnail = Expressions.stringPath("thumbnail");
         JPQLSubQuery<String> firstImgSub = JPAExpressions
@@ -62,7 +62,14 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
                         Expressions.nullExpression(Long.class),
                         Expressions.nullExpression(Double.class),
                         qDesignerLike.id.isNotNull(),
-                        qDesigner.createdAt
+                        qDesigner.createdAt,
+                        // 2. 평균 평점 계산 서브쿼리 (null일 경우 0.0 처리)
+                        ExpressionUtils.as(
+                                JPAExpressions.select(qReview.rating.avg().coalesce(0.0))
+                                        .from(qReview)
+                                        .where(qReview.designer.eq(qDesigner)),
+                                "averageRating"
+                        )
                 ))
                 .from(qDesigner)
                 .leftJoin(qDesignerLike).on(qDesignerLike.designer.id.eq(qDesigner.id)
@@ -122,7 +129,14 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
                         reviewCountExpression,
                         Expressions.nullExpression(Double.class),
                         qDesignerLike.id.isNotNull(),
-                        qDesigner.createdAt
+                        qDesigner.createdAt,
+                        // 2. 평균 평점 계산 서브쿼리 (null일 경우 0.0 처리)
+                        ExpressionUtils.as(
+                                JPAExpressions.select(qReview.rating.avg().coalesce(0.0))
+                                        .from(qReview)
+                                        .where(qReview.designer.eq(qDesigner)),
+                                "averageRating"
+                        )
                 ))
                 .from(qDesigner)
                 .leftJoin(qDesignerLike).on(qDesignerLike.designer.id.eq(qDesigner.id)
@@ -140,6 +154,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
         QDesigner qDesigner = QDesigner.designer;
         QPortfolio qPortfolio = QPortfolio.portfolio;
         QDesignerLike qDesignerLike = QDesignerLike.designerLike;
+        QReview qReview = QReview.review;
 
         StringPath thumbnail = Expressions.stringPath("thumbnail");
         JPQLSubQuery<String> firstImgSub = JPAExpressions
@@ -184,7 +199,14 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
                         Expressions.nullExpression(Long.class),
                         distance,
                         qDesignerLike.id.isNotNull(),
-                        qDesigner.createdAt
+                        qDesigner.createdAt,
+                        // 2. 평균 평점 계산 서브쿼리 (null일 경우 0.0 처리)
+                        ExpressionUtils.as(
+                                JPAExpressions.select(qReview.rating.avg().coalesce(0.0))
+                                        .from(qReview)
+                                        .where(qReview.designer.eq(qDesigner)),
+                                "averageRating"
+                        )
                 ))
                 .from(qDesigner)
                 .leftJoin(qDesignerLike).on(qDesignerLike.designer.id.eq(qDesigner.id)

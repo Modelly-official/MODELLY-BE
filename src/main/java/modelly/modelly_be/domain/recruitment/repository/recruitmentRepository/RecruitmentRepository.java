@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 
 public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,RecruitmentRepositoryCustom {
@@ -17,7 +18,7 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
         WHERE r.id = :recruitmentId
     """)
     @EntityGraph(attributePaths = {"designer"})
-    Recruitment findByIdWithAllDetails(Long recruitmentId);
+    Optional<Recruitment> findByIdWithAllDetails(Long recruitmentId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Recruitment r " +
