@@ -56,8 +56,18 @@ public class SecurityConfig {
                                 "/presigned-url/profiles"
                         ).permitAll()
                         .requestMatchers(
+                                HttpMethod.GET,
+                                "/designers"
+                        ).permitAll()
+                        .requestMatchers(
                                 HttpMethod.GET,"/api/recruitments/{recruitmentId}"
                         ).permitAll()
+                        .requestMatchers(
+                                "/api/models/**"
+                        ).hasRole("MODEL")
+                        .requestMatchers(
+                                "/api/designers/**"
+                        ).hasRole("DESIGNER")
                         .requestMatchers(
                                 "/auth/logout",
                                 "/auth/validate",
@@ -67,12 +77,6 @@ public class SecurityConfig {
                                 "/chat/**",
                                 "/likes/**"
                         ).authenticated()
-                        .requestMatchers(
-                                "/models/**"
-                        ).hasRole("MODEL")
-                        .requestMatchers(
-                                "/designers/**"
-                        ).hasRole("DESIGNER")
                         .anyRequest().permitAll()
                 );
 

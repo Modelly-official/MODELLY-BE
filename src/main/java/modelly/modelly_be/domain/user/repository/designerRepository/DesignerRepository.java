@@ -6,6 +6,7 @@ import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.global.utils.Coordinate;
 import modelly.modelly_be.global.utils.SearchCondition;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;

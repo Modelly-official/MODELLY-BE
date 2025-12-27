@@ -32,7 +32,6 @@ public class RecruitmentDate {
     @Builder.Default
     private List<RecruitmentTime> recruitmentTimes = new ArrayList<>();
 
-
     public void addTime(RecruitmentTime time) {
         recruitmentTimes.add(time);
     }

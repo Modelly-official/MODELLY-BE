@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.review.repository;
 
 import modelly.modelly_be.domain.reservation.entity.Reservation;
+import modelly.modelly_be.domain.review.dto.internal.AverageReview;
 import modelly.modelly_be.domain.review.dto.response.MyReviewListResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReviewThumbnailListResponseDto;
 import modelly.modelly_be.domain.review.entity.Review;
@@ -11,6 +12,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 
 
 public interface ReviewRepository extends JpaRepository<Review, Long> {
@@ -31,4 +34,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             " FROM Review r WHERE r.designer = :designer AND (:cursorId IS NULL OR r.id < :cursorId) " +
             " ORDER BY r.isFixed desc, r.id desc, r.createdAt desc ")
     Slice<ReviewThumbnailListResponseDto> findThumbNailByDesignerAndIdLessThanOrderByCreatedAtDesc(Designer designer, Long cursorId, Pageable pageable);
+
+    List<Review> findAllByDesigner(Designer designer); //N+1문제 리팩토링해야함
+
+    @Query("SELECT COUNT(r), AVG(r.rating) " +
+            "FROM Review r " +
+            "WHERE r.designer = :designer")
+    AverageReview findAverageRatingByDesigner(Designer designer);
+
 }
