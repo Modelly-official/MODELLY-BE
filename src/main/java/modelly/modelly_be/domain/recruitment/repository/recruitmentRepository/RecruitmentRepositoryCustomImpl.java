@@ -269,7 +269,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
         DateExpression<LocalDate> maxDate = qRecruitmentDate.date.max();
 
         StringExpression dateRangeExpression = Expressions.stringTemplate(
-                "CONCAT(CAST({0} AS CHAR), ' ~ ', CAST({1} AS CHAR))",
+                "CONCAT(CAST({0} AS char), ' ~ ', CAST({1} AS char))",
                 minDate, maxDate
         );
 
