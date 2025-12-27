@@ -1,24 +1,21 @@
-package modelly.modelly_be.domain.reservation.dto.common;
+package modelly.modelly_be.domain.reservation.dto.internal;
 
-import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public record ModelReservationRow(
+public record DesignerReservationRow(
         Long reservationId,
         LocalDate date,
         LocalTime startTime,
         LocalTime endTime,
         ReservationStatus status,
-        Category category,
 
         Long recruitmentId,
         String recruitmentTitle,
 
-        Long designerUserId,
-        Long designerId,
-        String designerNickname,
-        String shop
+        Long modelId,
+        Long modelUserId,
+        String modelName
 ) {}

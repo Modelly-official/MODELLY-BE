@@ -1,7 +1,7 @@
 package modelly.modelly_be.domain.reservation.repository;
 
-import modelly.modelly_be.domain.reservation.dto.common.DesignerReservationRow;
-import modelly.modelly_be.domain.reservation.dto.common.ModelReservationRow;
+import modelly.modelly_be.domain.reservation.dto.internal.DesignerReservationRow;
+import modelly.modelly_be.domain.reservation.dto.internal.ModelReservationRow;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationListType;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.entity.SubCategory;

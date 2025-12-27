@@ -6,7 +6,7 @@ import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.service.RecruitmentService;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationCreateRequest;
 import modelly.modelly_be.domain.reservation.dto.response.ModelReservationItem;
-import modelly.modelly_be.domain.reservation.dto.common.ModelReservationRow;
+import modelly.modelly_be.domain.reservation.dto.internal.ModelReservationRow;
 import modelly.modelly_be.domain.reservation.dto.response.ReservationScrollResponse;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationListType;
@@ -162,8 +162,11 @@ public class ModelReservationService {
                         r.designerId(),
                         r.designerNickname(),
                         r.shop(),
-                        r.category(),
-                        subMap.getOrDefault(r.reservationId(), List.of()),
+                        r.category().getDescription(),
+                        subMap.getOrDefault(r.reservationId(), List.of())
+                                .stream()
+                                .map(SubCategory::getDescription)
+                                .toList(),
                         r.date(),
                         r.startTime().format(HM),
                         r.endTime().format(HM),
@@ -246,8 +249,11 @@ public class ModelReservationService {
                         r.designerId(),
                         r.designerNickname(),
                         r.shop(),
-                        r.category(),
-                        subMap.getOrDefault(r.reservationId(), List.of()),
+                        r.category().getDescription(),
+                        subMap.getOrDefault(r.reservationId(), List.of())
+                                .stream()
+                                .map(SubCategory::getDescription)
+                                .toList(),
                         r.date(),
                         r.startTime().format(HM),
                         r.endTime().format(HM),

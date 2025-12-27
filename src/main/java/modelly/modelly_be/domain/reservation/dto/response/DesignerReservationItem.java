@@ -15,7 +15,7 @@ public record DesignerReservationItem(
         Long modelId,
         String modelName,
 
-        List<SubCategory> subCategories,
+        List<String> subCategories,
 
         LocalDate date,
         String startTime, // HH:mm

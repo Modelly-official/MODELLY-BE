@@ -18,8 +18,8 @@ public record ModelReservationItem(
         String designerNickname,
         String shop,
 
-        Category category,
-        List<SubCategory> subCategories,
+        String category,
+        List<String> subCategories,
 
         LocalDate date,
         String startTime,  // "HH:mm"

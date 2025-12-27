@@ -1,7 +1,7 @@
 package modelly.modelly_be.domain.reservation.service;
 
 import lombok.RequiredArgsConstructor;
-import modelly.modelly_be.domain.reservation.dto.common.DesignerReservationRow;
+import modelly.modelly_be.domain.reservation.dto.internal.DesignerReservationRow;
 import modelly.modelly_be.domain.reservation.dto.response.*;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationListType;
 import modelly.modelly_be.domain.reservation.repository.ReservationQueryRepository;
@@ -87,7 +87,10 @@ public class DesignerReservationService {
                         r.modelUserId(),
                         r.modelId(),
                         r.modelName(),
-                        subMap.getOrDefault(r.reservationId(), List.of()),
+                        subMap.getOrDefault(r.reservationId(), List.of())
+                                .stream()
+                                .map(SubCategory::getDescription)
+                                .toList(),
                         r.date(),
                         r.startTime().format(HM),
                         r.endTime().format(HM),
