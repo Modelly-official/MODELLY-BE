@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.portfolio.dto.request.PortfolioRequest;
 import modelly.modelly_be.domain.portfolio.dto.request.UpdatePortfolioRequest;
+import modelly.modelly_be.domain.portfolio.dto.response.PortfolioListResponse;
 import modelly.modelly_be.domain.portfolio.entity.Portfolio;
 import modelly.modelly_be.domain.portfolio.entity.PortfolioImage;
 import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
@@ -15,6 +16,8 @@ import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.listener.dto.S3FolderDeleteEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -129,5 +132,14 @@ public class DesignerPortfolioService {
         }
 
         portfolioService.deletePortfolio(portfolio);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PortfolioListResponse> getMyPortfolios(User user, Long cursorId, int size) {
+        Designer designer = designerService.getByUser(user);
+
+        Pageable pageable = PageRequest.of(0, size+1);
+
+        return portfolioService.getAllPortfolios(designer, pageable, cursorId);
     }
 }

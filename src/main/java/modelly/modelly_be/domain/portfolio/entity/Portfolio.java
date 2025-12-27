@@ -5,7 +5,6 @@ import lombok.*;
 import modelly.modelly_be.domain.portfolio.dto.request.UpdatePortfolioRequest;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentImage;
 import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
-import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.entity.BaseEntity;
 

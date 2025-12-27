@@ -2,6 +2,7 @@ package modelly.modelly_be.global.utils;
 
 import modelly.modelly_be.domain.like.dto.response.LikeDesignerListResponseDto;
 import modelly.modelly_be.domain.like.dto.response.LikeRecruitmentListResponseDto;
+import modelly.modelly_be.domain.portfolio.dto.response.PortfolioListResponse;
 import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.review.dto.response.DesignerReviewListResponseDto;
@@ -40,6 +41,8 @@ public class ScrollUtil {
                 nextCursor = ((ReviewThumbnailListResponseDto) last).reviewId();
             } else if (last instanceof DesignerReviewListResponseDto) {
                 nextCursor = ((DesignerReviewListResponseDto) last).reviewId();
+            } else if (last instanceof PortfolioListResponse) {
+                nextCursor = ((PortfolioListResponse) last).portfolioId();
             }
 
             else {
