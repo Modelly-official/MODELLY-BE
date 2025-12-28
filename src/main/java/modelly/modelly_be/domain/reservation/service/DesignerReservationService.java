@@ -242,7 +242,7 @@ public class DesignerReservationService {
 
         return new DesignerReservationDetailResponse(
                 reservation.getId(),
-                reservation.getStatus(),
+                reservation.getStatus().getDescription(),
                 reservation.getDate(),
                 reservation.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 reservation.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),

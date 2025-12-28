@@ -9,7 +9,7 @@ import java.util.List;
 
 public record DesignerReservationDetailResponse(
         Long reservationId,
-        ReservationStatus status,
+        String status,
 
         LocalDate date,
         String startTime,
