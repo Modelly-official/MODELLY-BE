@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.reservation.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.recruitment.service.RecruitmentService;
+import modelly.modelly_be.domain.reservation.controller.swagger.ReservationSwagger;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationCancelRequest;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationChangeCreateRequest;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationCreateRequest;
@@ -24,7 +25,7 @@ import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
-public class ReservationController {
+public class ReservationController implements ReservationSwagger {
 
     private final ReservationService reservationService;
     private final ModelReservationService modelReservationService;

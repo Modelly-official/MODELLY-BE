@@ -24,4 +24,38 @@ public class WebSocketDocController implements WebSocketSwagger {
         throw new UnsupportedOperationException("문서용 엔드포인트입니다. 실제 읽음 처리는 STOMP WebSocket을 사용하세요.");
     }
 
+    @PostMapping("/reservation-messages/rule")
+    public SendMessageResponse docReservationMessageRule() {
+        throw new UnsupportedOperationException("문서용 엔드포인트입니다. 실제 메시지는 STOMP Subscribe로 수신합니다.");
+    }
+
+    @PostMapping("/reservation-messages/change-request")
+    public SendMessageResponse docChangeRequestMessage() {
+        throw new UnsupportedOperationException("문서용 엔드포인트입니다. 실제 메시지는 STOMP Subscribe로 수신합니다.");
+    }
+
+    @PostMapping("/reservation-messages/change-accept-text")
+    public SendMessageResponse docChangeAcceptTextMessage() {
+        throw new UnsupportedOperationException("문서용 엔드포인트입니다. 실제 메시지는 STOMP Subscribe로 수신합니다.");
+    }
+
+    @PostMapping("/reservation-messages/change-cancel")
+    public SendMessageResponse docChangeCancelMessage() {
+        throw new UnsupportedOperationException("문서용 엔드포인트입니다. 실제 메시지는 STOMP Subscribe로 수신합니다.");
+    }
+
+    @PostMapping("/reservation-messages/change-rejected")
+    public SendMessageResponse docChangeRejectedMessage() {
+        throw new UnsupportedOperationException("문서용 엔드포인트입니다. 실제 메시지는 STOMP Subscribe로 수신합니다.");
+    }
+
+    @PostMapping("/reservation-messages/change-proceed")
+    public SendMessageResponse docProceedMessage() {
+        throw new UnsupportedOperationException("문서용 엔드포인트입니다. 실제 메시지는 STOMP Subscribe로 수신합니다.");
+    }
+
+    @PostMapping("/reservation-messages/reservation-cancel")
+    public SendMessageResponse docReservationCancelMessage() {
+        throw new UnsupportedOperationException("문서용 엔드포인트입니다. 실제 메시지는 STOMP Subscribe로 수신합니다.");
+    }
 }
