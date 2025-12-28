@@ -514,4 +514,68 @@ public interface ReservationSwagger {
             @AuthenticationPrincipal AuthDetails auth,
             @PathVariable Long reservationId
     );
+
+    @Operation(
+            summary = "예약 확정(디자이너)",
+            description = """
+                ### 디자이너가 '신규 예약 신청(PENDING)'을 확정(CONFIRMED)하는 API입니다. \n
+                - **Request Body 없이** 호출합니다.\n
+                - 예약 신청 시점에 이미 해당 시간대(RecruitmentTime)가 reserve 처리되어 있으므로,\n
+                  확정 시에는 **Reservation 상태만 CONFIRMED로 변경**합니다.\n
+                \n
+                ---\n
+                ### Path Variable\n
+                - `reservationId` : 확정할 예약 ID\n
+                \n
+                ---\n
+                ### 처리 조건\n
+                - 로그인 사용자가 해당 예약의 디자이너여야 합니다.\n
+                - 예약 상태가 **RESERVATION_PENDING** 인 경우에만 확정 가능합니다.\n
+                - 예약 시작 시간이 **현재 시간 이후**여야 합니다. (이미 지난 예약은 확정 불가)\n
+                \n
+                ---\n
+                ### 동작\n
+                - 예약 시작 시간 검증(now < reservationStartAt)\n
+                - Reservation 상태를 **RESERVATION_CONFIRMED**로 변경\n
+                \n
+                ---\n
+                ### Response\n
+                - `SimpleMessageDTO` : \"예약이 확정되었습니다.\"\n
+                """
+    )
+    ApiResponse<SimpleMessageDTO> confirmReservation(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long reservationId
+    );
+
+    @Operation(
+            summary = "예약 거절(디자이너)",
+            description = """
+                ### 디자이너가 '신규 예약 신청(PENDING)'을 거절하는 API입니다. \n
+                - **Request Body 없이** 호출합니다. (거절 사유 입력 없음)\n
+                - 예약 신청 시점에 이미 reserve 처리된 시간대(RecruitmentTime)를 **unreserve로 되돌린 뒤**, 예약 상태를 변경합니다.\n
+                \n
+                ---\n
+                ### Path Variable\n
+                - `reservationId` : 거절할 예약 ID\n
+                \n
+                ---\n
+                ### 처리 조건\n
+                - 로그인 사용자가 해당 예약의 디자이너여야 합니다.\n
+                - 예약 상태가 **RESERVATION_PENDING** 인 경우에만 거절 가능합니다.\n
+                \n
+                ---\n
+                ### 동작\n
+                - (동일 디자이너/날짜/시작시간) RecruitmentTime row들을 조회 후 **unreserve** 처리\n
+                - Reservation 상태를 거절 상태로 변경(사유 저장 없음)\n
+                \n
+                ---\n
+                ### Response\n
+                - `SimpleMessageDTO` : \"예약이 거절되었습니다.\"\n
+                """
+    )
+    ApiResponse<SimpleMessageDTO> rejectReservation(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long reservationId
+    );
 }

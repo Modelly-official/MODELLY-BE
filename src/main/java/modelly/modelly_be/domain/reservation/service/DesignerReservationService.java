@@ -1,6 +1,8 @@
 package modelly.modelly_be.domain.reservation.service;
 
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
+import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
 import modelly.modelly_be.domain.reservation.dto.internal.DesignerDailyReservationItem;
 import modelly.modelly_be.domain.reservation.dto.internal.DesignerPendingReservationItem;
 import modelly.modelly_be.domain.reservation.dto.internal.DesignerReservationRow;
@@ -13,14 +15,14 @@ import modelly.modelly_be.domain.reservation.repository.ReservationRepository;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.service.DesignerService;
+import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
+import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
+import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.SubCategory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.YearMonth;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +37,7 @@ public class DesignerReservationService {
     private final ReservationService reservationService;
     private final ReservationQueryRepository reservationQueryRepository;
     private final ReservationRepository reservationRepository;
+    private final RecruitmentTimeRepository recruitmentTimeRepository;
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
@@ -251,5 +254,72 @@ public class DesignerReservationService {
                 reservation.getComment(),
                 reservation.getCancelReason()
         );
+    }
+
+    // 신규 예약 신청 수락
+    @Transactional
+    public SimpleMessageDTO confirmPendingReservation(User me, Long reservationId) {
+        designerService.checkDesigner(me);
+
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION));
+
+        // 본인 디자이너 예약인지 검증
+        if (reservation.getDesigner() == null || !reservation.getDesigner().getUser().getId().equals(me.getId())) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        // PENDING만 확정 가능
+        if (reservation.getStatus() != ReservationStatus.RESERVATION_PENDING) {
+            throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
+        }
+
+        // 예약 시작 시간이 현재 이후인지 검증
+        LocalDateTime now = LocalDateTime.now(KST);
+        LocalDateTime startAt = LocalDateTime.of(reservation.getDate(), reservation.getStartTime());
+
+        // 현지 시간 이후의 예약만 허용
+        if (!startAt.isAfter(now)) {
+            throw new GeneralException(ErrorStatus.RESERVATION_CONFIRM_NOT_ALLOWED);
+        }
+
+        reservation.confirm();
+
+        return new SimpleMessageDTO("예약이 확정되었습니다.");
+    }
+
+    // 신규 예약 거절
+    @Transactional
+    public SimpleMessageDTO rejectPendingReservation(User me, Long reservationId) {
+        designerService.checkDesigner(me);
+
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION));
+
+        // 본인 디자이너 예약인지 검증
+        if (reservation.getDesigner() == null || !reservation.getDesigner().getUser().getId().equals(me.getId())) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        // PENDING만 거절 가능
+        if (reservation.getStatus() != ReservationStatus.RESERVATION_PENDING) {
+            throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
+        }
+
+        // 예약 신청 때 reserve 했던 슬롯 다시 풀기
+        Long designerId = reservation.getDesigner().getId();
+        List<RecruitmentTime> times = recruitmentTimeRepository
+                .findAllTimeForUpdateByDesigner(designerId, reservation.getDate(), reservation.getStartTime());
+
+        // time slot이 존재하지 않는 경우 에러
+        if (times.isEmpty()) {
+            throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
+        }
+
+        times.forEach(RecruitmentTime::unreserve);
+
+        reservation.reject();
+
+        return new SimpleMessageDTO("예약이 거절되었습니다.");
     }
 }

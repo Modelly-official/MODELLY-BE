@@ -247,4 +247,24 @@ public class ReservationController implements ReservationSwagger {
                 designerReservationService.getReservationDetail(auth.user(), reservationId)
         );
     }
+
+    // 예약 확정 (디자이너)
+    @PostMapping("/designers/reservations/{reservationId}/confirm")
+    public ApiResponse<SimpleMessageDTO> confirmReservation(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long reservationId
+    ) {
+        SimpleMessageDTO res = designerReservationService.confirmPendingReservation(auth.user(), reservationId);
+        return ApiResponse.onSuccess(res);
+    }
+
+    // 예약 거절 (디자이너)
+    @PostMapping("/designers/reservations/{reservationId}/reject")
+    public ApiResponse<SimpleMessageDTO> rejectReservation(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long reservationId
+    ) {
+        SimpleMessageDTO res = designerReservationService.rejectPendingReservation(auth.user(), reservationId);
+        return ApiResponse.onSuccess(res);
+    }
 }
