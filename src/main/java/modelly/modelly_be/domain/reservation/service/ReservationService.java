@@ -1,10 +1,7 @@
 package modelly.modelly_be.domain.reservation.service;
 
 import lombok.RequiredArgsConstructor;
-import modelly.modelly_be.domain.chat.dto.response.ReservationCancelChatPayload;
-import modelly.modelly_be.domain.chat.dto.response.ReservationChangeChatPayload;
-import modelly.modelly_be.domain.chat.dto.response.ReservationProceedChatPayload;
-import modelly.modelly_be.domain.chat.dto.response.SendMessageResponse;
+import modelly.modelly_be.domain.chat.dto.response.*;
 import modelly.modelly_be.domain.chat.entity.ChatRoom;
 import modelly.modelly_be.domain.chat.entity.Chatting;
 import modelly.modelly_be.domain.chat.entity.enums.MessageType;
@@ -408,7 +405,7 @@ public class ReservationService {
         //  채팅 시스템 메시지 저장 + 브로드캐스트
         Long roomId = change.getChatRoom().getId();
         String text = "예약 일정 변경 요청이 수락되었습니다. 변경 일정은 예약 내역에서 확인하실 수 있습니다.";
-        chattingService.publishReservationText(me.getId(), roomId, text);
+        chattingService.publishTextMessage(me.getId(), roomId, text);
 
         return new SimpleMessageDTO("예약이 변경되었습니다.");
     }
@@ -436,8 +433,19 @@ public class ReservationService {
 
         // 채팅 시스템 메시지 저장 + 브로드캐스트
         Long roomId = change.getChatRoom().getId();
-        String text = "변경 요청이 취소되었습니다.";
-        chattingService.publishReservationText(me.getId(), roomId, text);
+        Reservation reservation = change.getReservation();
+
+        ReservationChangeCancelChatPayload payload = new ReservationChangeCancelChatPayload(
+                "CHANGE_CANCEL",
+                change.getId(),
+                reservation.getId(),
+                reservation.getDate(),
+                reservation.getStartTime().format(HM),
+                reservation.getEndTime().format(HM),
+                "변경 요청이 취소되었습니다."
+        );
+
+        chattingService.publishReservationPayload(me.getId(), roomId, payload);
 
         return new SimpleMessageDTO("변경 요청이 취소되었습니다.");
     }
@@ -540,7 +548,7 @@ public class ReservationService {
         String notice = "예약이 취소되었어요.\n해당 시간대에 다시 예약 신청을 받을 수 있습니다.";
 
         ReservationCancelChatPayload payload = new ReservationCancelChatPayload(
-                "CANCEL",
+                "RESERVATION_CANCEL",
                 reservation.getId(),
                 reservation.getDate(),
                 reservation.getStartTime().format(HM),
@@ -594,7 +602,12 @@ public class ReservationService {
         Long roomId = change.getChatRoom().getId();
 
         String text = "예약 일정 변경 요청이 거절되었습니다. 기존 예약 일정 진행 여부를 선택해주세요.";
-        chattingService.publishReservationText(me.getId(), roomId, text);
+        ReservationSimpleTextPayload payload = new ReservationSimpleTextPayload(
+                "CHANGE_REJECTED",
+                text
+        );
+        chattingService.publishReservationPayload(me.getId(), roomId, payload);
+
         return new SimpleMessageDTO("예약 변경 요청을 거절했습니다.");
     }
 

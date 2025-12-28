@@ -248,9 +248,37 @@ public class ChattingService {
         return publishReservationMessage(senderUserId, roomId, json);
     }
 
-    // RESERVATION 메시지: 텍스트 그대로 저장 + 브로드캐스트
+    // TEXT 메시지: 텍스트 저장 + 브로드캐스트
     @Transactional
-    public SendMessageResponse publishReservationText(Long senderUserId, Long roomId, String text) {
-        return publishReservationMessage(senderUserId, roomId, text);
+    public SendMessageResponse publishTextMessage(Long senderUserId, Long roomId, String text) {
+
+        User sender = userRepository.findById(senderUserId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_CHAT_ROOM));
+
+        if (!room.isParticipant(sender)) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        if (text == null || text.isBlank()) {
+            throw new GeneralException(ErrorStatus._BAD_REQUEST);
+        }
+
+        Chatting saved = chattingRepository.save(
+                Chatting.of(
+                        sender.getId(),
+                        text,
+                        false,
+                        MessageType.TEXT,
+                        room
+                )
+        );
+
+        SendMessageResponse response = SendMessageResponse.of(saved, List.of());
+        messagingTemplate.convertAndSend("/sub/chat/rooms/" + roomId, response);
+
+        return response;
     }
 }
