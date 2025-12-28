@@ -403,4 +403,81 @@ public interface ReservationSwagger {
             @RequestParam(required = false) String cursorTime,
             @RequestParam(required = false) Long cursorId
     );
+
+    @Operation(
+            summary = "오늘의 예약 조회(디자이너)",
+            description = """
+                ### 디자이너의 특정 날짜 예약(확정 상태) 목록과 총 개수를 조회하는 API입니다. \n
+                - 프론트에서 `date`를 전달하면, 해당 날짜의 **확정된 예약(RESERVATION_CONFIRMED)** 을 시간순으로 반환합니다. \n
+                - 예약이 없으면 `totalCount=0`, `reservations=[]`로 반환됩니다. \n
+                \n
+                ---\n
+                ### Request Param\n
+                - `date` : 조회할 날짜 (yyyy-MM-dd)\n
+                \n
+                ---\n
+                ### Response\n
+                - `date` : 조회 날짜\n
+                - `totalCount` : 해당 날짜 총 예약 수\n
+                - `reservations[]`\n
+                  - `reservationId` : 예약 ID\n
+                  - `time` : 예약 시작 시간 (HH:mm)\n
+                  - `modelName` : 모델 이름\n
+                  - `subCategory` : 세부 카테고리 표시값 (ex. 펌/커트)\n
+                \n
+                ---\n
+                ✅ 권한\n
+                - 디자이너만 조회 가능합니다.\n
+                """
+    )
+    ApiResponse<DesignerDailyReservationResponse> getDesignerDailyReservations(
+            @AuthenticationPrincipal AuthDetails auth,
+            @RequestParam LocalDate date
+    );
+
+    @Operation(
+            summary = "새로운 예약 신청 조회(디자이너) - 무한스크롤",
+            description = """
+                ### 디자이너의 '새로운 예약 신청' 목록을 무한 스크롤로 조회하는 API입니다. \n
+                - 새로운 예약 신청은 **RESERVATION_PENDING** 상태인 예약을 의미합니다. \n
+                - 정렬 기준은 **date 오름차순 → startTime 오름차순 → reservationId 오름차순** 입니다. \n
+                - 예약이 없으면 `totalCount=0`, `reservations=[]` 로 반환됩니다. \n
+                \n
+                ---\n
+                ### Request Param\n
+                - `size` : 페이지 사이즈 (default=12)\n
+                - `cursorDate`(optional) : 커서 날짜 (yyyy-MM-dd)\n
+                - `cursorTime`(optional) : 커서 시간 (HH:mm)\n
+                - `cursorId`(optional) : 커서 예약 ID\n
+                \n
+                ✅ 커서 규칙\n
+                - 최초 호출 시 커서 파라미터를 보내지 않습니다.\n
+                - 이후 호출은 응답의 `cursor(cursorDate, cursorTime, cursorId)`를 그대로 다음 요청에 사용합니다.\n
+                \n
+                ---\n
+                ### Response\n
+                - `totalCount` : 전체 신규 예약 신청 수(해당 디자이너의 pending 전체)\n
+                - `hasNext` : 다음 페이지 존재 여부\n
+                - `cursorDate` : 다음 요청 커서 날짜(yyyy-MM-dd)\n
+                - `cursorTime` : 다음 요청 커서 시간(HH:mm)\n
+                - `cursorId` : 다음 요청 커서 예약 ID\n
+                - `reservations[]`\n
+                  - `reservationId` : 예약 ID\n
+                  - `date` : 예약 날짜 (yyyy-MM-dd)\n
+                  - `time` : 예약 시작 시간 (HH:mm)\n
+                  - `modelName` : 모델 이름\n
+                  - `subCategories` : 세부 카테고리 목록 (ex. ["펌","커트"])\n
+                \n
+                ---\n
+                ✅ 권한\n
+                - 디자이너만 조회 가능합니다.\n
+                """
+    )
+    ApiResponse<DesignerPendingReservationScrollResponse> getPendingReservations(
+            @AuthenticationPrincipal AuthDetails auth,
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(required = false) LocalDate cursorDate,
+            @RequestParam(required = false) String cursorTime,
+            @RequestParam(required = false) Long cursorId
+    );
 }

@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.reservation.dto.internal.DesignerReservationRow;
+import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationListType;
 import modelly.modelly_be.domain.reservation.dto.internal.ModelReservationRow;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
@@ -386,4 +387,50 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
                 .fetch();
     }
 
+    /* ---------- 디자이너 신규 예약 조회 관련 쿼리 ---------- */
+
+    // 신규 예약 신청 조회
+    @Override
+    public List<Reservation> findDesignerPendingAfterCursor(
+            Long designerUserId,
+            ReservationStatus status,
+            LocalDate cursorDate,
+            LocalTime cursorTime,
+            Long cursorId,
+            int sizePlusOne
+    ) {
+        BooleanBuilder where = new BooleanBuilder();
+        where.and(reservation.designer.user.id.eq(designerUserId));
+        where.and(reservation.status.eq(status));
+
+        if (cursorDate != null && cursorTime != null && cursorId != null) {
+            where.and(
+                    reservation.date.gt(cursorDate)
+                            .or(reservation.date.eq(cursorDate).and(reservation.startTime.gt(cursorTime)))
+                            .or(reservation.date.eq(cursorDate).and(reservation.startTime.eq(cursorTime)).and(reservation.id.gt(cursorId)))
+            );
+        }
+
+        return queryFactory
+                .selectFrom(reservation)
+                .where(where)
+                .orderBy(reservation.date.asc(), reservation.startTime.asc(), reservation.id.asc())
+                .limit(sizePlusOne)
+                .fetch();
+    }
+
+    // 신규 예약 total count
+    @Override
+    public int countDesignerPending(Long designerUserId, ReservationStatus status) {
+        Long cnt = queryFactory
+                .select(reservation.count())
+                .from(reservation)
+                .where(
+                        reservation.designer.user.id.eq(designerUserId),
+                        reservation.status.eq(status)
+                )
+                .fetchOne();
+
+        return cnt == null ? 0 : cnt.intValue();
+    }
 }

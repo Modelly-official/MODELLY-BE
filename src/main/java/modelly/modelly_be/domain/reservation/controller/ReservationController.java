@@ -206,4 +206,35 @@ public class ReservationController implements ReservationSwagger {
                 )
         );
     }
+
+    // 오늘의 예약 조회
+    @GetMapping("/designers/reservations/daily")
+    public ApiResponse<DesignerDailyReservationResponse> getDesignerDailyReservations(
+            @AuthenticationPrincipal AuthDetails auth,
+            @RequestParam LocalDate date
+    ) {
+        return ApiResponse.onSuccess(
+                designerReservationService.getDailyReservations(auth.user(), date)
+        );
+    }
+
+    // 신규 예약 조회 (무한스크롤)
+    @GetMapping("/designers/reservations/pending")
+    public ApiResponse<DesignerPendingReservationScrollResponse> getPendingReservations(
+            @AuthenticationPrincipal AuthDetails auth,
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(required = false) LocalDate cursorDate,
+            @RequestParam(required = false) String cursorTime,
+            @RequestParam(required = false) Long cursorId
+    ) {
+        return ApiResponse.onSuccess(
+                designerReservationService.getPendingReservations(
+                        auth.user(),
+                        size,
+                        cursorDate,
+                        cursorTime,
+                        cursorId
+                )
+        );
+    }
 }
