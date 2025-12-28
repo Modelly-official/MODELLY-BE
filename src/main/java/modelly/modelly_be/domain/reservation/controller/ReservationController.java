@@ -237,4 +237,14 @@ public class ReservationController implements ReservationSwagger {
                 )
         );
     }
+
+    @GetMapping("/designers/reservations/{reservationId}")
+    public ApiResponse<DesignerReservationDetailResponse> getDesignerReservationDetail(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long reservationId
+    ) {
+        return ApiResponse.onSuccess(
+                designerReservationService.getReservationDetail(auth.user(), reservationId)
+        );
+    }
 }

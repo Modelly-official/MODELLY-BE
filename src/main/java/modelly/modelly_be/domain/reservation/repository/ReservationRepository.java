@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     boolean existsReservationByRecruitmentAndStatus(Recruitment recruitment, ReservationStatus reservationStatus);
@@ -78,4 +79,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             LocalDate date,
             ReservationStatus status
     );
+
 }

@@ -480,4 +480,38 @@ public interface ReservationSwagger {
             @RequestParam(required = false) String cursorTime,
             @RequestParam(required = false) Long cursorId
     );
+
+    @Operation(
+            summary = "예약 상세 조회(디자이너)",
+            description = """
+                ### 디자이너가 예약 상세 화면에 필요한 정보를 조회하는 API입니다. \n
+                - reservationId로 예약 1건을 조회합니다. \n
+                - **해당 예약의 디자이너 본인만** 조회 가능합니다. \n
+                \n
+                ---\n
+                ### Path Variable\n
+                - `reservationId` : 예약 ID\n
+                \n
+                ---\n
+                ### Response\n
+                - `reservationId` : 예약 ID\n
+                - `status` : 예약 상태 (PENDING/CONFIRMED/CANCELLED ...)\n
+                - `date` : 예약 날짜 (yyyy-MM-dd)\n
+                - `startTime` / `endTime` : 예약 시간 (HH:mm)\n
+                - `category` : 상위 카테고리\n
+                - `subCategories` : 하위 카테고리 리스트\n
+                - `modelName` : 신청자(모델) 이름\n
+                - `imageUrl` : 첨부 이미지 URL\n
+                - `comment` : 모델 요청사항\n
+                - `cancelReason` : 취소 사유 (취소된 경우 nullable)\n
+                \n
+                ---\n
+                ✅ 권한\n
+                - 해당 예약의 디자이너 본인만 조회 가능합니다.\n
+                """
+    )
+    public ApiResponse<DesignerReservationDetailResponse> getDesignerReservationDetail(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long reservationId
+    );
 }

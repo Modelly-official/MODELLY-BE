@@ -223,4 +223,33 @@ public class DesignerReservationService {
                 .map(sc -> sc.getDescription())
                 .toList();
     }
+
+    // 예약 상세 조회
+    @Transactional(readOnly = true)
+    public DesignerReservationDetailResponse getReservationDetail(User me, Long reservationId) {
+        designerService.checkDesigner(me);
+
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION));
+
+        // 내 예약인지 권한 체크 (디자이너만)
+        if (reservation.getDesigner() == null || !reservation.getDesigner().getUser().getId().equals(me.getId())) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        return new DesignerReservationDetailResponse(
+                reservation.getId(),
+                reservation.getStatus(),
+                reservation.getDate(),
+                reservation.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                reservation.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                reservation.getCategory().getDescription(),
+                extractSubCategoryLabels(reservation),
+                reservation.getModel().getUser().getId(),
+                reservation.getModel().getUser().getName(),
+                reservation.getImageUrl(),
+                reservation.getComment(),
+                reservation.getCancelReason()
+        );
+    }
 }
