@@ -10,11 +10,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     boolean existsReservationByRecruitmentAndStatus(Recruitment recruitment, ReservationStatus reservationStatus);
@@ -65,12 +63,12 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
       and r.id <> :excludeReservationId
     """)
     boolean existsConflictOnDesignerSchedule(
-            Long designerId,
-            LocalDate date,
-            LocalTime startTime,
-            LocalTime endTime,
-            List<ReservationStatus> statuses,
-            Long excludeReservationId
+            @Param("designerId") Long designerId,
+            @Param("date") LocalDate date,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime") LocalTime endTime,
+            @Param("statuses") List<ReservationStatus> statuses,
+            @Param("excludeReservationId") Long excludeReservationId
     );
 
     // date에 해당하는 예약 조회

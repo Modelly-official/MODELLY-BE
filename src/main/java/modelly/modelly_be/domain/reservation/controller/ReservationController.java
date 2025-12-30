@@ -12,8 +12,6 @@ import modelly.modelly_be.domain.reservation.entity.enums.ReservationListType;
 import modelly.modelly_be.domain.reservation.service.DesignerReservationService;
 import modelly.modelly_be.domain.reservation.service.ModelReservationService;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
-import modelly.modelly_be.domain.user.service.DesignerService;
-import modelly.modelly_be.domain.user.service.ModelService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.entity.Category;

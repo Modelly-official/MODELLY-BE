@@ -131,8 +131,6 @@ public class DesignerReservationService {
     // 오늘의 예약 조회
     @Transactional(readOnly = true)
     public DesignerDailyReservationResponse getDailyReservations(User me, LocalDate date) {
-        designerService.checkDesigner(me);
-
         List<Reservation> reservations =
                 reservationRepository.findAllByDesigner_User_IdAndDateAndStatusOrderByStartTimeAsc(
                         me.getId(),
@@ -160,8 +158,6 @@ public class DesignerReservationService {
             String cursorTime,
             Long cursorId
     ) {
-        designerService.checkDesigner(me);
-
         // pending 상태의 예약 총 수 조회
         int totalCount = reservationQueryRepository.countDesignerPending(me.getId(), ReservationStatus.RESERVATION_PENDING);
 
@@ -198,7 +194,7 @@ public class DesignerReservationService {
         String nextCursorTime = null;
         Long nextCursorId = null;
 
-        if (!items.isEmpty()) {
+        if (hasNext && !items.isEmpty()) {
             DesignerPendingReservationItem last = items.get(items.size() - 1);
             nextCursorDate = last.date();
             nextCursorTime = last.time();
@@ -230,8 +226,6 @@ public class DesignerReservationService {
     // 예약 상세 조회
     @Transactional(readOnly = true)
     public DesignerReservationDetailResponse getReservationDetail(User me, Long reservationId) {
-        designerService.checkDesigner(me);
-
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION));
 
@@ -259,8 +253,6 @@ public class DesignerReservationService {
     // 신규 예약 신청 수락
     @Transactional
     public SimpleMessageDTO confirmPendingReservation(User me, Long reservationId) {
-        designerService.checkDesigner(me);
-
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION));
 
@@ -291,8 +283,6 @@ public class DesignerReservationService {
     // 신규 예약 거절
     @Transactional
     public SimpleMessageDTO rejectPendingReservation(User me, Long reservationId) {
-        designerService.checkDesigner(me);
-
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION));
 
@@ -310,11 +300,6 @@ public class DesignerReservationService {
         Long designerId = reservation.getDesigner().getId();
         List<RecruitmentTime> times = recruitmentTimeRepository
                 .findAllTimeForUpdateByDesigner(designerId, reservation.getDate(), reservation.getStartTime());
-
-        // time slot이 존재하지 않는 경우 에러
-        if (times.isEmpty()) {
-            throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
-        }
 
         times.forEach(RecruitmentTime::unreserve);
 
