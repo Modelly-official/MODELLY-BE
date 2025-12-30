@@ -5,6 +5,7 @@ import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.service.RecruitmentService;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationCreateRequest;
+import modelly.modelly_be.domain.reservation.dto.response.AvailableReservationScheduleResponse;
 import modelly.modelly_be.domain.reservation.dto.response.ModelReservationItem;
 import modelly.modelly_be.domain.reservation.dto.internal.ModelReservationRow;
 import modelly.modelly_be.domain.reservation.dto.response.ReservationScrollResponse;
@@ -271,6 +272,11 @@ public class ModelReservationService {
         }
 
         return new ReservationScrollResponse<>(items, totalCount, hasNext, nextDate, nextTime, nextId);
+    }
+
+    @Transactional(readOnly = true)
+    public AvailableReservationScheduleResponse getAvailableSchedules(Long recruitmentId, String month){
+        return recruitmentService.getAvailableSchedules(recruitmentId, month);
     }
 
 }

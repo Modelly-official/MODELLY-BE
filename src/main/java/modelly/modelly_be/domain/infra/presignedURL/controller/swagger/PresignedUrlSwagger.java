@@ -218,4 +218,67 @@ public interface PresignedUrlSwagger {
     )
     @GetMapping("/presigned-url/profiles")
     ApiResponse<PresignedUploadResponse> createProfilePresignedUrl();
+
+    @Operation(
+            summary = "예약 이미지 업로드용 Presigned URL 발급 (모델)",
+            description = """
+                예약 생성 시 사용할 **참고 이미지(1장)** 업로드를 위해 S3 Presigned PUT URL을 발급합니다.  
+                **프론트엔드가 S3로 직접 PUT 업로드**한 뒤, 반환된 `imageUrl`을 예약 생성 요청에 포함합니다.
+
+                ---
+                ✅ 접근 제어
+                - 요청한 사용자가 **모델인지 확인**합니다.
+                - 모델이 아닌 경우 **403 Forbidden** 에러가 발생합니다.
+
+                ---
+                📥 Request
+                - 별도의 Request Body 없음
+
+                ---
+                📤 Response (PresignedUploadResponse)
+
+                - `uploadUrl`
+                  - S3에 **PUT 업로드**할 Presigned URL
+                  - 유효시간: **5분**
+
+                - `imageUrl`
+                  - 업로드 완료 후 예약 생성 시 `imageUrl` 필드에 넣을 **S3 객체 접근 URL**
+
+                ---
+                🧩 프론트엔드 처리 흐름
+
+                1️⃣ Presigned URL 발급 요청  
+                ```
+                GET /presigned-url/reservations
+                ```
+
+                2️⃣ S3에 직접 파일 업로드  
+                ```
+                PUT {uploadUrl}
+                Headers:
+                  Content-Type: image/*   (파일 타입에 맞게 설정 권장)
+                Body: file(binary)
+                ```
+
+                3️⃣ 업로드 완료 후 예약 생성 요청에 `imageUrl` 포함  
+                - 예: `POST /models/reservations`
+                ```json
+                {
+                  "recruitmentId": 1,
+                  "date": "2025-12-30",
+                  "startTime": "14:00",
+                  "category": "HAIR",
+                  "subCategories": ["CUT", "PERM"],
+                  "comment": "앞머리만 가볍게",
+                  "designerName": "준영쌤",
+                  "shop": "어딘가헤어",
+                  "imageUrl": "{imageUrl}"
+                }
+                ```
+                """
+    )
+    @GetMapping("/presigned-url/reservations")
+    ApiResponse<PresignedUploadResponse> createReservationImage(
+            @AuthenticationPrincipal AuthDetails authDetails
+    );
 }

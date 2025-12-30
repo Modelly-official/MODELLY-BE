@@ -2,7 +2,9 @@ package modelly.modelly_be.domain.reservation.repository;
 
 import modelly.modelly_be.domain.reservation.dto.internal.DesignerReservationRow;
 import modelly.modelly_be.domain.reservation.dto.internal.ModelReservationRow;
+import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationListType;
+import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.entity.SubCategory;
 
@@ -76,4 +78,16 @@ public interface ReservationQueryRepository {
     record ReservationSubCategoryRow(Long reservationId, SubCategory subCategory) {}
 
 
+    // 신규 예약(Pending 상태의 예약) 무한스크롤 조회
+    List<Reservation> findDesignerPendingAfterCursor(
+            Long designerUserId,
+            ReservationStatus status,
+            LocalDate cursorDate,
+            LocalTime cursorTime,
+            Long cursorId,
+            int sizePlusOne
+    );
+
+    // 신규 에약 counting
+    int countDesignerPending(Long designerUserId, ReservationStatus status);
 }

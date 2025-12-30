@@ -70,6 +70,7 @@ public class ReservationChange extends BaseEntity {
         this.respondedAt = LocalDateTime.now();
     }
 
+    // 취소 시에는 responder가 requester
     public void cancel(Long requesterUserId) {
         this.status = ReservationChangeStatus.CANCELED;
         this.responderUserId = requesterUserId;
