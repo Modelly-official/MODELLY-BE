@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.calendar.controller.swagger;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import modelly.modelly_be.domain.calendar.dto.response.CalendarReservationDotsResponse;
 import modelly.modelly_be.domain.calendar.dto.response.CalendarReservationScrollResponse;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
@@ -70,5 +71,29 @@ public interface DesignerCalendarSwagger {
             @RequestParam(required = false) LocalDate cursorDate,
             @RequestParam(required = false) String cursorTime,
             @RequestParam(required = false) Long cursorId
+    );
+
+    @Operation(
+            summary = "캘린더 도트 조회(디자이너) - 월 전체 날짜 예약 존재 여부",
+            description = """
+                ### 캘린더에서 도트(예약 존재 여부)를 찍기 위한 API입니다.\n
+                - month(yyyy-MM) 기준으로 해당 월의 **모든 날짜**에 대해 `hasReserved` boolean을 내려줍니다.\n
+                - 기본은 확정(CONFIRMED) 예약 기준입니다.\n
+                - 필요하면 `includePending=true`로 신규 예약 신청(PENDING)도 도트에 포함시킬 수 있습니다.\n
+                \n
+                ---\n
+                ### Request Param\n
+                - `month`(required) : yyyy-MM\n
+                - `includePending`(optional, default=false) : pending 포함 여부\n
+                \n
+                ---\n
+                ✅ 권한\n
+                - 디자이너만 호출 가능합니다.\n
+                """
+    )
+    ApiResponse<CalendarReservationDotsResponse> getReservationDots(
+            @AuthenticationPrincipal AuthDetails auth,
+            @RequestParam String month,
+            @RequestParam(defaultValue = "false") boolean includePending
     );
 }

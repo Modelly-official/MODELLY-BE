@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.calendar.controller;
 
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.calendar.controller.swagger.DesignerCalendarSwagger;
+import modelly.modelly_be.domain.calendar.dto.response.CalendarReservationDotsResponse;
 import modelly.modelly_be.domain.calendar.dto.response.CalendarReservationScrollResponse;
 import modelly.modelly_be.domain.calendar.service.DesignerCalendarService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
 public class DesignerCalendarController implements DesignerCalendarSwagger {
 
     private final DesignerCalendarService service;
+    private final DesignerCalendarService designerCalendarService;
 
     @GetMapping("/designers/calendar/reservations")
     public ApiResponse<CalendarReservationScrollResponse> getCalendarReservations(
@@ -42,6 +44,18 @@ public class DesignerCalendarController implements DesignerCalendarSwagger {
                         cursorTime,
                         cursorId
                 )
+        );
+    }
+
+    @Override
+    @GetMapping("/designers/calendar/reservation-dots")
+    public ApiResponse<CalendarReservationDotsResponse> getReservationDots(
+            @AuthenticationPrincipal AuthDetails auth,
+            @RequestParam String month,
+            @RequestParam(defaultValue = "false") boolean includePending
+    ) {
+        return ApiResponse.onSuccess(
+                designerCalendarService.getReservationDots(auth.user(), month, includePending)
         );
     }
 }

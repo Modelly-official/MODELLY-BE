@@ -135,4 +135,27 @@ public class DesignerCalendarQueryRepositoryImpl implements DesignerCalendarQuer
                 .stream()
                 .toList();
     }
+
+    @Override
+    public List<LocalDate> findReservedDatesInMonth(
+            Long designerId,
+            YearMonth ym,
+            List<ReservationStatus> statuses
+    ) {
+        // 월 범위
+        LocalDate start = ym.atDay(1);
+        LocalDate endExclusive = ym.plusMonths(1).atDay(1);
+
+        return queryFactory
+                .select(reservation.date)
+                .distinct()
+                .from(reservation)
+                .where(
+                        reservation.designer.id.eq(designerId),
+                        reservation.date.goe(start),
+                        reservation.date.lt(endExclusive),
+                        reservation.status.in(statuses)
+                )
+                .fetch();
+    }
 }

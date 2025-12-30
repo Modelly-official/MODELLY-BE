@@ -34,5 +34,12 @@ public interface DesignerCalendarQueryRepository {
     List<ReservationSubCategoryRow> findSubCategoriesByReservationIds(List<Long> reservationIds);
 
     record ReservationSubCategoryRow(Long reservationId, String subCategoryDescription) {}
+
+    // 해당 월에 예약이 존재하는 날짜 목록 조회
+    List<LocalDate> findReservedDatesInMonth(
+            Long designerId,
+            YearMonth yearMonth,
+            List<ReservationStatus> statuses
+    );
 }
 
