@@ -55,8 +55,6 @@ public class DesignerRecruitmentService {
                 .notice(recruitmentRequestDto.notice())
                 .content(recruitmentRequestDto.content())
                 .goal1(recruitmentRequestDto.goal1())
-                .goal2(recruitmentRequestDto.goal2())
-                .goal3(recruitmentRequestDto.goal3())
                 .agreeInsta(recruitmentRequestDto.agreeInsta())
                 .agreeMosaic(recruitmentRequestDto.agreeMosaic())
                 .agreeVideo(recruitmentRequestDto.agreeVideo())
@@ -194,7 +192,6 @@ public class DesignerRecruitmentService {
             throw new GeneralException(ErrorStatus.MONTH_BAD_REQUEST);
         }
 
-        checkDesigner(user);
         Designer designer = designerService.getByUser(user);
 
         List<DesignerRecruitmentListResponseDto> responseDtos = recruitmentService.getByDesignerAndRecruitmentDate(designer, yearMonth, size,cursorEarliestDate,cursorId);

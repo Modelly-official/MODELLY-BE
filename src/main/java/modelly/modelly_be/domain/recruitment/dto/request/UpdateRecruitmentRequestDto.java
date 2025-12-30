@@ -22,10 +22,6 @@ public record UpdateRecruitmentRequestDto(
         String notice,
         @Schema(description = "모델 목적1", example = "포트폴리오를 위해서")
         String goal1,
-        @Schema(description = "모델 목적2", example = "포트폴리오를 위해서")
-        String goal2,
-        @Schema(description = "모델 목적3", example = "포트폴리오를 위해서")
-        String goal3,
         @Schema(description = "공고 썸네일")
         String thumbnail,
         @Schema(description = "공고관련 사진")
