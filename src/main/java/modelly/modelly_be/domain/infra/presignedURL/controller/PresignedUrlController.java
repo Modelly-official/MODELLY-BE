@@ -64,4 +64,12 @@ public class PresignedUrlController implements PresignedUrlSwagger {
         PresignedUploadResponse response = presignedUrlService.createProfileImage();
         return ApiResponse.onSuccess(response);
     }
+
+    @GetMapping("/presigned-url/reservations")
+    public ApiResponse<PresignedUploadResponse> createReservationImage(
+            @AuthenticationPrincipal AuthDetails authDetails
+    ) {
+        PresignedUploadResponse response = presignedUrlService.createReservationImage(authDetails.user());
+        return ApiResponse.onSuccess(response);
+    }
 }

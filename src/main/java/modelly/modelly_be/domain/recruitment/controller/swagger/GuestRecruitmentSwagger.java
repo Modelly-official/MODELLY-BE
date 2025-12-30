@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.GuestRecruitmentResponseDto;
-import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
+import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.entity.Category;
@@ -32,7 +32,7 @@ public interface GuestRecruitmentSwagger {
             ### Request Param \n
             `category` : HAIR, NAIL, TATTOO, EYELASH 중 택1 \n
             `subCategory` : 세부 카테고리입니다. \n
-            - 헤어 관련: HAIR_CUT, HAIR_PERM, HAIR_COLORING \s
+            - 헤어 관련: HAIR_CUT, HAIR_PERM, HAIR_COLORING, HAIR_MAGIC \s
             - 네일 관련: ONE_COLOR, ART, PEDICURE \s
             - 속눈썹 관련: EYELASH_PERM, EYELASH_EXTENSION \s
             - 타투 관련: LIP_TATTOO, EYEBROW_TATTOO, NORMAL_TATTOO \n
@@ -75,7 +75,7 @@ public interface GuestRecruitmentSwagger {
             ### Request Param \n
             `category` : HAIR, NAIL, TATTOO, EYELASH 중 택1 \n
             `subCategory` : 세부 카테고리입니다. \n
-            - 헤어 관련: HAIR_CUT, HAIR_PERM, HAIR_COLORING \s
+            - 헤어 관련: HAIR_CUT, HAIR_PERM, HAIR_COLORING, HAIR_MAGIC \s
             - 네일 관련: ONE_COLOR, ART, PEDICURE \s
             - 속눈썹 관련: EYELASH_PERM, EYELASH_EXTENSION \s
             - 타투 관련: LIP_TATTOO, EYEBROW_TATTOO, NORMAL_TATTOO \n

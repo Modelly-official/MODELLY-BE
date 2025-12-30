@@ -53,6 +53,7 @@ public enum ErrorStatus implements BaseErrorCode {
     FORBIDDEN_DELETE_OR_MODIFY_RECRUITMENT(HttpStatus.FORBIDDEN, "RECRUITMENT403", "작성자만 공고 삭제 및 수정이 가능합니다."),
     CAN_NOT_RECRUITMENT_DELETE_OR_MODIFY(HttpStatus.CONFLICT, "RECRUITMENT409", "현재 진행중이거나 확정된 예약이 있어 삭제 및 수정이 불가능합니다."),
     SUBCATEGORY_MISMATCH(HttpStatus.BAD_REQUEST, "RECRUITMENT400", "선택한 서브 카테고리가 상위 카테고리와 일치하지 않습니다."),
+    NOT_FOUND_RECRUITMENT_TIME(HttpStatus.NOT_FOUND,"RECRUITMENT404", "공고에서 선택한 일시를 찾을 수 없습니다."),
 
     // 채팅
     INVALID_CHATROOM(HttpStatus.BAD_REQUEST, "CHAT400", "채팅방 생성이 불가능합니다."),
@@ -71,6 +72,15 @@ public enum ErrorStatus implements BaseErrorCode {
 
     //Reservation
     NOT_FOUND_RESERVATION(HttpStatus.NOT_FOUND, "RESERVATION404", "예약이 존재하지 않습니다."),
+    RESERVATION_TIME_CONFLICT(HttpStatus.CONFLICT, "RESERVATION409", "이미 예약된 시간대입니다. 다른 시간을 선택해주세요."),
+    RESERVATION_BAD_REQUEST(HttpStatus.BAD_REQUEST, "RESERVATION400", "잘못된 예약 상태 변경 요청입니다."),
+    RESERVATION_CHANGE_ALREADY_PENDING(HttpStatus.CONFLICT, "RESERVATION409", "이미 변경 요청한 예약입니다."),
+    NOT_FOUND_RESERVATION_CHANGE(HttpStatus.NOT_FOUND, "RESERVATION404", "예약 변경 요청이 존재하지 않습니다."),
+    RESERVATION_CHANGE_NOT_PENDING(HttpStatus.FORBIDDEN, "RESERVATION403", "예약 변경 대기 중인 요청이 아닙니다."),
+    RESERVATION_CHANGE_SELF_RESPONSE_NOT_ALLOWED(HttpStatus.FORBIDDEN,"RESERVATION403", "예약 변경 요청한 본인이 수락/거절할 수 없습니다."),
+    RESERVATION_CANCEL_TOO_LATE(HttpStatus.BAD_REQUEST, "RESERVATION400", "예약 시작 시각 기준으로 72시간 이전까지만 취소 가능합니다."),
+    RESERVATION_CHANGE_NOT_REJECTED(HttpStatus.FORBIDDEN, "RESERVATION403", "거절된 예약 변경 요청이 아닙니다."),
+    RESERVATION_CHANGE_ONLY_REQUESTER_CAN_PROCEED_OR_CANCEL(HttpStatus.FORBIDDEN, "RESERVATION403", "예약 변경 요청자만 기존대로 진행 혹은 예약 취소를 선택할 수 있습니다."),
 
     //Review
     FORBIDDEN_CREATE_REVIEW(HttpStatus.FORBIDDEN, "REVIEW403", "예약자만 리뷰 작성이 가능합니다."),

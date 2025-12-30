@@ -23,4 +23,7 @@ public class RecruitmentTime {
 
     @Column(name = "start_time", columnDefinition = "TIME", nullable = false)
     private LocalTime startTime;
+
+    public void reserve() { this.isReserved = true; }
+    public void unreserve() { this.isReserved = false; }
 }

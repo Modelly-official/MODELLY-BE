@@ -227,4 +227,10 @@ public class ChatRoomService {
             throw new GeneralException(ErrorStatus._FORBIDDEN);
         }
     }
+
+    @Transactional(readOnly = true)
+    public ChatRoom getById(Long roomId) {
+        return chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_CHAT_ROOM));
+    }
 }

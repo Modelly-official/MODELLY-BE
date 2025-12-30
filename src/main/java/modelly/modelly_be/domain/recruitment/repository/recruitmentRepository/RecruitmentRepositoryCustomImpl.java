@@ -14,7 +14,7 @@ import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentBasic;
 import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitment;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitmentDate;
-import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
+import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.domain.review.entity.QReview;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.QDesigner;

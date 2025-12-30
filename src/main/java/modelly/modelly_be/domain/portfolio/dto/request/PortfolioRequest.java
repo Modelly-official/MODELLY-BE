@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import modelly.modelly_be.domain.recruitment.entity.enums.SubCategory;
+import modelly.modelly_be.global.entity.SubCategory;
 
 import java.util.List;
 

@@ -1,5 +1,6 @@
 package modelly.modelly_be.domain.infra.presignedURL.service;
 
+import jakarta.validation.constraints.Max;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.chat.service.ChatRoomService;
 import modelly.modelly_be.domain.infra.presignedURL.dto.PresignedUrlListResponse;
@@ -51,6 +52,14 @@ public class PresignedUrlService {
 
         PresignedUploadResponse response = s3Uploader.generatePresignedUrl("chat/" + roomId);
 
+        return response;
+    }
+
+    // 예약 도메인 관련 presigned url
+    public PresignedUploadResponse createReservationImage(User user) {
+        modelService.checkModel(user);
+
+        PresignedUploadResponse response = s3Uploader.generatePresignedUrl("reservations/" + user.getId());
         return response;
     }
 

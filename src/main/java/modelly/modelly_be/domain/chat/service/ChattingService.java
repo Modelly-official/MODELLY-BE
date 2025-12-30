@@ -1,5 +1,7 @@
 package modelly.modelly_be.domain.chat.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.chat.dto.request.SendMessageRequest;
 import modelly.modelly_be.domain.chat.dto.response.ChatMessageResponse;
@@ -10,6 +12,7 @@ import modelly.modelly_be.domain.chat.entity.ChatRoom;
 import modelly.modelly_be.domain.chat.entity.Chatting;
 import modelly.modelly_be.domain.chat.entity.ChattingImage;
 import modelly.modelly_be.domain.chat.entity.enums.MessageType;
+import modelly.modelly_be.domain.chat.event.ChatBroadcastEvent;
 import modelly.modelly_be.domain.chat.repository.ChatRoomRepository;
 import modelly.modelly_be.domain.chat.repository.ChattingImageRepository;
 import modelly.modelly_be.domain.chat.repository.ChattingRepository;
@@ -17,8 +20,10 @@ import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.repository.UserRepository;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +41,9 @@ public class ChattingService {
     private final UserRepository userRepository;
     private final ChatRoomService chatRoomService;
     private final ChattingImageRepository chattingImageRepository;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final ObjectMapper objectMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     // 메세지 보내기(DB 저장)
     @Transactional
@@ -193,5 +201,89 @@ public class ChattingService {
                 .hasNext(hasNext)
                 .lastReadMessageId(lastReadMessageId)
                 .build();
+    }
+
+
+    // 예약 관련 메세지 브로드캐스트용
+    @Transactional
+    public SendMessageResponse publishReservationMessage(Long senderUserId, Long roomId, String message) {
+        // sender 검증
+        User sender = userRepository.findById(senderUserId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+
+        // 채팅방 검증
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_CHAT_ROOM));
+
+        // 참여자인지 검증
+        if (!room.isParticipant(sender)) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        // 메세지 저장
+        Chatting saved = chattingRepository.save(
+                Chatting.of(
+                        sender.getId(),
+                        message,
+                        false,
+                        MessageType.RESERVATION,
+                        room
+                )
+        );
+
+        SendMessageResponse response = SendMessageResponse.of(saved, List.of());
+
+        // 트랜잭션 커밋 이후 브로드캐스트 되게 이벤트 생성
+        eventPublisher.publishEvent(new ChatBroadcastEvent(roomId, response));
+
+        return response;
+    }
+
+    // RESERVATION 메시지: payload(Object) -> JSON 문자열로 저장 + 브로드캐스트
+    @Transactional
+    public SendMessageResponse publishReservationPayload(Long senderUserId, Long roomId, Object payload) {
+        String json;
+        try {
+            json = objectMapper.writeValueAsString(payload);
+        } catch (JsonProcessingException e) {
+            throw new GeneralException(ErrorStatus._INTERNAL_SERVER_ERROR);
+        }
+        return publishReservationMessage(senderUserId, roomId, json);
+    }
+
+    // TEXT 메시지: 텍스트 저장 + 브로드캐스트
+    @Transactional
+    public SendMessageResponse publishTextMessage(Long senderUserId, Long roomId, String text) {
+
+        User sender = userRepository.findById(senderUserId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_CHAT_ROOM));
+
+        if (!room.isParticipant(sender)) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        if (text == null || text.isBlank()) {
+            throw new GeneralException(ErrorStatus._BAD_REQUEST);
+        }
+
+        Chatting saved = chattingRepository.save(
+                Chatting.of(
+                        sender.getId(),
+                        text,
+                        false,
+                        MessageType.TEXT,
+                        room
+                )
+        );
+
+        SendMessageResponse response = SendMessageResponse.of(saved, List.of());
+
+        // 트랜잭션 커밋 이후 브로드캐스트 되게 이벤트 생성
+        eventPublisher.publishEvent(new ChatBroadcastEvent(roomId, response));
+
+        return response;
     }
 }

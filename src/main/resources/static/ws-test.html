@@ -1,60 +1,111 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>SockJS + STOMP + JWT 테스트</title>
+    <meta charset="UTF-8" />
+    <title>SockJS + STOMP + JWT 테스트 (ReservationChange)</title>
 
-    <!-- SockJS & stomp.js (2.x) -->
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 
     <style>
         body { font-family: sans-serif; margin: 24px; }
-        input { padding: 6px; margin: 4px 0; width: 420px; }
+        input, textarea { padding: 6px; margin: 4px 0; width: 520px; }
+        textarea { height: 72px; }
         button { padding: 6px 12px; margin: 4px 2px; }
         #log {
             border: 1px solid #ccc;
-            height: 320px;
+            height: 360px;
             padding: 8px;
             white-space: pre-wrap;
             overflow-y: auto;
             margin-top: 10px;
             background: #f5f5f5;
         }
+        .row { margin: 10px 0 18px; }
+        .label { font-weight: 700; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<h2>SockJS STOMP + JWT 테스트</h2>
+<h2>SockJS STOMP + JWT 테스트 (예약 변경 브로드캐스트 확인)</h2>
 
-<p><b>1. JWT Access Token (Bearer 빼고 값만)</b></p>
-<input id="jwt" placeholder="eyJhbGciOiJIUzI1NiJ9....">
+<div class="row">
+    <div class="label">1) JWT Access Token (Bearer 빼고 값만)</div>
+    <input id="jwt" placeholder="eyJhbGciOiJIUzI1NiJ9...." />
+</div>
 
-<p><b>2. 방 ID</b></p>
-<input id="roomId" value="1">
+<div class="row">
+    <div class="label">2) 채팅방 ID (SUBSCRIBE 대상)</div>
+    <input id="roomId" value="1" />
+</div>
 
-<p><b>텍스트 메시지 내용</b></p>
-<input id="message" value="SockJS + JWT 테스트입니다">
+<hr />
 
-<p><b>이미지 파일 (여러 장 선택 가능)</b></p>
-<input id="images" type="file" accept="image/*" multiple>
+<div class="row">
+    <div class="label">[채팅 TEXT 테스트]</div>
+    <div>텍스트 메시지 내용</div>
+    <input id="message" value="SockJS + JWT 테스트입니다" />
+</div>
 
-<p><b>읽음 처리할 마지막 메시지 ID</b></p>
-<input id="lastReadMessageId" value="0">
+<div class="row">
+    <div class="label">[채팅 IMAGE 테스트]</div>
+    <div>이미지 파일 (여러 장 선택 가능)</div>
+    <input id="images" type="file" accept="image/*" multiple />
+</div>
 
-<br>
+<div class="row">
+    <div class="label">[READ 이벤트 테스트]</div>
+    <div>읽음 처리할 마지막 메시지 ID</div>
+    <input id="lastReadMessageId" value="0" />
+</div>
+
+<hr />
+
+<div class="row">
+    <div class="label">[예약 변경 요청(REST) → 서버 STOMP 브로드캐스트 테스트]</div>
+
+    <div>예약 ID (reservationId)</div>
+    <input id="reservationId" value="1" />
+
+    <div>변경 날짜 (YYYY-MM-DD)</div>
+    <input id="proposedDate" value="2025-12-13" />
+
+    <div>변경 시작 시간 (HH:mm)</div>
+    <input id="proposedStartTime" value="13:30" />
+
+    <div>사유</div>
+    <textarea id="reason">이러이러한 사유로 변경 요청드립니다.</textarea>
+
+    <div style="color:#666; font-size: 13px; margin-top:6px;">
+        ※ roomId를 요청 파라미터로 같이 받고 있으면 아래 체크 후 사용 가능<br/>
+        (네 코드에선 roomId nullable이었으니, 필요하면 쿼리스트링으로 붙임)
+    </div>
+    <label>
+        <input type="checkbox" id="includeRoomId" checked />
+        roomId를 변경요청 API에 포함 (?roomId=...)
+    </label>
+</div>
+
+<br />
+
 <button id="connectBtn">CONNECT</button>
 <button id="disconnectBtn" disabled>DISCONNECT</button>
 <button id="subscribeBtn" disabled>SUBSCRIBE</button>
 <button id="sendBtn" disabled>SEND TEXT MESSAGE</button>
 <button id="sendImageBtn" disabled>SEND IMAGE MESSAGE</button>
 <button id="sendReadBtn" disabled>SEND READ EVENT</button>
+<button id="sendChangeReqBtn" disabled>CREATE CHANGE REQUEST (REST)</button>
 
 <h3>로그</h3>
 <div id="log"></div>
 
 <script>
     let stompClient = null;
+
+    // ====== 너희 프로젝트에 맞게 이 API 경로만 조정해줘 ======
+    // 예시: ReservationController 에서 POST "/reservations/{reservationId}/changes"
+    const CHANGE_API_BASE = 'http://localhost:8080/api/reservations'; // <- 필요시 수정
+    // =========================================================
 
     function log(msg) {
         const el = document.getElementById('log');
@@ -63,11 +114,16 @@
         console.log(msg);
     }
 
+    function authHeader() {
+        const token = document.getElementById('jwt').value.trim();
+        return token ? { Authorization: 'Bearer ' + token } : {};
+    }
+
     // ---------- CONNECT ----------
     document.getElementById('connectBtn').onclick = () => {
         const token = document.getElementById('jwt').value.trim();
 
-        // ★ SockJS 엔드포인트: context-path 포함해서 http URL
+        // SockJS 엔드포인트
         const socket = new SockJS('http://localhost:8080/api/ws/chat');
         stompClient = Stomp.over(socket);
 
@@ -77,16 +133,17 @@
             token ? { Authorization: 'Bearer ' + token } : {},
             frame => {
                 log('✅ CONNECTED');
-                log(JSON.stringify(frame.headers));
+                log('frame.headers=' + JSON.stringify(frame.headers));
                 document.getElementById('disconnectBtn').disabled = false;
                 document.getElementById('subscribeBtn').disabled = false;
                 document.getElementById('sendBtn').disabled = false;
                 document.getElementById('sendImageBtn').disabled = false;
                 document.getElementById('sendReadBtn').disabled = false;
+                document.getElementById('sendChangeReqBtn').disabled = false;
             },
             error => {
                 log('❌ CONNECTION ERROR');
-                log(error);
+                log(String(error));
             }
         );
     };
@@ -94,22 +151,20 @@
     // ---------- DISCONNECT ----------
     document.getElementById('disconnectBtn').onclick = () => {
         if (stompClient) {
-            stompClient.disconnect(() => {
-                log('🔌 DISCONNECTED');
-            });
+            stompClient.disconnect(() => log('🔌 DISCONNECTED'));
         }
         document.getElementById('disconnectBtn').disabled = true;
         document.getElementById('subscribeBtn').disabled = true;
         document.getElementById('sendBtn').disabled = true;
         document.getElementById('sendImageBtn').disabled = true;
         document.getElementById('sendReadBtn').disabled = true;
+        document.getElementById('sendChangeReqBtn').disabled = true;
     };
 
     // ---------- SUBSCRIBE ----------
     document.getElementById('subscribeBtn').onclick = () => {
-        if (!stompClient) {
-            return log('⚠️ 아직 CONNECT 안 됨');
-        }
+        if (!stompClient) return log('⚠️ 아직 CONNECT 안 됨');
+
         const roomId = document.getElementById('roomId').value.trim();
         const dest = '/sub/chat/rooms/' + roomId;
 
@@ -118,13 +173,28 @@
         stompClient.subscribe(dest, (message) => {
             try {
                 const body = JSON.parse(message.body);
-                const type = body.messageType; // TEXT / IMAGE / READ
+                const type = body.messageType; // TEXT / IMAGE / READ / RESERVATION(추가)
 
                 if (type === 'READ') {
                     log('📥 [READ EVENT] ' + message.body);
-                } else {
-                    log('📥 [CHAT MESSAGE] ' + message.body);
+                    return;
                 }
+
+                if (type === 'RESERVATION') {
+                    // message 칼럼에 JSON 문자열 넣을 예정이라 했으니, 여기서 한 번 더 파싱 시도
+                    let reservationPayload = null;
+                    if (body.message) {
+                        try { reservationPayload = JSON.parse(body.message); } catch (e) {}
+                    }
+                    log('📥 [RESERVATION] raw=' + message.body);
+                    if (reservationPayload) {
+                        log('📥 [RESERVATION] parsed(message JSON)=' + JSON.stringify(reservationPayload));
+                    }
+                    return;
+                }
+
+                // 기본: TEXT / IMAGE
+                log('📥 [CHAT MESSAGE] ' + message.body);
             } catch (e) {
                 log('📥 [RAW] ' + message.body);
             }
@@ -133,57 +203,39 @@
 
     // ---------- SEND TEXT MESSAGE ----------
     document.getElementById('sendBtn').onclick = () => {
-        if (!stompClient) {
-            return log('⚠️ 아직 CONNECT 안 됨');
-        }
+        if (!stompClient) return log('⚠️ 아직 CONNECT 안 됨');
+
         const roomId = document.getElementById('roomId').value.trim();
         const dest = '/pub/chat/rooms/' + roomId;
         const msg = document.getElementById('message').value;
 
-        const payload = JSON.stringify({
-            messageType: 'TEXT',
-            message: msg
-        });
+        const payload = JSON.stringify({ messageType: 'TEXT', message: msg });
 
         log('📤 SEND TEXT to ' + dest + ': ' + payload);
-
         stompClient.send(dest, { 'content-type': 'application/json' }, payload);
     };
 
     // ---------- SEND IMAGE MESSAGE ----------
     document.getElementById('sendImageBtn').onclick = async () => {
-        if (!stompClient) {
-            return log('⚠️ 아직 CONNECT 안 됨');
-        }
+        if (!stompClient) return log('⚠️ 아직 CONNECT 안 됨');
 
-        const filesInput = document.getElementById('images');
-        const files = filesInput.files;
-        if (!files || files.length === 0) {
-            return log('⚠️ 선택된 이미지가 없음');
-        }
+        const files = document.getElementById('images').files;
+        if (!files || files.length === 0) return log('⚠️ 선택된 이미지가 없음');
 
-        const token = document.getElementById('jwt').value.trim();
         const roomId = document.getElementById('roomId').value.trim();
         const dest = '/pub/chat/rooms/' + roomId;
 
         try {
             const formData = new FormData();
-            for (let i = 0; i < files.length; i++) {
-                formData.append('files', files[i]);
-            }
+            for (let i = 0; i < files.length; i++) formData.append('files', files[i]);
 
             const uploadUrl = 'http://localhost:8080/api/chat/rooms/' + roomId + '/images';
 
             log('⬆️ 업로드 요청: POST ' + uploadUrl + ' (' + files.length + ' files)');
 
-            const headers = {};
-            if (token) {
-                headers['Authorization'] = 'Bearer ' + token;
-            }
-
             const res = await fetch(uploadUrl, {
                 method: 'POST',
-                headers,
+                headers: authHeader(),
                 body: formData
             });
 
@@ -195,51 +247,84 @@
             const resJson = await res.json();
             const imageUrls = resJson.result;
 
-            log('✅ 업로드 성공, imageUrls = ' + JSON.stringify(imageUrls));
+            log('✅ 업로드 성공, imageUrls=' + JSON.stringify(imageUrls));
 
-            if (!imageUrls || imageUrls.length === 0) {
-                log('⚠️ 서버 응답에 imageUrls 없음');
-                return;
-            }
-
-            const payload = JSON.stringify({
-                messageType: 'IMAGE',
-                imageUrls: imageUrls
-            });
-
+            const payload = JSON.stringify({ messageType: 'IMAGE', imageUrls });
             log('📤 SEND IMAGE to ' + dest + ': ' + payload);
 
             stompClient.send(dest, { 'content-type': 'application/json' }, payload);
 
         } catch (e) {
-            console.error(e);
             log('❌ 이미지 업로드/전송 중 에러: ' + e);
         }
     };
 
     // ---------- SEND READ EVENT ----------
     document.getElementById('sendReadBtn').onclick = () => {
-        if (!stompClient) {
-            return log('⚠️ 아직 CONNECT 안 됨');
-        }
+        if (!stompClient) return log('⚠️ 아직 CONNECT 안 됨');
 
         const roomId = document.getElementById('roomId').value.trim();
         const lastReadIdStr = document.getElementById('lastReadMessageId').value.trim();
         const lastReadId = Number(lastReadIdStr);
 
-        if (!lastReadIdStr || Number.isNaN(lastReadId)) {
-            return log('⚠️ lastReadMessageId가 올바르지 않음');
-        }
+        if (!lastReadIdStr || Number.isNaN(lastReadId)) return log('⚠️ lastReadMessageId가 올바르지 않음');
 
         const dest = '/pub/chat/rooms/' + roomId + '/read';
-
-        const payload = JSON.stringify({
-            lastMessageId: lastReadId   // 서버에서 이 기준으로 READ 처리 + READ 이벤트 쏴줌
-        });
+        const payload = JSON.stringify({ lastMessageId: lastReadId });
 
         log('📤 SEND READ EVENT to ' + dest + ': ' + payload);
-
         stompClient.send(dest, { 'content-type': 'application/json' }, payload);
+    };
+
+    // ---------- CREATE CHANGE REQUEST (REST) ----------
+    document.getElementById('sendChangeReqBtn').onclick = async () => {
+        const reservationId = document.getElementById('reservationId').value.trim();
+        const roomId = document.getElementById('roomId').value.trim();
+        const includeRoomId = document.getElementById('includeRoomId').checked;
+
+        const proposedDate = document.getElementById('proposedDate').value.trim();       // "2025-12-13"
+        const proposedStartTime = document.getElementById('proposedStartTime').value.trim(); // "13:30"
+        const reason = document.getElementById('reason').value;
+
+        // request DTO (너가 쓰는 ReservationChangeCreateRequest 기준)
+        const body = {
+            proposedDate: proposedDate,
+            proposedStartTime: proposedStartTime,
+            reason: reason
+        };
+
+        // ---- 너희 controller path에 맞게 조정 ----
+        // 예: POST /api/reservations/{reservationId}/changes?roomId=1
+        let url = `${CHANGE_API_BASE}/${reservationId}/changes`;
+        if (includeRoomId && roomId) url += `?roomId=${encodeURIComponent(roomId)}`;
+        // ----------------------------------------
+
+        log('📤 [REST] CREATE CHANGE REQUEST');
+        log('URL=' + url);
+        log('BODY=' + JSON.stringify(body));
+
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    ...authHeader(),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            });
+
+            const text = await res.text();
+            log('📥 [REST] status=' + res.status);
+            log('📥 [REST] body=' + text);
+
+            // 여기서 중요한 건:
+            // REST 응답이 SimpleMessage여도 상관없고,
+            // 서버가 SimpMessagingTemplate로 /sub/chat/rooms/{roomId} 브로드캐스트를 쏘면
+            // 위 subscribe 로그에서 [RESERVATION]으로 찍혀야 함.
+
+        } catch (e) {
+            log('❌ [REST] error=' + e);
+        }
     };
 </script>
 

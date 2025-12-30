@@ -1,5 +1,6 @@
 package modelly.modelly_be.domain.chat.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import modelly.modelly_be.domain.chat.entity.Chatting;
@@ -20,6 +21,7 @@ public class SendMessageResponse {
     private List<String> imageUrls;
     private LocalDateTime createdAt;
 
+    @JsonProperty("isRead")
     private boolean isRead;
 
     public static SendMessageResponse of(Chatting chatting, List<ChattingImage> images) {

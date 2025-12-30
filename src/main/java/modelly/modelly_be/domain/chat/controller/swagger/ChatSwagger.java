@@ -6,6 +6,7 @@ import modelly.modelly_be.domain.chat.dto.request.OpenRoomRequest;
 import modelly.modelly_be.domain.chat.dto.response.ChatRoomDetailResponse;
 import modelly.modelly_be.domain.chat.dto.response.ChatRoomListResponse;
 import modelly.modelly_be.domain.chat.dto.response.OpenRoomResponse;
+import modelly.modelly_be.domain.reservation.dto.response.ChatRoomReservationSummaryResponse;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.s3.PresignedUploadResponse;
 import modelly.modelly_be.global.security.AuthDetails;
@@ -154,6 +155,40 @@ public interface ChatSwagger {
             @PathVariable Long roomId,
             @RequestParam(required = false) Long cursorMessageId,
             @RequestParam(defaultValue = "20") int size
+    );
+
+    @Operation(
+            summary = "채팅방 예약 요약 조회",
+            description = """
+                    ### 채팅방에 연결된 '다가오는 예약(확정 상태)' 요약 정보를 조회하는 API입니다. \n
+                    - 채팅방(roomId) 기준으로 해당 채팅방의 모델/디자이너 pair에 해당하는 예약 중 \n
+                      **가장 가까운 미래 예약(RESERVATION_CONFIRMED)** 1건을 찾아 반환합니다. \n
+                    - 예약이 없으면 `hasReservation=false`, `summary=null` 로 반환됩니다. \n
+                    \n
+                    ---\n
+                    ### Path Variable\n
+                    - `roomId` : 채팅방 ID\n
+                    \n
+                    ---\n
+                    ### Response\n
+                    - `hasReservation` : 예약 존재 여부\n
+                    - `summary` : 예약 요약 정보 (없으면 null)\n
+                      - `recruitmentId` : 연결된 공고 ID (nullable)\n
+                      - `recruitmentTitle` : 공고 제목 (nullable)\n
+                      - `date` : 예약 날짜 (yyyy-MM-dd)\n
+                      - `startTime` : 시작 시간 (HH:mm)\n
+                      - `endTime` : 종료 시간 (HH:mm)\n
+                      - `opponentUserId` : 상대방 userId\n
+                      - `opponentName` : 상대방 표시 이름\n
+                    \n
+                    ---\n
+                    ✅ 권한\n
+                    - 해당 채팅방 참가자만 조회 가능합니다.\n
+                    """
+    )
+    ApiResponse<ChatRoomReservationSummaryResponse> getRoomReservation(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long roomId
     );
 
 }
