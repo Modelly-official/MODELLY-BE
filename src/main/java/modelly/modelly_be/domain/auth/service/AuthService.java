@@ -80,6 +80,8 @@ public class AuthService {
                 .permission(Permission.USER)
                 .build();
 
+        user.createNotificationSetting();
+
         userRepository.save(user);
 
         // Designer, Model 정보 받아옴
@@ -430,6 +432,8 @@ public class AuthService {
                     .userRole(null)
                     .permission(Permission.USER)
                     .build();
+
+            user.createNotificationSetting();
 
             userRepository.save(user);
         }
