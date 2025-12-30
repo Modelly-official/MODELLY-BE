@@ -21,7 +21,6 @@ import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.listener.dto.S3FolderDeleteEvent;
-import modelly.modelly_be.global.s3.S3Uploader;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +50,7 @@ public class DesignerRecruitmentService {
         Recruitment recruitment = Recruitment.builder()
                 .designer(designer)
                 .title(recruitmentRequestDto.title())
-                .category(recruitmentRequestDto.category())
+                .category(designer.getCategory())
                 .notice(recruitmentRequestDto.notice())
                 .content(recruitmentRequestDto.content())
                 .goal1(recruitmentRequestDto.goal1())
@@ -70,7 +69,7 @@ public class DesignerRecruitmentService {
 
         if (recruitmentRequestDto.subCategoryList() != null
                 && !recruitmentRequestDto.subCategoryList().isEmpty()) {
-            updateSubCategory(recruitment, recruitmentRequestDto.category(), recruitmentRequestDto.subCategoryList());
+            updateSubCategory(recruitment, designer.getCategory(), recruitmentRequestDto.subCategoryList());
         }
 
         recruitmentService.save(recruitment);

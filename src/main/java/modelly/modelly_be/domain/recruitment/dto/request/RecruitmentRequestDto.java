@@ -16,9 +16,6 @@ public record RecruitmentRequestDto(
         @Schema(description = "공고 스케줄")
         @NotNull(message = "하나 이상은 필수입니다.")
         List<RecruitmentSchedule> recruitmentSchedule,
-        @Schema(description = "카테고리", example = "HAIR, NAIL, TATTOO, EYELASH 중 택1")
-        @NotNull(message = "카테고리는 필수입니다.")
-        Category category,
         @Schema(description = "세부 카테고리")
         @NotNull(message = "하나 이상은 필수입니다.")
         List<SubCategory> subCategoryList,
