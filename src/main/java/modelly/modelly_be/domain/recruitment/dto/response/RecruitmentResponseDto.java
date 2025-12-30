@@ -24,10 +24,6 @@ public record RecruitmentResponseDto(
         String notice,
         @Schema(description = "모델 목적1", example = "포트폴리오를 위해서")
         String goal1,
-        @Schema(description = "모델 목적2", example = "포트폴리오를 위해서")
-        String goal2,
-        @Schema(description = "모델 목적3", example = "포트폴리오를 위해서")
-        String goal3,
         @Schema(description = "공고 썸네일")
         String thumbnail,
         @Schema(description = "공고 이미지 URL 목록")
@@ -68,8 +64,6 @@ public record RecruitmentResponseDto(
                 recruitment.getContent(),
                 recruitment.getNotice(),
                 recruitment.getGoal1(),
-                recruitment.getGoal2(),
-                recruitment.getGoal3(),
                 recruitment.getThumbnail(),
                 imageUrls,
                 recruitment.isAgreeVideo(),

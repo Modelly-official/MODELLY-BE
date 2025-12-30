@@ -288,6 +288,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                 qRecruitment.id,
                 qRecruitment.title,
                 dateRangeExpression,
+                qRecruitment.thumbnail,
                 reviewCountExpression,
                         // 2. 평균 평점 계산 서브쿼리 (null일 경우 0.0 처리)
                         ExpressionUtils.as(
