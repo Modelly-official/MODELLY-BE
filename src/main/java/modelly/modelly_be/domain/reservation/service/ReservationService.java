@@ -3,8 +3,6 @@ package modelly.modelly_be.domain.reservation.service;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.chat.dto.response.*;
 import modelly.modelly_be.domain.chat.entity.ChatRoom;
-import modelly.modelly_be.domain.chat.entity.Chatting;
-import modelly.modelly_be.domain.chat.entity.enums.MessageType;
 import modelly.modelly_be.domain.chat.service.ChatRoomService;
 import modelly.modelly_be.domain.chat.service.ChattingService;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
@@ -12,8 +10,7 @@ import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationCancelRequest;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationChangeCreateRequest;
-import modelly.modelly_be.domain.reservation.dto.response.ChatRoomReservationSummary;
-import modelly.modelly_be.domain.reservation.dto.response.ReservationChangeCreateResponse;
+import modelly.modelly_be.domain.reservation.dto.internal.ChatRoomReservationSummary;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.entity.ReservationChange;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationChangeStatus;
@@ -23,11 +20,9 @@ import modelly.modelly_be.domain.reservation.repository.ReservationRepository;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
-import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @Service
@@ -245,7 +241,7 @@ public class ReservationService {
         }
 
         // pending change 슬롯 겹침 방지
-        boolean pendingConflict = reservationChangeRepository.existsPendingOnSlot(
+        boolean pendingConflict = reservationChangeRepository.existsByReservation_Designer_IdAndStatusAndProposedDateAndProposedStartTime(
                 designerId,
                 ReservationChangeStatus.PENDING,
                 req.proposedDate(),
@@ -664,4 +660,14 @@ public class ReservationService {
         return new SimpleMessageDTO("기존 예약 일정으로 진행합니다.");
     }
 
+    public YearMonth parseYearMonthOrNow(String month) {
+        if (month == null || month.isBlank()) {
+            return YearMonth.now(KST);
+        }
+        try {
+            return YearMonth.parse(month);
+        } catch (DateTimeParseException e) {
+            throw new GeneralException(ErrorStatus.MONTH_BAD_REQUEST);
+        }
+    }
 }

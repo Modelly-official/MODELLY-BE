@@ -31,7 +31,6 @@ public class ReservationController implements ReservationSwagger {
     private final ModelReservationService modelReservationService;
     private final DesignerReservationService designerReservationService;
     private final RecruitmentService recruitmentService;
-    private final ModelService modelService;
 
     /* ---------- 모델/디자이너 공통 API ---------- */
 
@@ -54,7 +53,7 @@ public class ReservationController implements ReservationSwagger {
     }
 
     // 예약 변경 요청 수락
-    @PostMapping("reservations/changes/{reservationChangeId}/accept")
+    @PostMapping("/reservations/changes/{reservationChangeId}/accept")
     public ApiResponse<SimpleMessageDTO> acceptReservationChange(
             @AuthenticationPrincipal AuthDetails auth,
             @PathVariable Long reservationChangeId
@@ -131,7 +130,6 @@ public class ReservationController implements ReservationSwagger {
             @RequestParam Long recruitmentId,
             @RequestParam(required = false) String month
     ) {
-        modelService.checkModel(auth.user());
         return ApiResponse.onSuccess(recruitmentService.getAvailableSchedules(recruitmentId, month));
     }
 

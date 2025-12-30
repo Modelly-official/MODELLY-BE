@@ -28,7 +28,7 @@ import static modelly.modelly_be.domain.review.entity.QReview.review;
 
 @Repository
 @RequiredArgsConstructor
-public class ReservationRepositoryImpl implements ReservationQueryRepository {
+public class ReservationQueryRepositoryImpl implements ReservationQueryRepository {
 
     private final JPAQueryFactory queryFactory;
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
@@ -385,6 +385,5 @@ public class ReservationRepositoryImpl implements ReservationQueryRepository {
                 .where(reservation.id.in(reservationIds))
                 .fetch();
     }
-
 
 }

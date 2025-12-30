@@ -12,6 +12,7 @@ import modelly.modelly_be.domain.chat.entity.ChatRoom;
 import modelly.modelly_be.domain.chat.entity.Chatting;
 import modelly.modelly_be.domain.chat.entity.ChattingImage;
 import modelly.modelly_be.domain.chat.entity.enums.MessageType;
+import modelly.modelly_be.domain.chat.event.ChatBroadcastEvent;
 import modelly.modelly_be.domain.chat.repository.ChatRoomRepository;
 import modelly.modelly_be.domain.chat.repository.ChattingImageRepository;
 import modelly.modelly_be.domain.chat.repository.ChattingRepository;
@@ -19,6 +20,7 @@ import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.repository.UserRepository;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -41,6 +43,7 @@ public class ChattingService {
     private final ChattingImageRepository chattingImageRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final ObjectMapper objectMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     // 메세지 보내기(DB 저장)
     @Transactional
@@ -230,8 +233,8 @@ public class ChattingService {
 
         SendMessageResponse response = SendMessageResponse.of(saved, List.of());
 
-        // 브로드캐스트
-        messagingTemplate.convertAndSend("/sub/chat/rooms/" + roomId, response);
+        // 트랜잭션 커밋 이후 브로드캐스트 되게 이벤트 생성
+        eventPublisher.publishEvent(new ChatBroadcastEvent(roomId, response));
 
         return response;
     }
@@ -277,7 +280,9 @@ public class ChattingService {
         );
 
         SendMessageResponse response = SendMessageResponse.of(saved, List.of());
-        messagingTemplate.convertAndSend("/sub/chat/rooms/" + roomId, response);
+
+        // 트랜잭션 커밋 이후 브로드캐스트 되게 이벤트 생성
+        eventPublisher.publishEvent(new ChatBroadcastEvent(roomId, response));
 
         return response;
     }

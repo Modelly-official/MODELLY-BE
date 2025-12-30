@@ -66,7 +66,11 @@ public class DesignerService {
 
     // lock 조회용
     public Designer getByIdForUpdate(Long designerId) {
-        return designerRepository.findByIdForUpdate(designerId);
+        Designer designer = designerRepository.findByIdForUpdate(designerId);
+        if (designer == null) {
+            throw new GeneralException(ErrorStatus.NOT_FOUND_DESIGNER);
+        }
+        return designer;
     }
 
     public List<ShopResponse> getShopList(Long userId, Category category, int size, Coordinate coordinate){

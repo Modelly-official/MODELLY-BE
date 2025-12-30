@@ -8,8 +8,6 @@ import modelly.modelly_be.domain.reservation.repository.ReservationQueryReposito
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.service.DesignerService;
-import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
-import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.SubCategory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +17,7 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -32,6 +31,7 @@ public class DesignerReservationService {
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
+    private final ReservationService reservationService;
 
     @Transactional(readOnly = true)
     public ReservationScrollResponse<DesignerReservationItem> getDesignerReservations(
@@ -46,7 +46,7 @@ public class DesignerReservationService {
         // 권한/대상
         Designer designer = designerService.getByUser(user);
 
-        YearMonth ym = parseYearMonthOrNow(month);
+        YearMonth ym = reservationService.parseYearMonthOrNow(month);
 
         LocalTime cursorTimeParsed = (cursorTime == null || cursorTime.isBlank())
                 ? null
@@ -117,16 +117,5 @@ public class DesignerReservationService {
                 nextTime,
                 nextId
         );
-    }
-
-    private YearMonth parseYearMonthOrNow(String month) {
-        if (month == null || month.isBlank()) {
-            return YearMonth.now(KST);
-        }
-        try {
-            return YearMonth.parse(month);
-        } catch (Exception e) {
-            throw new GeneralException(ErrorStatus.MONTH_BAD_REQUEST);
-        }
     }
 }

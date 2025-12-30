@@ -1,4 +1,4 @@
-package modelly.modelly_be.domain.reservation.dto.response;
+package modelly.modelly_be.domain.reservation.dto.internal;
 
 import java.time.LocalDate;
 

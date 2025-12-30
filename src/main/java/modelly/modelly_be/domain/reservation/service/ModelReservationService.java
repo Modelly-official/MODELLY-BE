@@ -15,7 +15,6 @@ import modelly.modelly_be.domain.reservation.repository.ReservationQueryReposito
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
-import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.domain.user.service.ModelService;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
@@ -55,8 +54,6 @@ public class ModelReservationService {
         Recruitment recruitment = recruitmentService.getById(req.recruitmentId());
         Designer designer = recruitment.getDesigner();
 
-        // HH:mm 형식으로 포맷팅 후 parsing
-        DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
         LocalDate date = req.date();
         LocalTime start = LocalTime.parse(req.startTime(), HM);
         LocalTime end = start.plusMinutes(30);
@@ -110,8 +107,8 @@ public class ModelReservationService {
         modelService.checkModel(user);
         Model model = modelService.getModelByUser(user);
 
-        // month 파싱 (아래 유틸 참고)
-        YearMonth ym = parseYearMonthOrNow(month);
+        // month 파싱 (reservationService 유틸 참고)
+        YearMonth ym = reservationService.parseYearMonthOrNow(month);
 
         // cursorTime(String)을 LocalTime으로 변환
         LocalTime cursorTimeParsed = (cursorTime == null || cursorTime.isBlank())
@@ -204,7 +201,7 @@ public class ModelReservationService {
         modelService.checkModel(user);
         Model model = modelService.getModelByUser(user);
 
-        YearMonth ym = parseYearMonthOrNow(month);
+        YearMonth ym = reservationService.parseYearMonthOrNow(month);
 
         LocalTime cursorTimeParsed = (cursorTime == null || cursorTime.isBlank())
                 ? null
@@ -269,22 +266,11 @@ public class ModelReservationService {
         if (hasNext && !items.isEmpty()) {
             ModelReservationItem last = items.get(items.size() - 1);
             nextDate = last.date();
-            nextTime = last.startTime(); // ✅ 커서는 정렬키(startTime)
+            nextTime = last.startTime();
             nextId = last.reservationId();
         }
 
         return new ReservationScrollResponse<>(items, totalCount, hasNext, nextDate, nextTime, nextId);
     }
 
-    // month 파싱
-    private YearMonth parseYearMonthOrNow(String month) {
-        if (month == null || month.isBlank()) {
-            return YearMonth.now(KST);
-        }
-        try {
-            return YearMonth.parse(month);
-        } catch (Exception e) {
-            throw new GeneralException(ErrorStatus.MONTH_BAD_REQUEST);
-        }
-    }
 }

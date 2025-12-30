@@ -6,7 +6,7 @@ import modelly.modelly_be.domain.chat.dto.request.OpenRoomRequest;
 import modelly.modelly_be.domain.chat.dto.response.*;
 import modelly.modelly_be.domain.chat.service.ChatRoomService;
 import modelly.modelly_be.domain.chat.service.ChattingService;
-import modelly.modelly_be.domain.reservation.dto.response.ChatRoomReservationSummary;
+import modelly.modelly_be.domain.reservation.dto.internal.ChatRoomReservationSummary;
 import modelly.modelly_be.domain.reservation.dto.response.ChatRoomReservationSummaryResponse;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor

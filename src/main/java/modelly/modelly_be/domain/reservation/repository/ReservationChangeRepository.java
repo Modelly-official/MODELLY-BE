@@ -15,19 +15,10 @@ public interface ReservationChangeRepository extends JpaRepository<ReservationCh
     boolean existsByReservation_IdAndStatus(Long reservationId, ReservationChangeStatus status);
 
     // 해당 디자이너의 reservation time이 pending 상태인지 확인
-    @Query("""
-        select (count(rc) > 0)
-        from ReservationChange rc
-        join rc.reservation r
-        where r.designer.id = :designerId
-          and rc.status = :status
-          and rc.proposedDate = :date
-          and rc.proposedStartTime = :startTime
-    """)
-    boolean existsPendingOnSlot(
-            @Param("designerId") Long designerId,
-            @Param("status") ReservationChangeStatus status,
-            @Param("date") LocalDate date,
-            @Param("startTime") LocalTime startTime
+    boolean existsByReservation_Designer_IdAndStatusAndProposedDateAndProposedStartTime(
+            Long designerId,
+            ReservationChangeStatus status,
+            LocalDate date,
+            LocalTime startTime
     );
 }

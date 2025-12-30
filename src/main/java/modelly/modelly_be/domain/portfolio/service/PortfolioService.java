@@ -9,6 +9,7 @@ import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class PortfolioService {
 
     private final PortfolioRepository portfolioRepository;
 
+    @Transactional
     public void save(Portfolio portfolio) {
         portfolioRepository.save(portfolio);
     }
@@ -32,10 +34,12 @@ public class PortfolioService {
                 .orElseThrow(()-> new GeneralException(ErrorStatus.NOT_FOUND_PORTFOLIO));
     }
 
+    @Transactional
     public void deletePortfolio(Portfolio portfolio) {
         portfolioRepository.delete(portfolio);
     }
 
+    @Transactional(readOnly = true)
     public List<PortfolioListResponse> getAllPortfolios(Designer designer, Pageable pageable, Long cursorId) {
         return portfolioRepository.findAllByDesigner(designer, pageable, cursorId);
     }
