@@ -160,7 +160,7 @@ public interface ReservationSwagger {
                     ---\n
                     ### 채팅\n
                     - `MessageType.RESERVATION` + JSON payload(eventType=`CHANGE_REJECTED`)로 전송합니다.\n
-                    - payload에는 eventType + 안내 문구(message)만 포함합니다.\n
+                    - payload에는 eventType + 안내 문구만 포함합니다.\n
                     \n
                     ---\n
                     ✅ 권한\n

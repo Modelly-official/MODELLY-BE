@@ -41,8 +41,7 @@ public interface WebSocketSwagger {
                     }
 
                     📝 예시 요청 (이미지)
-                    1) 먼저 REST API로 업로드:
-                       POST /api/chat/rooms/{roomId}/images  
+                    1) POST /presigned-url/chats/{roomID} 를 통해 s3에 이미지 업로드
                     2) 응답받은 S3 URL 배열을 imageUrls에 포함해 전송
 
                     {
@@ -171,7 +170,7 @@ public interface WebSocketSwagger {
                     - date: "yyyy-MM-dd"            (기존 예약 일정)\n
                     - startTime: "HH:mm"\n
                     - endTime: "HH:mm"\n
-                    - message: String               (안내 문구)\n
+                    - notice: String               (안내 문구)\n
                     \n
                     📝 예시 payload(JSON)\n
                     {\n
@@ -181,7 +180,7 @@ public interface WebSocketSwagger {
                       "date": "2025-12-30",\n
                       "startTime": "13:00",\n
                       "endTime": "13:30",\n
-                      "message": "변경 요청이 취소되었습니다."\n
+                      "notice": "변경 요청이 취소되었습니다."\n
                     }\n
                     """
     )
@@ -198,12 +197,14 @@ public interface WebSocketSwagger {
                     \n
                     ✅ message(payload) JSON 스키마\n
                     - eventType: "CHANGE_REJECTED"\n
-                    - message: String (안내 문구)\n
+                    - reservationChangeId: Long\n
+                    - notice: String (안내 문구)\n
                     \n
                     📝 예시 payload(JSON)\n
                     {\n
                       "eventType": "CHANGE_REJECTED",\n
-                      "message": "예약 일정 변경 요청이 거절되었습니다. 기존 예약 일정 진행 여부를 선택해주세요."\n
+                      "reservationChangeId": 10,\n
+                      "notice": "예약 일정 변경 요청이 거절되었습니다. 기존 예약 일정 진행 여부를 선택해주세요."\n
                     }\n
                     """
     )
