@@ -41,12 +41,27 @@ public class Designer extends BaseEntity {
     @Column(name = "instagram_id", length = 50)                                     // VARCHAR(20)
     private String instagramId;
 
+    @Column(name = "intro", length = 100, nullable = false)                                     // VARCHAR(20)
+    private String intro;
+
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
     @Builder
-    public Designer(String shop, String addressLine1, String addressLine2,Double latitude, Double longitude,Category category, Long chemistryScore, String nickname, String instagramId, User user) {
+    public Designer(
+            String shop,
+            String addressLine1,
+            String addressLine2,
+            Double latitude,
+            Double longitude,
+            Category category,
+            Long chemistryScore,
+            String nickname,
+            String instagramId,
+            String intro,
+            User user
+    ) {
         this.shop = shop;
         this.addressLine1 = addressLine1;
         this.addressLine2 = addressLine2;
@@ -56,6 +71,7 @@ public class Designer extends BaseEntity {
         this.chemistryScore = chemistryScore;
         this.nickname = nickname;
         this.instagramId = instagramId;
+        this.intro = intro;
         this.user = user;
     }
 }
