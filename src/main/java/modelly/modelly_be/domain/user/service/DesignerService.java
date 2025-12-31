@@ -34,18 +34,18 @@ public class DesignerService {
 
         switch (sortOption) {
             case NEWEST:
-                designerListResponseDtoList = designerRepository.findDesignersByCreatedAt(userId,searchCondition, cursorId, size);
+                designerListResponseDtoList = designerRepository.findDesignersByCreatedAt(userId,searchCondition, cursorId, size, userCoordinate);
                 break;
             case MOST_REVIEWS:
                 Long cursorReviewCount = cursorInformation.cursorReviewCount();
-                designerListResponseDtoList = designerRepository.findDesignersByReviews(userId,searchCondition,cursorId,cursorReviewCount,size);
+                designerListResponseDtoList = designerRepository.findDesignersByReviews(userId,searchCondition,cursorId,cursorReviewCount,size, userCoordinate);
                 break;
             case DISTANCE:
                 Double cursorDistance = cursorInformation.cursorDistance();
                 designerListResponseDtoList = designerRepository.findDesignersByDistance(userId, searchCondition, cursorId, cursorDistance, size, userCoordinate);
                 break;
             default:
-                designerListResponseDtoList = designerRepository.findDesignersByCreatedAt(userId,searchCondition, cursorId, size);
+                designerListResponseDtoList = designerRepository.findDesignersByCreatedAt(userId,searchCondition, cursorId, size, userCoordinate);
                 break;
 
         }

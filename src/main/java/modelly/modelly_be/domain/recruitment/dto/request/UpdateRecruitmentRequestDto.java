@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.recruitment.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentSchedule;
 import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.global.entity.Category;
@@ -12,14 +13,17 @@ public record UpdateRecruitmentRequestDto(
         String title,
         @Schema(description = "공고 스케줄")
         List<RecruitmentSchedule> recruitmentSchedule,
-        @Schema(description = "카테고리", example = "HAIR, NAIL, TATTOO, EYELASH 중 택1")
-        Category category,
         @Schema(description = "세부 카테고리")
         List<SubCategory> subCategoryList,
         @Schema(description = "공고 내용", example = "시스루펌, 레이어드펌을 공짜로 받으실 헤어모델 모집합니다!")
+        @NotBlank(message = "공고 내용은 필수입니다.")
         String content,
-        @Schema(description = "전달사항", example = "머리 길이 어깨위로 올라오시는 분만 구합니다.")
+        @Schema(description = "전달 사항", example = "헤어가 잘 보일 수 있도록 밝은 색상의 상의 착용 부탁드립니다.")
+        @NotBlank(message = "전달 사항은 필수입니다")
         String notice,
+        @Schema(description = "제한 사항", example = "머리 길이 어깨위로 올라오시는 분만 구합니다.")
+        @NotBlank(message = "제한 사항은 필수입니다")
+        String restriction,
         @Schema(description = "모델 목적1", example = "포트폴리오를 위해서")
         String goal1,
         @Schema(description = "공고 썸네일")

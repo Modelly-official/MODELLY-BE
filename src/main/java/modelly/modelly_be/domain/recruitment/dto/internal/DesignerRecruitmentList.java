@@ -1,8 +1,7 @@
-package modelly.modelly_be.domain.recruitment.dto.response;
+package modelly.modelly_be.domain.recruitment.dto.internal;
 
 
-
-public record DesignerRecruitmentListResponseDto(
+public record DesignerRecruitmentList(
         Long recruitmentId,
         String title,
         String period,
