@@ -88,18 +88,18 @@ public class RecruitmentService {
 
         switch (sortOption){
             case NEWEST:
-                recruitmentBasics = recruitmentRepository.findRecruitmentsByCreatedAt(userId,searchCondition, cursorId,size);
+                recruitmentBasics = recruitmentRepository.findRecruitmentsByCreatedAt(userId,searchCondition, cursorId, size, userCoordinate);
                 break;
             case MOST_REVIEWS:
                 Long cursorReviewCount = cursorInformation.cursorReviewCount() == null ? null : cursorInformation.cursorReviewCount();
-                recruitmentBasics = recruitmentRepository.findRecruitmentsByReviews(userId,searchCondition, cursorId, cursorReviewCount,size);
+                recruitmentBasics = recruitmentRepository.findRecruitmentsByReviews(userId,searchCondition, cursorId, cursorReviewCount, size, userCoordinate);
                 break;
             case DISTANCE:
                 Double cursorDistance = cursorInformation.cursorDistance() == null ? null : cursorInformation.cursorDistance();
                 recruitmentBasics = recruitmentRepository.findRecruitmentsByDistance(userId,searchCondition, cursorId, cursorDistance,size, userCoordinate);
                 break;
             default:
-               recruitmentBasics = recruitmentRepository.findRecruitmentsByCreatedAt(userId,searchCondition, cursorId,size);
+               recruitmentBasics = recruitmentRepository.findRecruitmentsByCreatedAt(userId,searchCondition, cursorId, size, userCoordinate);
                break;
         }
 
@@ -127,7 +127,7 @@ public class RecruitmentService {
                             basic.category().getDescription(),
                             subCategories,
                             basic.reviewCount(),
-                            basic.distance(),
+                            basic.distance() == 0.0? null: basic.distance(),
                             basic.isLiked(),
                             basic.createdAt(),
                             basic.averageRating()

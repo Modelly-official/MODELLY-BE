@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.recruitment.repository.recruitmentRepository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.JPAExpressions;
@@ -33,97 +34,29 @@ import java.util.stream.Collectors;
 public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
-    private BooleanBuilder buildCommonWhere(SearchCondition cond) {
-        QRecruitment r = QRecruitment.recruitment;
-        BooleanBuilder b = new BooleanBuilder();
-
-        if (cond.keyword() != null && !cond.keyword().isBlank()) {
-            b.and(r.title.contains(cond.keyword())
-                    .or(r.content.contains(cond.keyword())));
-        }
-        if (cond.category() != null) {
-            b.and(r.category.eq(cond.category()));
-            if (cond.subCategory() != null) {
-                b.and(r.subCategoryList.any().in(cond.subCategory()));
-            }
-        }
-
-        // 기타 조건 추가: 날짜 필터 등
-
-        return b;
-    }
+    private static final QRecruitment qRecruitment = QRecruitment.recruitment;
+    private static final QDesigner qDesigner = QDesigner.designer;
+    private static final QRecruitmentLike qRecruitmentLike = QRecruitmentLike.recruitmentLike;
+    private static final QReview qReview = QReview.review;
+    private static final QRecruitmentDate qRecruitmentDate = QRecruitmentDate.recruitmentDate;
 
     @Override
-    public List<RecruitmentBasic> findRecruitmentsByCreatedAt(Long userId, SearchCondition searchCondition, Long cursorId, int size) {
-        QRecruitment qRecruitment = QRecruitment.recruitment;
-        QDesigner qDesigner = QDesigner.designer;
-        QRecruitmentLike qRecruitmentLike = QRecruitmentLike.recruitmentLike;
-        QReview qReview = QReview.review;
+    public List<RecruitmentBasic> findRecruitmentsByCreatedAt(Long userId, SearchCondition searchCondition, Long cursorId, int size, Coordinate userCoordinate) {
 
         BooleanBuilder booleanBuilder = buildCommonWhere(searchCondition);
         if (cursorId != null) {
             booleanBuilder.and(qRecruitment.id.lt(cursorId));
         }
 
-        NumberPath<Long> reviewCount = Expressions.numberPath(Long.class, "reviewCount");
-        JPQLSubQuery<Long> reviewCountSubQuery=JPAExpressions
-                .select(qReview.count())
-                .from(qReview)
-                .where(qReview.designer.eq(qRecruitment.designer));
-
-        NumberExpression<Long> reviewCountExpression = Expressions.asNumber(ExpressionUtils.as(reviewCountSubQuery, reviewCount));
-
-        List<RecruitmentBasic> dtos = queryFactory
-                .select(Projections.constructor(
-                        RecruitmentBasic.class,
-                        qRecruitment.id,
-                        qRecruitment.title,
-                        qDesigner.user.imageUrl,
-                        qDesigner.nickname,
-                        qRecruitment.thumbnail,
-                        qDesigner.shop,
-                        qDesigner.addressLine1,
-                        qRecruitment.category,
-                        reviewCountExpression,
-                        Expressions.nullExpression(Double.class),
-                        qRecruitmentLike.id.isNotNull(),
-                        qRecruitment.createdAt,
-                        // 2. 평균 평점 계산 서브쿼리 (null일 경우 0.0 처리)
-                        ExpressionUtils.as(
-                                JPAExpressions.select(qReview.rating.avg().coalesce(0.0))
-                                        .from(qReview)
-                                        .where(qReview.designer.eq(qDesigner)),
-                                "averageRating"
-                        )
-                ))
-                .from(qRecruitment)
-                .join(qRecruitment.designer, qDesigner)
-                .leftJoin(qRecruitmentLike).on(qRecruitmentLike.recruitment.id.eq(qRecruitment.id)
-                        .and(userId != null ? qRecruitmentLike.model.user.id.eq(userId) : null)) //userId가 not null일때만
-                .where(booleanBuilder)
-                .orderBy(qRecruitment.createdAt.desc(), qRecruitment.id.desc())
-                .limit(size+1)
-                .fetch();
-
-        return dtos;
+        return fetchRecruitmentList(userId, booleanBuilder, userCoordinate, size, qRecruitment.id.desc());
     }
 
     @Override
-    public List<RecruitmentBasic> findRecruitmentsByReviews(Long userId, SearchCondition searchCondition, Long cursorId, Long cursorReviewCount, int size) {
-        QRecruitment qRecruitment = QRecruitment.recruitment;
-        QDesigner qDesigner = QDesigner.designer;
-        QRecruitmentLike qRecruitmentLike = QRecruitmentLike.recruitmentLike;
-        QReview qReview = QReview.review;
+    public List<RecruitmentBasic> findRecruitmentsByReviews(Long userId, SearchCondition searchCondition, Long cursorId, Long cursorReviewCount, int size, Coordinate userCoordinate) {
 
         BooleanBuilder booleanBuilder = buildCommonWhere(searchCondition);
 
-        NumberPath<Long> reviewCount = Expressions.numberPath(Long.class, "reviewCount");
-        JPQLSubQuery<Long> reviewCountSubQuery=JPAExpressions
-                .select(qReview.count())
-                .from(qReview)
-                .where(qReview.designer.eq(qRecruitment.designer));
-
-        NumberExpression<Long> reviewCountExpression = Expressions.asNumber(ExpressionUtils.as(reviewCountSubQuery, reviewCount));
+        NumberExpression<Long> reviewCount = Expressions.asNumber(getReviewCountSubQuery());
 
         if (cursorId != null && cursorReviewCount != null) {
             booleanBuilder.and(
@@ -133,72 +66,15 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
             );
         }
 
-        List<RecruitmentBasic> dtos = queryFactory
-                .select(Projections.constructor(
-                        RecruitmentBasic.class,
-                        qRecruitment.id,
-                        qRecruitment.title,
-                        qDesigner.user.imageUrl,
-                        qDesigner.nickname,
-                        qRecruitment.thumbnail,
-                        qDesigner.shop,
-                        qDesigner.addressLine1,
-                        qRecruitment.category,
-                        reviewCountExpression,
-                        Expressions.nullExpression(Double.class),
-                        qRecruitmentLike.id.isNotNull(),
-                        qRecruitment.createdAt,
-                        // 2. 평균 평점 계산 서브쿼리 (null일 경우 0.0 처리)
-                        ExpressionUtils.as(
-                                JPAExpressions.select(qReview.rating.avg().coalesce(0.0))
-                                        .from(qReview)
-                                        .where(qReview.designer.eq(qDesigner)),
-                                "averageRating"
-                        )
-                ))
-                .from(qRecruitment)
-                .join(qRecruitment.designer, qDesigner)
-                .leftJoin(qRecruitmentLike).on(qRecruitmentLike.recruitment.id.eq(qRecruitment.id)
-                        .and(userId != null ? qRecruitmentLike.model.user.id.eq(userId) : null)) //userId가 not null일때만
-                .where(booleanBuilder)
-                .orderBy(reviewCount.desc(), qRecruitment.id.desc())
-                .limit(size+1)
-                .fetch();
-
-        return dtos;
+        return fetchRecruitmentList(userId, booleanBuilder, null, size, reviewCount.desc());
     }
 
     @Override
     public List<RecruitmentBasic> findRecruitmentsByDistance(Long userId, SearchCondition searchCondition, Long cursorId, Double cursorDistance, int size, Coordinate userCoordinate) {
-        QRecruitment qRecruitment = QRecruitment.recruitment;
-        QDesigner qDesigner = QDesigner.designer;
-        QRecruitmentLike qRecruitmentLike = QRecruitmentLike.recruitmentLike;
-        QReview qReview = QReview.review;
 
         BooleanBuilder booleanBuilder = buildCommonWhere(searchCondition);
 
-        if (userCoordinate == null || userCoordinate.latitude() == null || userCoordinate.longitude() == null) {
-            throw new IllegalArgumentException("거리 정렬 시 사용자 좌표 필요");
-        }
-
-        NumberPath<Long> reviewCount = Expressions.numberPath(Long.class, "reviewCount");
-        JPQLSubQuery<Long> reviewCountSubQuery=JPAExpressions
-                .select(qReview.count())
-                .from(qReview)
-                .where(qReview.designer.eq(qRecruitment.designer));
-
-        NumberExpression<Long> reviewCountExpression = Expressions.asNumber(ExpressionUtils.as(reviewCountSubQuery, reviewCount));
-
-        // MySQL ST_Distance_Sphere with SRID 4326: 실제 테스트 결과 POINT(latitude, longitude) 순서 사용
-        String pointWkt = String.format("POINT(%f %f)",
-                userCoordinate.latitude(), userCoordinate.longitude());
-
-        NumberExpression<Double> distance = Expressions.numberTemplate(Double.class,
-                "ST_Distance_Sphere(ST_GeomFromText(CONCAT('POINT(', {0}, ' ', {1}, ')'), 4326), ST_GeomFromText({2}, 4326))",
-                qRecruitment.designer.latitude,
-                qRecruitment.designer.longitude,
-                Expressions.constant(pointWkt)
-        );
+        NumberExpression<Double> distance = getDistanceExpression(userCoordinate);
 
         if (cursorId != null && cursorDistance != null) {
             booleanBuilder.and(
@@ -208,48 +84,11 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
             );
         }
 
-        List<RecruitmentBasic> dtos = queryFactory
-                .select(
-                        Projections.constructor(
-                                RecruitmentBasic.class,
-                                qRecruitment.id,
-                                qRecruitment.title,
-                                qDesigner.user.imageUrl,
-                                qDesigner.nickname,
-                                qRecruitment.thumbnail,
-                                qDesigner.shop,
-                                qDesigner.addressLine1,
-                                qRecruitment.category,
-                                reviewCountExpression,
-                                distance,
-                                qRecruitmentLike.id.isNotNull(),
-                                qRecruitment.createdAt,
-                                // 2. 평균 평점 계산 서브쿼리 (null일 경우 0.0 처리)
-                                ExpressionUtils.as(
-                                        JPAExpressions.select(qReview.rating.avg().coalesce(0.0))
-                                                .from(qReview)
-                                                .where(qReview.designer.eq(qDesigner)),
-                                        "averageRating"
-                                )
-                        ))
-                .from(qRecruitment)
-                .join(qRecruitment.designer, qDesigner)
-                .leftJoin(qRecruitmentLike).on(qRecruitmentLike.recruitment.id.eq(qRecruitment.id)
-                        .and(userId != null ? qRecruitmentLike.model.user.id.eq(userId) : null)) //userId가 not null일때만
-                .where(booleanBuilder)
-                .orderBy(distance.asc(), qRecruitment.id.desc())
-                .limit(size+1)
-                .fetch();
-
-        return dtos;
+        return fetchRecruitmentList(userId, booleanBuilder, userCoordinate, size, distance.asc());
     }
 
     @Override
     public List<DesignerRecruitmentListResponseDto> findRecruitmentsByDesignerAndDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId) {
-        QRecruitment qRecruitment = QRecruitment.recruitment;
-        QRecruitmentDate qRecruitmentDate = QRecruitmentDate.recruitmentDate;
-        QReview qReview = QReview.review;
-        QDesigner qDesigner = QDesigner.designer;
 
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         booleanBuilder.and(qRecruitment.designer.id.eq(designer.getId()));
@@ -309,7 +148,6 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
 
     @Override
     public Map<Long, Set<SubCategory>> findSubCategoriesByRecruitmentIds(List<Long> recruitmentIds) {
-        QRecruitment qRecruitment = QRecruitment.recruitment;
 
         EnumPath<SubCategory> sub = Expressions.enumPath(SubCategory.class, "subCategory");
 
@@ -328,5 +166,79 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                         )
                 ));
     }
+
+
+    private List<RecruitmentBasic> fetchRecruitmentList(Long userId, BooleanBuilder where, Coordinate coord, int size, OrderSpecifier<?> order) {
+        return queryFactory
+                .select(Projections.constructor(RecruitmentBasic.class,
+                        qRecruitment.id,
+                        qRecruitment.title,
+                        qDesigner.user.imageUrl,
+                        qDesigner.nickname,
+                        qRecruitment.thumbnail,
+                        qDesigner.shop,
+                        qDesigner.addressLine1,
+                        qRecruitment.category,
+                        ExpressionUtils.as(getReviewCountSubQuery(), "reviewCount"),
+                        ExpressionUtils.as(getDistanceExpression(coord), "distance"),
+                        qRecruitmentLike.id.isNotNull(),
+                        qRecruitment.createdAt,
+                        ExpressionUtils.as(getAverageRatingSubQuery(), "averageRating")
+                ))
+                .from(qRecruitment)
+                .join(qRecruitment.designer, qDesigner)
+                .leftJoin(qRecruitmentLike).on(isLikedByMe(userId))
+                .where(where)
+                .orderBy(order, qRecruitment.id.desc())
+                .limit(size + 1)
+                .fetch();
+    }
+
+    private BooleanBuilder buildCommonWhere(SearchCondition cond) {
+        BooleanBuilder b = new BooleanBuilder();
+
+        if (cond.keyword() != null && !cond.keyword().isBlank()) {
+            b.and(qRecruitment.title.contains(cond.keyword())
+                    .or(qRecruitment.content.contains(cond.keyword())));
+        }
+        if (cond.category() != null) {
+            b.and(qRecruitment.category.eq(cond.category()));
+            if (cond.subCategory() != null) {
+                b.and(qRecruitment.subCategoryList.any().in(cond.subCategory()));
+            }
+        }
+
+        return b;
+    }
+
+    private JPQLSubQuery<Long> getReviewCountSubQuery() {
+        return JPAExpressions
+                .select(qReview.count())
+                .from(qReview)
+                .where(qReview.designer.eq(qRecruitment.designer));
+
+    }
+
+    private JPQLSubQuery<Double> getAverageRatingSubQuery() {
+        return JPAExpressions.select(qReview.rating.avg().coalesce(0.0))
+                .from(qReview)
+                .where(qReview.designer.eq(qRecruitment.designer));
+
+    }
+
+    private NumberExpression<Double> getDistanceExpression(Coordinate userCoordinate) {
+        if (userCoordinate == null || userCoordinate.latitude() == null) return Expressions.asNumber(0.0).doubleValue();
+
+        String pointWkt = String.format("POINT(%f %f)", userCoordinate.latitude(), userCoordinate.longitude());
+        return Expressions.numberTemplate(Double.class,
+                "ST_Distance_Sphere(ST_GeomFromText(CONCAT('POINT(', {0}, ' ', {1}, ')'), 4326), ST_GeomFromText({2}, 4326))",
+                qDesigner.latitude, qDesigner.longitude, Expressions.constant(pointWkt));
+    }
+
+    private BooleanExpression isLikedByMe(Long userId) {
+        return qRecruitmentLike.recruitment.id.eq(qRecruitment.id)
+                .and(userId != null ? qRecruitmentLike.model.user.id.eq(userId) : qRecruitmentLike.id.isNull());
+    }
+
 
 }

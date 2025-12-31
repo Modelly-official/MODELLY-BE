@@ -1,6 +1,9 @@
 package modelly.modelly_be.domain.recruitment.repository.recruitmentRepository;
 
+import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentBasic;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
+import modelly.modelly_be.global.utils.Coordinate;
+import modelly.modelly_be.global.utils.SearchCondition;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -8,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 

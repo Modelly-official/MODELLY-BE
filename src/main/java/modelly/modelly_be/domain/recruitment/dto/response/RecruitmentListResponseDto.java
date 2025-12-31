@@ -16,6 +16,6 @@ public record RecruitmentListResponseDto(
         Double distance,
         boolean isLiked,
         LocalDateTime createdAt,
-        double averageRating
+        Double averageRating
 ) {
 }

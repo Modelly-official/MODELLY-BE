@@ -51,6 +51,7 @@ public class DesignerRecruitmentController implements DesignerRecruitmentSwagger
         return ApiResponse.onSuccess("공고가 삭제되었습니다.");
     }
 
+    //내 공고 리스트 조회하기
     @GetMapping("/recruitments")
     public ApiResponse<ScrollResponse<DesignerRecruitmentListResponseDto>> getMyRecruitments(
             @AuthenticationPrincipal AuthDetails authDetails,
