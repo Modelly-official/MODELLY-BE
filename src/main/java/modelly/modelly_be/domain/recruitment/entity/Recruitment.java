@@ -93,7 +93,6 @@ public class Recruitment extends BaseEntity {
 
     public void updateRecruitment(UpdateRecruitmentRequestDto dto) {
         if (dto.title() != null) this.title = dto.title();
-        if (dto.category() != null) this.category = dto.category();
         if (dto.content() != null) this.content = dto.content();
         if (dto.notice() != null) this.notice = dto.notice();
         this.goal1 = dto.goal1();

@@ -122,7 +122,7 @@ public class DesignerRecruitmentService {
         //카테고리 수정
         if (requestDto.subCategoryList() != null && !requestDto.subCategoryList().isEmpty()) {
             recruitment.getSubCategoryList().clear();
-            updateSubCategory(recruitment, requestDto.category(), requestDto.subCategoryList());
+            updateSubCategory(recruitment, designer.getCategory(), requestDto.subCategoryList());
         }
 
         if (requestDto.imageFolderId() != null && !requestDto.imageFolderId().equals(recruitment.getImageFolderId())) {
