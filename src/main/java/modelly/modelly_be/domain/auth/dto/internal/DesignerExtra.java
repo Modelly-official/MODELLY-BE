@@ -22,4 +22,7 @@ public class DesignerExtra {
     @NotBlank(message = "닉네임은 필수 입력 값입니다.")
     private String nickname;
 
+    @NotBlank(message = "한줄 소개는 필수 입력 값입니다.")
+    private String intro;
+
 }
