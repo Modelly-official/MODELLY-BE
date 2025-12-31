@@ -104,8 +104,12 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
 
         NumberExpression<Long> reviewCountExpression = Expressions.asNumber(ExpressionUtils.as(reviewCountSubQuery, reviewCount));
 
-        DateExpression<LocalDate> minDate = qRecruitmentDate.date.min();
-        DateExpression<LocalDate> maxDate = qRecruitmentDate.date.max();
+        QRecruitmentDate subDate = new QRecruitmentDate("subDate");
+
+        DateExpression<LocalDate> minDate = Expressions.dateTemplate(LocalDate.class,
+                "(SELECT MIN({0}.date) FROM RecruitmentDate {0} WHERE {0}.recruitment = {1})", subDate, qRecruitment);
+        DateExpression<LocalDate> maxDate = Expressions.dateTemplate(LocalDate.class,
+                "(SELECT MAX({0}.date) FROM RecruitmentDate {0} WHERE {0}.recruitment = {1})", subDate, qRecruitment);
 
         StringExpression dateRangeExpression = Expressions.stringTemplate(
                 "CONCAT(CAST({0} AS char), ' ~ ', CAST({1} AS char))",
