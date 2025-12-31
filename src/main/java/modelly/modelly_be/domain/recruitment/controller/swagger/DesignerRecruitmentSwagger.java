@@ -5,7 +5,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import modelly.modelly_be.domain.recruitment.dto.request.RecruitmentRequestDto;
 import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentRequestDto;
-import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
+import modelly.modelly_be.domain.recruitment.dto.internal.DesignerRecruitmentList;
+import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponse;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentResponseDto;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
@@ -36,7 +37,7 @@ public interface DesignerRecruitmentSwagger {
             ### Request Param </p>
             `month` : 공고를 확인하는 해당 달 ex) 2025-10
             """)
-    ApiResponse<ScrollResponse<DesignerRecruitmentListResponseDto>> getMyRecruitments(
+    ApiResponse<ScrollResponse<DesignerRecruitmentListResponse>> getMyRecruitments(
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam String month,
             @RequestParam(defaultValue = "10") int size,

@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentSchedule;
 import modelly.modelly_be.domain.recruitment.dto.request.RecruitmentRequestDto;
 import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentRequestDto;
-import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
+import modelly.modelly_be.domain.recruitment.dto.internal.DesignerRecruitmentList;
+import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponse;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentDate;
@@ -183,7 +184,7 @@ public class DesignerRecruitmentService {
         }
     }
 
-    public List<DesignerRecruitmentListResponseDto> getDesginerRecruitments(User user, String month, int size, LocalDate cursorEarliestDate, Long cursorId) {
+    public List<DesignerRecruitmentListResponse> getDesginerRecruitments(User user, String month, int size, LocalDate cursorEarliestDate, Long cursorId) {
         YearMonth yearMonth;
         try {
             yearMonth = YearMonth.parse(month);
@@ -193,7 +194,7 @@ public class DesignerRecruitmentService {
 
         Designer designer = designerService.getByUser(user);
 
-        List<DesignerRecruitmentListResponseDto> responseDtos = recruitmentService.getByDesignerAndRecruitmentDate(designer, yearMonth, size,cursorEarliestDate,cursorId);
+        List<DesignerRecruitmentListResponse> responseDtos = recruitmentService.getByDesignerAndRecruitmentDate(designer, yearMonth, size,cursorEarliestDate,cursorId);
 
         return responseDtos;
     }

@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import modelly.modelly_be.domain.like.entity.QRecruitmentLike;
 import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentBasic;
-import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
+import modelly.modelly_be.domain.recruitment.dto.internal.DesignerRecruitmentList;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitment;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitmentDate;
 import modelly.modelly_be.global.entity.SubCategory;
@@ -88,7 +88,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
     }
 
     @Override
-    public List<DesignerRecruitmentListResponseDto> findRecruitmentsByDesignerAndDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId) {
+    public List<DesignerRecruitmentList> findRecruitmentsByDesignerAndDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId) {
 
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         booleanBuilder.and(qRecruitment.designer.id.eq(designer.getId()));
@@ -127,7 +127,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
         }
 
         return queryFactory.select(Projections.constructor(
-                DesignerRecruitmentListResponseDto.class,
+                DesignerRecruitmentList.class,
                 qRecruitment.id,
                 qRecruitment.title,
                 dateRangeExpression,

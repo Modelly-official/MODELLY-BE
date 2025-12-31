@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.like.service.RecruitmentLikeService;
 import modelly.modelly_be.domain.recruitment.dto.internal.CursorInformation;
 import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentBasic;
-import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
+import modelly.modelly_be.domain.recruitment.dto.internal.DesignerRecruitmentList;
+import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponse;
 import modelly.modelly_be.domain.recruitment.dto.response.GuestRecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
@@ -140,8 +141,33 @@ public class RecruitmentService {
         return recruitmentRepository.updateStatusToClosed(today);
     }
 
-    public List<DesignerRecruitmentListResponseDto> getByDesignerAndRecruitmentDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId) {
-        return recruitmentRepository.findRecruitmentsByDesignerAndDate(designer,yearMonth,size,cursorEarliestDate,cursorId);
+    public List<DesignerRecruitmentListResponse> getByDesignerAndRecruitmentDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId) {
+        List<DesignerRecruitmentList> recruitmentLists = recruitmentRepository.findRecruitmentsByDesignerAndDate(designer,yearMonth,size,cursorEarliestDate,cursorId);
+
+        List<Long> recruitmentIds = recruitmentLists.stream()
+                .map(DesignerRecruitmentList::recruitmentId)
+                .toList();
+
+        Map<Long, Set<SubCategory>> setMap = recruitmentRepository.findSubCategoriesByRecruitmentIds(recruitmentIds);
+
+        return recruitmentLists.stream()
+                .map(recruitment -> {
+                    List<String> subCategories = setMap.getOrDefault(recruitment.recruitmentId(), Set.of())
+                            .stream().map(SubCategory::getDescription)
+                            .collect(Collectors.toList());
+
+                    return new DesignerRecruitmentListResponse(
+                            recruitment.recruitmentId(),
+                            recruitment.title(),
+                            recruitment.period(),
+                            recruitment.thumbnail(),
+                            recruitment.reviewCount(),
+                            recruitment.averageRating(),
+                            subCategories
+                    );
+                })
+                .toList();
+
     }
 
     // 공고의 특정 시간대 Lock(디자이너 기준으로 동일 시간대 전부)

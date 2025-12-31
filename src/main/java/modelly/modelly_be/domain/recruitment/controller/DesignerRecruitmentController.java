@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.recruitment.controller.swagger.DesignerRecruitmentSwagger;
 import modelly.modelly_be.domain.recruitment.dto.request.RecruitmentRequestDto;
 import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentRequestDto;
-import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
+import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponse;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.service.DesignerRecruitmentService;
@@ -53,16 +53,16 @@ public class DesignerRecruitmentController implements DesignerRecruitmentSwagger
 
     //내 공고 리스트 조회하기
     @GetMapping("/recruitments")
-    public ApiResponse<ScrollResponse<DesignerRecruitmentListResponseDto>> getMyRecruitments(
+    public ApiResponse<ScrollResponse<DesignerRecruitmentListResponse>> getMyRecruitments(
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam String month,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) LocalDate cursorEarliestDate,
             @RequestParam(required = false) Long cursorId
     ) {
-        List<DesignerRecruitmentListResponseDto> listDtos = designerRecruitmentService.getDesginerRecruitments(authDetails.user(),month, size, cursorEarliestDate, cursorId);
+        List<DesignerRecruitmentListResponse> listDtos = designerRecruitmentService.getDesginerRecruitments(authDetails.user(),month, size, cursorEarliestDate, cursorId);
 
-        ScrollResponse<DesignerRecruitmentListResponseDto> responseDtos = ScrollUtil.paginate(listDtos,size);
+        ScrollResponse<DesignerRecruitmentListResponse> responseDtos = ScrollUtil.paginate(listDtos,size);
 
         return ApiResponse.onSuccess(responseDtos);
     }
