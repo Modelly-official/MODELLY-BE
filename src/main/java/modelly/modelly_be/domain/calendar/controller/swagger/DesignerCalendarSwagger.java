@@ -3,7 +3,7 @@ package modelly.modelly_be.domain.calendar.controller.swagger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import modelly.modelly_be.domain.calendar.dto.response.CalendarReservationDotsResponse;
-import modelly.modelly_be.domain.calendar.dto.response.CalendarReservationScrollResponse;
+import modelly.modelly_be.domain.calendar.dto.response.CalendarReservationResponse;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,15 +30,6 @@ public interface DesignerCalendarSwagger {
                     ### Request Param\n
                     - `month`(required) : 조회할 월 (yyyy-MM)\n
                     - `date`(optional) : 조회할 날짜 (yyyy-MM-dd)\n
-                    - `size`(default=20) : 페이지 사이즈\n
-                    - `cursorDate`(optional) : 커서 날짜 (yyyy-MM-dd)\n
-                    - `cursorTime`(optional) : 커서 시간 (HH:mm)\n
-                    - `cursorId`(optional) : 커서 예약 ID\n
-                    \n
-                    ✅ 커서 규칙\n
-                    - 최초 호출 시 커서 파라미터를 보내지 않습니다.\n
-                    - 이후 호출은 응답의 `nextCursorDate`, `nextCursorTime`, `nextCursorId`를 다음 요청 커서로 그대로 사용합니다.\n
-                    \n
                     ---\n
                     ### Response\n
                     - `items[]`\n
@@ -51,24 +42,16 @@ public interface DesignerCalendarSwagger {
                       - `date` : 예약 날짜 (yyyy-MM-dd)\n
                       - `startTime` / `endTime` : 예약 시간 (HH:mm)\n
                     - `totalCount` : 조건에 해당하는 전체 예약 수 (month + date 필터 기준)\n
-                    - `hasNext` : 다음 페이지 존재 여부\n
-                    - `nextCursorDate` : 다음 요청 커서 날짜\n
-                    - `nextCursorTime` : 다음 요청 커서 시간\n
-                    - `nextCursorId` : 다음 요청 커서 예약 ID\n
                     \n
                     ---\n
                     ✅ 권한\n
                     - 디자이너 권한만 호출 가능합니다.\n
                     """
     )
-    ApiResponse<CalendarReservationScrollResponse> getCalendarReservations(
+    ApiResponse<CalendarReservationResponse> getCalendarReservations(
             @AuthenticationPrincipal AuthDetails auth,
             @RequestParam String month,
-            @RequestParam(required = false) LocalDate date,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) LocalDate cursorDate,
-            @RequestParam(required = false) String cursorTime,
-            @RequestParam(required = false) Long cursorId
+            @RequestParam(required = false) LocalDate date
     );
 
     @Operation(

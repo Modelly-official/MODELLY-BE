@@ -21,13 +21,7 @@ public interface DesignerCalendarQueryRepository {
             Long designerId,
             YearMonth yearMonth,
             LocalDate date,
-            List<ReservationStatus> statuses,
-
-            LocalDate cursorDate,
-            LocalTime cursorTime,
-            Long cursorId,
-
-            int sizePlusOne
+            List<ReservationStatus> statuses
     );
 
     //reservationIds에 딸린 subCategory enum들을 한 번에 조회

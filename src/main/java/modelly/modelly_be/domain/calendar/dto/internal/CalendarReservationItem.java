@@ -1,6 +1,4 @@
-package modelly.modelly_be.domain.calendar.dto.response;
-
-import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
+package modelly.modelly_be.domain.calendar.dto.internal;
 
 import java.time.LocalDate;
 import java.util.List;

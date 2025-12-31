@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.calendar.dto.internal.DesignerCalendarReservationRow;
 import modelly.modelly_be.domain.calendar.dto.internal.CalendarReservationDotItem;
 import modelly.modelly_be.domain.calendar.dto.response.CalendarReservationDotsResponse;
-import modelly.modelly_be.domain.calendar.dto.response.CalendarReservationItem;
-import modelly.modelly_be.domain.calendar.dto.response.CalendarReservationScrollResponse;
+import modelly.modelly_be.domain.calendar.dto.internal.CalendarReservationItem;
+import modelly.modelly_be.domain.calendar.dto.response.CalendarReservationResponse;
 import modelly.modelly_be.domain.calendar.repository.DesignerCalendarQueryRepository;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
@@ -38,14 +38,10 @@ public class DesignerCalendarService {
 
     // 캘린더에서의 예약 조회(한달/특정 날짜) - 무한스크롤
     @Transactional(readOnly = true)
-    public CalendarReservationScrollResponse getCalendarReservations(
+    public CalendarReservationResponse getCalendarReservations(
             User me,
             String month,
-            LocalDate date,
-            int size,
-            LocalDate cursorDate,
-            String cursorTime,
-            Long cursorId
+            LocalDate date
     ) {
         Designer designer = designerService.getByUser(me);
 
@@ -55,10 +51,6 @@ public class DesignerCalendarService {
             throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
         }
 
-        LocalTime cursorTimeParsed = (cursorTime == null || cursorTime.isBlank())
-                ? null
-                : parseCursorTime(cursorTime);
-
         List<ReservationStatus> statuses = List.of(ReservationStatus.RESERVATION_CONFIRMED);
 
         long totalCount = calendarQueryRepository.countReservations(designer.getId(), ym, date, statuses);
@@ -67,15 +59,8 @@ public class DesignerCalendarService {
                 designer.getId(),
                 ym,
                 date,
-                statuses,
-                cursorDate,
-                cursorTimeParsed,
-                cursorId,
-                size + 1
+                statuses
         );
-
-        boolean hasNext = rows.size() > size;
-        if (hasNext) rows = rows.subList(0, size);
 
         List<Long> ids = rows.stream().map(DesignerCalendarReservationRow::reservationId).toList();
 
@@ -101,24 +86,9 @@ public class DesignerCalendarService {
                 ))
                 .toList();
 
-        LocalDate nextCursorDate = null;
-        String nextCursorTime = null;
-        Long nextCursorId = null;
-
-        if (hasNext && !items.isEmpty()) {
-            CalendarReservationItem last = items.get(items.size() - 1);
-            nextCursorDate = last.date();
-            nextCursorTime = last.startTime();
-            nextCursorId = last.reservationId();
-        }
-
-        return new CalendarReservationScrollResponse(
+        return new CalendarReservationResponse(
                 items,
-                totalCount,
-                hasNext,
-                nextCursorDate,
-                nextCursorTime,
-                nextCursorId
+                totalCount
         );
     }
 

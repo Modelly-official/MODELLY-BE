@@ -50,18 +50,6 @@ public class DesignerCalendarQueryRepositoryImpl implements DesignerCalendarQuer
         return where;
     }
 
-    private void applyCursor(BooleanBuilder where, LocalDate cursorDate, LocalTime cursorTime, Long cursorId) {
-        if (cursorDate == null || cursorTime == null || cursorId == null) return;
-
-        // 정렬키
-        where.and(
-                reservation.date.gt(cursorDate)
-                        .or(reservation.date.eq(cursorDate).and(reservation.startTime.gt(cursorTime)))
-                        .or(reservation.date.eq(cursorDate)
-                                .and(reservation.startTime.eq(cursorTime))
-                                .and(reservation.id.gt(cursorId)))
-        );
-    }
 
     @Override
     public long countReservations(Long designerId, YearMonth yearMonth, LocalDate date, List<ReservationStatus> statuses) {
@@ -81,14 +69,9 @@ public class DesignerCalendarQueryRepositoryImpl implements DesignerCalendarQuer
             Long designerId,
             YearMonth yearMonth,
             LocalDate date,
-            List<ReservationStatus> statuses,
-            LocalDate cursorDate,
-            LocalTime cursorTime,
-            Long cursorId,
-            int sizePlusOne
+            List<ReservationStatus> statuses
     ) {
         BooleanBuilder where = baseWhere(designerId, yearMonth, date, statuses);
-        applyCursor(where, cursorDate, cursorTime, cursorId);
 
         return queryFactory
                 .select(Projections.constructor(
@@ -112,7 +95,6 @@ public class DesignerCalendarQueryRepositoryImpl implements DesignerCalendarQuer
                 .join(reservation.designer, designer)
                 .where(where)
                 .orderBy(reservation.date.asc(), reservation.startTime.asc(), reservation.id.asc())
-                .limit(sizePlusOne)
                 .fetch();
     }
 
