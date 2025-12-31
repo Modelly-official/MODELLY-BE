@@ -8,7 +8,7 @@ public record DesignerRecruitmentListResponse(
         String period,
         String thumbnail,
         Long reviewCount,
-        double averageRating,
+        Double averageRating,
         List<String> subCategory
 ) {
 }

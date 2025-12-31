@@ -95,6 +95,7 @@ public class Recruitment extends BaseEntity {
         if (dto.title() != null) this.title = dto.title();
         if (dto.content() != null) this.content = dto.content();
         if (dto.notice() != null) this.notice = dto.notice();
+        if (dto.restriction() != null) this.restriction = dto.restriction();
         this.goal1 = dto.goal1();
         this.agreeVideo = dto.agreeVideo();
         this.agreeInsta = dto.agreeInsta();
