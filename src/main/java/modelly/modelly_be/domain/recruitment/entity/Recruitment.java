@@ -40,6 +40,9 @@ public class Recruitment extends BaseEntity {
     @Column(name = "notice", nullable = false, length = 254)
     private String notice;
 
+    @Column(name = "restriction", nullable = false, length = 250)
+    private String restriction;
+
     @Column(name = "goal1", length = 254)
     private String goal1;
 
