@@ -54,6 +54,7 @@ public class DesignerRecruitmentService {
                 .category(designer.getCategory())
                 .notice(recruitmentRequestDto.notice())
                 .content(recruitmentRequestDto.content())
+                .restriction(recruitmentRequestDto.restriction())
                 .goal1(recruitmentRequestDto.goal1())
                 .agreeInsta(recruitmentRequestDto.agreeInsta())
                 .agreeMosaic(recruitmentRequestDto.agreeMosaic())
