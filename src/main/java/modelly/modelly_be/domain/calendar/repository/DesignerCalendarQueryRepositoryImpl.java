@@ -146,16 +146,20 @@ public class DesignerCalendarQueryRepositoryImpl implements DesignerCalendarQuer
         LocalDate start = ym.atDay(1);
         LocalDate endExclusive = ym.plusMonths(1).atDay(1);
 
+        BooleanBuilder where = new BooleanBuilder();
+        where.and(reservation.designer.id.eq(designerId));
+        where.and(reservation.date.goe(start));
+        where.and(reservation.date.lt(endExclusive));
+
+        if (statuses != null && !statuses.isEmpty()) {
+            where.and(reservation.status.in(statuses));
+        }
+
         return queryFactory
                 .select(reservation.date)
                 .distinct()
                 .from(reservation)
-                .where(
-                        reservation.designer.id.eq(designerId),
-                        reservation.date.goe(start),
-                        reservation.date.lt(endExclusive),
-                        reservation.status.in(statuses)
-                )
+                .where(where)
                 .fetch();
     }
 }
