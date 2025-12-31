@@ -604,6 +604,7 @@ public class ReservationService {
         String text = "예약 일정 변경 요청이 거절되었습니다. 기존 예약 일정 진행 여부를 선택해주세요.";
         ReservationSimpleTextPayload payload = new ReservationSimpleTextPayload(
                 "CHANGE_REJECTED",
+                changeId,
                 text
         );
         chattingService.publishReservationPayload(me.getId(), roomId, payload);

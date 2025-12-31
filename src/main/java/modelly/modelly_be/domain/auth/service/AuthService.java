@@ -114,6 +114,7 @@ public class AuthService {
                     .chemistryScore(0L)
                     .nickname(designerExtra.getNickname())
                     .instagramId(null)
+                    .intro(designerExtra.getIntro())
                     .build();
 
             designerRepository.save(designer);
@@ -321,6 +322,7 @@ public class AuthService {
                     .chemistryScore(0L)
                     .nickname(designerExtra.getNickname())
                     .instagramId(null)
+                    .intro(designerExtra.getIntro())
                     .build();
 
             designerRepository.save(designer);
