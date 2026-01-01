@@ -13,6 +13,8 @@ import modelly.modelly_be.domain.recruitment.entity.RecruitmentDate;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
 import modelly.modelly_be.domain.reservation.dto.response.AvailableReservationScheduleResponse;
+import modelly.modelly_be.domain.user.entity.Model;
+import modelly.modelly_be.domain.user.service.ModelService;
 import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.domain.recruitment.repository.recruitmentRepository.RecruitmentRepository;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
@@ -48,6 +50,7 @@ public class RecruitmentService {
     private final RecruitmentLikeService recruitmentLikeService;
     private final ReservationService reservationService;
     private final ReviewService reviewService;
+    private final ModelService modelService;
 
     public void save(Recruitment recruitment) {
         recruitmentRepository.save(recruitment);
@@ -71,15 +74,23 @@ public class RecruitmentService {
 
 
     @Transactional(readOnly = true)
-    public GuestRecruitmentResponseDto getByIdWithDesigner(Long recruitmentId) {
+    public GuestRecruitmentResponseDto getByIdWithDesigner(Long userId, Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findByIdWithAllDetails(recruitmentId)
                 .orElseThrow(()-> new GeneralException(ErrorStatus.NOT_FOUND_RECRUITMENT));
+
         AverageReview averageReview = reviewService.calculateRating(recruitment.getDesigner());
+
+        boolean isLiked = false;
+        if (userId != null){
+            Model model = modelService.getModelByUserId(userId);
+            isLiked = recruitmentLikeService.existsByModelAndRecruitment(model, recruitment);
+        }
 
         return GuestRecruitmentResponseDto.of(
                 DesignerResponseDto.from(recruitment.getDesigner()),
                 recruitment,
-                averageReview
+                averageReview,
+                isLiked
         );
     }
 

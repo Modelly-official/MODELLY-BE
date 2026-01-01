@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface GuestRecruitmentSwagger {
 
     @Operation(summary = "공고 상세 조회하기", description = "공고 상세 조회 시 사용하는 API입니다. (로그인 필요X)")
-    ApiResponse<GuestRecruitmentResponseDto> getRecruitment(@PathVariable Long recruitmentId);
+    ApiResponse<GuestRecruitmentResponseDto> getRecruitment(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long recruitmentId);
 
     @Operation(summary = "공고별로 보기", description = """
             ### 공고별로 볼 때 사용하는 API입니다. \n

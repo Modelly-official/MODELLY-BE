@@ -29,9 +29,11 @@ public class GuestRecruitmentController implements GuestRecruitmentSwagger {
     private final DesignerService designerService;
 
     @GetMapping("/recruitments/{recruitmentId}")
-    public ApiResponse<GuestRecruitmentResponseDto> getRecruitment(@PathVariable Long recruitmentId){
+    public ApiResponse<GuestRecruitmentResponseDto> getRecruitment(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long recruitmentId){
 
-        GuestRecruitmentResponseDto responseDto = recruitmentService.getByIdWithDesigner(recruitmentId);
+        Long userId = (authDetails != null ? authDetails.user().getId() : null);
+
+        GuestRecruitmentResponseDto responseDto = recruitmentService.getByIdWithDesigner(userId, recruitmentId);
 
         return ApiResponse.onSuccess(responseDto);
     }
