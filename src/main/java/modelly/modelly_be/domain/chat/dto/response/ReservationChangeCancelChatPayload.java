@@ -9,5 +9,5 @@ public record ReservationChangeCancelChatPayload(
         LocalDate date,
         String startTime,
         String endTime,
-        String message
+        String notice
 ) {}

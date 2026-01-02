@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.like.service.RecruitmentLikeService;
 import modelly.modelly_be.domain.recruitment.dto.internal.CursorInformation;
 import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentBasic;
-import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
+import modelly.modelly_be.domain.recruitment.dto.internal.DesignerRecruitmentList;
+import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponse;
 import modelly.modelly_be.domain.recruitment.dto.response.GuestRecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
@@ -12,6 +13,8 @@ import modelly.modelly_be.domain.recruitment.entity.RecruitmentDate;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
 import modelly.modelly_be.domain.reservation.dto.response.AvailableReservationScheduleResponse;
+import modelly.modelly_be.domain.user.entity.Model;
+import modelly.modelly_be.domain.user.service.ModelService;
 import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.domain.recruitment.repository.recruitmentRepository.RecruitmentRepository;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
@@ -47,6 +50,7 @@ public class RecruitmentService {
     private final RecruitmentLikeService recruitmentLikeService;
     private final ReservationService reservationService;
     private final ReviewService reviewService;
+    private final ModelService modelService;
 
     public void save(Recruitment recruitment) {
         recruitmentRepository.save(recruitment);
@@ -70,15 +74,23 @@ public class RecruitmentService {
 
 
     @Transactional(readOnly = true)
-    public GuestRecruitmentResponseDto getByIdWithDesigner(Long recruitmentId) {
+    public GuestRecruitmentResponseDto getByIdWithDesigner(Long userId, Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findByIdWithAllDetails(recruitmentId)
                 .orElseThrow(()-> new GeneralException(ErrorStatus.NOT_FOUND_RECRUITMENT));
+
         AverageReview averageReview = reviewService.calculateRating(recruitment.getDesigner());
+
+        boolean isLiked = false;
+        if (userId != null){
+            Model model = modelService.getModelByUserId(userId);
+            isLiked = recruitmentLikeService.existsByModelAndRecruitment(model, recruitment);
+        }
 
         return GuestRecruitmentResponseDto.of(
                 DesignerResponseDto.from(recruitment.getDesigner()),
                 recruitment,
-                averageReview
+                averageReview,
+                isLiked
         );
     }
 
@@ -88,18 +100,18 @@ public class RecruitmentService {
 
         switch (sortOption){
             case NEWEST:
-                recruitmentBasics = recruitmentRepository.findRecruitmentsByCreatedAt(userId,searchCondition, cursorId,size);
+                recruitmentBasics = recruitmentRepository.findRecruitmentsByCreatedAt(userId,searchCondition, cursorId, size, userCoordinate);
                 break;
             case MOST_REVIEWS:
                 Long cursorReviewCount = cursorInformation.cursorReviewCount() == null ? null : cursorInformation.cursorReviewCount();
-                recruitmentBasics = recruitmentRepository.findRecruitmentsByReviews(userId,searchCondition, cursorId, cursorReviewCount,size);
+                recruitmentBasics = recruitmentRepository.findRecruitmentsByReviews(userId,searchCondition, cursorId, cursorReviewCount, size, userCoordinate);
                 break;
             case DISTANCE:
                 Double cursorDistance = cursorInformation.cursorDistance() == null ? null : cursorInformation.cursorDistance();
                 recruitmentBasics = recruitmentRepository.findRecruitmentsByDistance(userId,searchCondition, cursorId, cursorDistance,size, userCoordinate);
                 break;
             default:
-               recruitmentBasics = recruitmentRepository.findRecruitmentsByCreatedAt(userId,searchCondition, cursorId,size);
+               recruitmentBasics = recruitmentRepository.findRecruitmentsByCreatedAt(userId,searchCondition, cursorId, size, userCoordinate);
                break;
         }
 
@@ -127,7 +139,7 @@ public class RecruitmentService {
                             basic.category().getDescription(),
                             subCategories,
                             basic.reviewCount(),
-                            basic.distance(),
+                            basic.distance() == 0.0? null: basic.distance(),
                             basic.isLiked(),
                             basic.createdAt(),
                             basic.averageRating()
@@ -140,8 +152,33 @@ public class RecruitmentService {
         return recruitmentRepository.updateStatusToClosed(today);
     }
 
-    public List<DesignerRecruitmentListResponseDto> getByDesignerAndRecruitmentDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId) {
-        return recruitmentRepository.findRecruitmentsByDesignerAndDate(designer,yearMonth,size,cursorEarliestDate,cursorId);
+    public List<DesignerRecruitmentListResponse> getByDesignerAndRecruitmentDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId) {
+        List<DesignerRecruitmentList> recruitmentLists = recruitmentRepository.findRecruitmentsByDesignerAndDate(designer,yearMonth,size,cursorEarliestDate,cursorId);
+
+        List<Long> recruitmentIds = recruitmentLists.stream()
+                .map(DesignerRecruitmentList::recruitmentId)
+                .toList();
+
+        Map<Long, Set<SubCategory>> setMap = recruitmentRepository.findSubCategoriesByRecruitmentIds(recruitmentIds);
+
+        return recruitmentLists.stream()
+                .map(recruitment -> {
+                    List<String> subCategories = setMap.getOrDefault(recruitment.recruitmentId(), Set.of())
+                            .stream().map(SubCategory::getDescription)
+                            .collect(Collectors.toList());
+
+                    return new DesignerRecruitmentListResponse(
+                            recruitment.recruitmentId(),
+                            recruitment.title(),
+                            recruitment.period(),
+                            recruitment.thumbnail(),
+                            recruitment.reviewCount(),
+                            recruitment.averageRating(),
+                            subCategories
+                    );
+                })
+                .toList();
+
     }
 
     // 공고의 특정 시간대 Lock(디자이너 기준으로 동일 시간대 전부)

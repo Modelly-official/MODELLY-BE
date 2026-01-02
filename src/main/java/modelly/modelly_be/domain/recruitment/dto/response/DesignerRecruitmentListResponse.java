@@ -1,13 +1,14 @@
 package modelly.modelly_be.domain.recruitment.dto.response;
 
+import java.util.List;
 
-import java.time.LocalDate;
-
-public record DesignerRecruitmentListResponseDto(
+public record DesignerRecruitmentListResponse(
         Long recruitmentId,
         String title,
         String period,
+        String thumbnail,
         Long reviewCount,
-        double averageRating
+        Double averageRating,
+        List<String> subCategory
 ) {
 }

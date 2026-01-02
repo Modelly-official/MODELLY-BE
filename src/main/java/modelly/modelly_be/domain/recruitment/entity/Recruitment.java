@@ -40,14 +40,11 @@ public class Recruitment extends BaseEntity {
     @Column(name = "notice", nullable = false, length = 254)
     private String notice;
 
+    @Column(name = "restriction", nullable = false, length = 250)
+    private String restriction;
+
     @Column(name = "goal1", length = 254)
     private String goal1;
-
-    @Column(name = "goal2", length = 254)
-    private String goal2;
-
-    @Column(name = "goal3", length = 254)
-    private String goal3;
 
     @Column(name = "agree_video")
     private boolean agreeVideo;
@@ -96,12 +93,10 @@ public class Recruitment extends BaseEntity {
 
     public void updateRecruitment(UpdateRecruitmentRequestDto dto) {
         if (dto.title() != null) this.title = dto.title();
-        if (dto.category() != null) this.category = dto.category();
         if (dto.content() != null) this.content = dto.content();
         if (dto.notice() != null) this.notice = dto.notice();
+        if (dto.restriction() != null) this.restriction = dto.restriction();
         this.goal1 = dto.goal1();
-        this.goal2 = dto.goal2();
-        this.goal3 = dto.goal3();
         this.agreeVideo = dto.agreeVideo();
         this.agreeInsta = dto.agreeInsta();
         this.agreeMosaic = dto.agreeMosaic();

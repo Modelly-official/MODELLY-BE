@@ -14,6 +14,7 @@ import modelly.modelly_be.domain.user.entity.enums.LoginType;
 import modelly.modelly_be.domain.user.entity.enums.Permission;
 import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.domain.user.repository.ModelRepository;
+import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.geocoding.GeoCodingService;
 import modelly.modelly_be.global.security.entity.TokenStatus;
@@ -50,6 +51,7 @@ public class AuthService {
     private final NaverUtil naverUtil;
     private final GoogleUtil googleUtil;
     private final GeoCodingService geoCodingService;
+    private final DesignerService designerService;
 
     /* ---------- JWT 회원가입/로그인/로그아웃 ---------- */
 
@@ -114,6 +116,7 @@ public class AuthService {
                     .chemistryScore(0L)
                     .nickname(designerExtra.getNickname())
                     .instagramId(null)
+                    .intro(designerExtra.getIntro())
                     .build();
 
             designerRepository.save(designer);
@@ -140,6 +143,11 @@ public class AuthService {
         User user = userRepository.findByLoginId(req.getLoginId())
                 .orElseThrow(() -> new GeneralException(ErrorStatus.LOGIN_FAIL));
 
+        Designer designer = null;
+        if (user.getUserRole()==UserRole.DESIGNER) {
+            designer = designerService.getByUser(user);
+        }
+
         if (!passwordEncoder.matches(req.getPassword(), user.getPassword()))
             throw new GeneralException(ErrorStatus.LOGIN_FAIL);
 
@@ -156,7 +164,8 @@ public class AuthService {
         LoginResponse loginResponse = LoginResponse.of(
                 user.getId(),
                 tokens.getAccessToken(),
-                user.getUserRole().getDescription()
+                user.getUserRole().getDescription(),
+                user.getUserRole() == UserRole.DESIGNER ? designer.getCategory().getDescription() : null
         );
 
         return LoginResult.of(loginResponse, refreshToken, ttlSec);
@@ -315,6 +324,7 @@ public class AuthService {
                     .chemistryScore(0L)
                     .nickname(designerExtra.getNickname())
                     .instagramId(null)
+                    .intro(designerExtra.getIntro())
                     .build();
 
             designerRepository.save(designer);
@@ -444,10 +454,17 @@ public class AuthService {
         long ttlSec = tokenProvider.getRemainingSeconds(refreshToken);
         redisService.setRefreshToken(RT_KEY_PREFIX + user.getId(), refreshToken, ttlSec);
 
+        Designer designer = null;
+        if (user.getUserRole() == UserRole.DESIGNER){
+            designer = designerService.getByUser(user);
+        }
+
         // 응답 생성
         SocialLoginResponse loginResponse = registered
-                ? SocialLoginResponse.existing(user.getId(), tokens.getAccessToken(), user.getUserRole())
-                : SocialLoginResponse.newUser(user.getId(), tokens.getAccessToken(), user.getUserRole());
+                ? SocialLoginResponse.existing(user.getId(), tokens.getAccessToken(), user.getUserRole(),
+                user.getUserRole()==UserRole.DESIGNER? designer.getCategory().getDescription() : null)
+                : SocialLoginResponse.newUser(user.getId(), tokens.getAccessToken(), user.getUserRole(),
+                user.getUserRole()==UserRole.DESIGNER? designer.getCategory().getDescription() : null);
 
         return SocialLoginResult.of(loginResponse, refreshToken, ttlSec);
     }

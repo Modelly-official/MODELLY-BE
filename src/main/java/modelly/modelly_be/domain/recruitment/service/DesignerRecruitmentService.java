@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentSchedule;
 import modelly.modelly_be.domain.recruitment.dto.request.RecruitmentRequestDto;
 import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentRequestDto;
-import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponseDto;
+import modelly.modelly_be.domain.recruitment.dto.internal.DesignerRecruitmentList;
+import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponse;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentDate;
@@ -21,7 +22,6 @@ import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.listener.dto.S3FolderDeleteEvent;
-import modelly.modelly_be.global.s3.S3Uploader;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,12 +51,11 @@ public class DesignerRecruitmentService {
         Recruitment recruitment = Recruitment.builder()
                 .designer(designer)
                 .title(recruitmentRequestDto.title())
-                .category(recruitmentRequestDto.category())
+                .category(designer.getCategory())
                 .notice(recruitmentRequestDto.notice())
                 .content(recruitmentRequestDto.content())
+                .restriction(recruitmentRequestDto.restriction())
                 .goal1(recruitmentRequestDto.goal1())
-                .goal2(recruitmentRequestDto.goal2())
-                .goal3(recruitmentRequestDto.goal3())
                 .agreeInsta(recruitmentRequestDto.agreeInsta())
                 .agreeMosaic(recruitmentRequestDto.agreeMosaic())
                 .agreeVideo(recruitmentRequestDto.agreeVideo())
@@ -72,7 +71,7 @@ public class DesignerRecruitmentService {
 
         if (recruitmentRequestDto.subCategoryList() != null
                 && !recruitmentRequestDto.subCategoryList().isEmpty()) {
-            updateSubCategory(recruitment, recruitmentRequestDto.category(), recruitmentRequestDto.subCategoryList());
+            updateSubCategory(recruitment, designer.getCategory(), recruitmentRequestDto.subCategoryList());
         }
 
         recruitmentService.save(recruitment);
@@ -125,7 +124,7 @@ public class DesignerRecruitmentService {
         //카테고리 수정
         if (requestDto.subCategoryList() != null && !requestDto.subCategoryList().isEmpty()) {
             recruitment.getSubCategoryList().clear();
-            updateSubCategory(recruitment, requestDto.category(), requestDto.subCategoryList());
+            updateSubCategory(recruitment, designer.getCategory(), requestDto.subCategoryList());
         }
 
         if (requestDto.imageFolderId() != null && !requestDto.imageFolderId().equals(recruitment.getImageFolderId())) {
@@ -186,7 +185,7 @@ public class DesignerRecruitmentService {
         }
     }
 
-    public List<DesignerRecruitmentListResponseDto> getDesginerRecruitments(User user, String month, int size, LocalDate cursorEarliestDate, Long cursorId) {
+    public List<DesignerRecruitmentListResponse> getDesginerRecruitments(User user, String month, int size, LocalDate cursorEarliestDate, Long cursorId) {
         YearMonth yearMonth;
         try {
             yearMonth = YearMonth.parse(month);
@@ -194,10 +193,9 @@ public class DesignerRecruitmentService {
             throw new GeneralException(ErrorStatus.MONTH_BAD_REQUEST);
         }
 
-        checkDesigner(user);
         Designer designer = designerService.getByUser(user);
 
-        List<DesignerRecruitmentListResponseDto> responseDtos = recruitmentService.getByDesignerAndRecruitmentDate(designer, yearMonth, size,cursorEarliestDate,cursorId);
+        List<DesignerRecruitmentListResponse> responseDtos = recruitmentService.getByDesignerAndRecruitmentDate(designer, yearMonth, size,cursorEarliestDate,cursorId);
 
         return responseDtos;
     }

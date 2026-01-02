@@ -13,13 +13,13 @@ public record GuestRecruitmentResponseDto(
     Long recruitmentId,
     String title,
     List<RecruitmentSchedule> recruitmentSchedule,
+    boolean isLiked,
     String category,
     List<String> subCategories,
     String content,
     String notice,
+    String restriction,
     String goal1,
-    String goal2,
-    String goal3,
     List<String> imageUrls,
     boolean agreeVideo,
     boolean agreeInsta,
@@ -29,7 +29,7 @@ public record GuestRecruitmentResponseDto(
     double averageRating
 ) {
 
-    public static GuestRecruitmentResponseDto of(DesignerResponseDto designerProfile, Recruitment recruitment, AverageReview averageReview) {
+    public static GuestRecruitmentResponseDto of(DesignerResponseDto designerProfile, Recruitment recruitment, AverageReview averageReview, boolean isLiked) {
         List<RecruitmentSchedule> schedules = recruitment.getRecruitmentDates().stream()
                 .map(date -> RecruitmentSchedule.of(date.getDate(),
                         date.getRecruitmentTimes().stream()
@@ -51,13 +51,13 @@ public record GuestRecruitmentResponseDto(
                 recruitment.getId(),
                 recruitment.getTitle(),
                 schedules,
+                isLiked,
                 recruitment.getCategory().getDescription(),
                 subCategories,
                 recruitment.getContent(),
                 recruitment.getNotice(),
+                recruitment.getRestriction(),
                 recruitment.getGoal1(),
-                recruitment.getGoal2(),
-                recruitment.getGoal3(),
                 imageUrls,
                 recruitment.isAgreeVideo(),
                 recruitment.isAgreeInsta(),
