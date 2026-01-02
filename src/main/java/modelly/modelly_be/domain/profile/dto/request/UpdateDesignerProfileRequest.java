@@ -8,7 +8,7 @@ public record UpdateDesignerProfileRequest(
         @Size(max = 20)
         String nickname,
 
-        @Size(max = 200)
+        @Size(max = 100)
         String intro,
 
         @Size(max = 50)

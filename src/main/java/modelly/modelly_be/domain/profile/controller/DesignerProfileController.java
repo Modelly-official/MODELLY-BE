@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.profile.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.profile.controller.swaggger.DesignerProfileSwagger;
 import modelly.modelly_be.domain.profile.dto.request.UpdateDesignerProfileRequest;
 import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse;
 import modelly.modelly_be.domain.profile.service.DesignerProfileService;
@@ -15,7 +16,7 @@ import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
-public class DesignerProfileController {
+public class DesignerProfileController implements DesignerProfileSwagger {
 
     private final DesignerProfileService designerProfileService;
 
