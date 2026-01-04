@@ -14,7 +14,10 @@ import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
 import modelly.modelly_be.domain.reservation.dto.response.AvailableReservationScheduleResponse;
 import modelly.modelly_be.domain.user.entity.Model;
+import modelly.modelly_be.domain.user.entity.User;
+import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.domain.user.service.ModelService;
+import modelly.modelly_be.domain.user.service.UserService;
 import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.domain.recruitment.repository.recruitmentRepository.RecruitmentRepository;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
@@ -51,6 +54,7 @@ public class RecruitmentService {
     private final ReservationService reservationService;
     private final ReviewService reviewService;
     private final ModelService modelService;
+    private final UserService userService;
 
     public void save(Recruitment recruitment) {
         recruitmentRepository.save(recruitment);
@@ -80,8 +84,11 @@ public class RecruitmentService {
 
         AverageReview averageReview = reviewService.calculateRating(recruitment.getDesigner());
 
+        User user = userService.getById(userId);
+
         boolean isLiked = false;
-        if (userId != null){
+        if (userId != null && user.getUserRole() == UserRole.MODEL){
+
             Model model = modelService.getModelByUserId(userId);
             isLiked = recruitmentLikeService.existsByModelAndRecruitment(model, recruitment);
         }
