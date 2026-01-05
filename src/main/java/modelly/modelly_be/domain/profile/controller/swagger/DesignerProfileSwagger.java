@@ -39,6 +39,7 @@ public interface DesignerProfileSwagger {
                       - `shop` : 매장 이름\n
                       - `address(line1, line2)` : 주소(line1: 도로명주소, line2: 상세주소) \n 
                       - `intro` : 한 줄 소개\n
+                      - `isLiked` : 찜 여부(true: 찜 O, false: 찜 X)\n
                     - `openRecruitments[]` : 모집중 공고 카드 목록\n
                       - `recruitmentId` : 공고 ID\n
                       - `title` : 공고 제목\n

@@ -80,11 +80,14 @@ public class DesignerProfileService {
         Designer designer = designerService.getByUser(user);
         User me = designer.getUser();
 
-        if (req.nickname() != null) {designer.updateNickname(req.nickname());}
-        if (req.intro() != null) designer.updateIntro(req.intro());
-        if (req.shop() != null) designer.updateShop(req.shop());
-        if (req.addressLine1() != null) designer.updateAddressLine1(req.addressLine1());
-        if (req.addressLine2() != null) designer.updateAddressLine2(req.addressLine2());
+        designer.updateProfile(
+                req.nickname(),
+                req.intro(),
+                req.shop(),
+                req.addressLine1(),
+                req.addressLine2()
+        );
+        designer.getUser().updateImageUrl(req.profileImageUrl());
 
         if (req.profileImageUrl() != null) {me.updateImageUrl(req.profileImageUrl());}
 
