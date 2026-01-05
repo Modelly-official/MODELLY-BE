@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.profile.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.profile.controller.swagger.DesignerProfileSwagger;
+import modelly.modelly_be.domain.profile.dto.request.UpdateDesignerMyPageRequest;
 import modelly.modelly_be.domain.profile.dto.request.UpdateDesignerProfileRequest;
 import modelly.modelly_be.domain.profile.dto.response.DesignerMyPageResponse;
 import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse;
@@ -21,6 +22,7 @@ public class DesignerProfileController implements DesignerProfileSwagger {
     private final DesignerProfileService designerProfileService;
     private final DesignerMyPageService designerMyPageService;
 
+    /* ---------- 프로필 관련 API(마이페이지 X) ---------- */
     // 모델/게스트용 특정 디자이너 프로필 조회
     @GetMapping("/profiles/designers/{designerId}")
     public ApiResponse<DesignerProfileResponse> getPublicProfile(
@@ -38,6 +40,7 @@ public class DesignerProfileController implements DesignerProfileSwagger {
         return ApiResponse.onSuccess(designerProfileService.getMyDesignerProfile(auth.user()));
     }
 
+    /* ---------- 마이페이지 프로필 관련 API ---------- */
     // 디자이너 본인 프로필 수정
     @PutMapping("/designers/profiles")
     public ApiResponse<DesignerProfileResponse> updateMyProfile(
@@ -56,4 +59,15 @@ public class DesignerProfileController implements DesignerProfileSwagger {
     ) {
         return ApiResponse.onSuccess(designerMyPageService.getMyPage(auth.user()));
     }
+
+
+    @PutMapping("/designers/me")
+    public ApiResponse<DesignerMyPageResponse> updateMyPage(
+            @AuthenticationPrincipal AuthDetails auth,
+            @RequestBody @Valid UpdateDesignerMyPageRequest req
+    ) {
+        return ApiResponse.onSuccess(designerMyPageService.updateMyPage(auth.user(), req));
+    }
+
+
 }

@@ -1,14 +1,11 @@
 package modelly.modelly_be.domain.profile.service;
 
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.profile.dto.request.UpdateDesignerMyPageRequest;
 import modelly.modelly_be.domain.profile.dto.response.DesignerMyPageResponse;
-import modelly.modelly_be.domain.profile.dto.response.DesignerMyPageResponse.Address;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.User;
-import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.domain.user.service.DesignerService;
-import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
-import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,16 +19,31 @@ public class DesignerMyPageService {
     public DesignerMyPageResponse getMyPage(User user) {
 
         Designer designer = designerService.getByUser(user);
-        return new DesignerMyPageResponse(
-                designer.getId(),
-                designer.getNickname(),
-                user.getGender().getDescription(),
-                user.getBirth(),
-                designer.getIntro(),
-                designer.getShop(),
-                new Address(designer.getAddressLine1(), designer.getAddressLine2()),
-                designer.getCategory().getDescription(),
-                user.getImageUrl()
+        return DesignerMyPageResponse.from(designer);
+    }
+
+
+    @Transactional
+    public DesignerMyPageResponse updateMyPage(User user, UpdateDesignerMyPageRequest req) {
+
+        Designer designer = designerService.getByUser(user);
+        User me = designer.getUser();
+
+        designer.updateMyPage(
+                req.nickname(),
+                req.intro(),
+                req.shop(),
+                req.addressLine1(),
+                req.addressLine2(),
+                req.category()
         );
+
+        me.updateMyPage(
+                req.gender(),
+                req.birth(),
+                req.profileImageUrl()
+        );
+
+        return DesignerMyPageResponse.from(designer);
     }
 }

@@ -87,4 +87,21 @@ public class Designer extends BaseEntity {
         this.addressLine1 = addressLine1;
         this.addressLine2 = addressLine2;
     }
+
+    public void updateMyPage(
+            String nickname,
+            String intro,
+            String shop,
+            String addressLine1,
+            String addressLine2,
+            Category category
+    ) {
+        this.nickname = nickname;
+        this.intro = intro;
+        this.shop = shop;
+        this.addressLine1 = addressLine1;
+        this.addressLine2 = addressLine2;
+        this.category = category;
+    }
+
 }
