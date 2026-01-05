@@ -55,7 +55,7 @@ public interface DesignerProfileSwagger {
     );
 
     @Operation(
-            summary = "디자이너 마이프로필 조회",
+            summary = "디자이너 프로필 조회(공개용 프로필)",
             description = """
                     ### 디자이너 본인의 프로필 정보를 조회하는 API입니다.\n
                     - **디자이너 권한만 호출 가능**합니다.\n
@@ -89,7 +89,7 @@ public interface DesignerProfileSwagger {
     );
 
     @Operation(
-            summary = "디자이너 마이프로필 수정",
+            summary = "디자이너 프로필 수정(공개용 프로필)",
             description = """
                     ### 디자이너가 본인 프로필 정보를 부분 수정(PATCH)하는 API입니다.\n
                     - **디자이너 권한만 호출 가능**합니다.\n
