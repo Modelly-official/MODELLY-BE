@@ -40,7 +40,6 @@ public class DesignerProfileController implements DesignerProfileSwagger {
         return ApiResponse.onSuccess(designerProfileService.getMyDesignerProfile(auth.user()));
     }
 
-    /* ---------- 마이페이지 프로필 관련 API ---------- */
     // 디자이너 본인 프로필 수정
     @PutMapping("/designers/profiles")
     public ApiResponse<DesignerProfileResponse> updateMyProfile(
@@ -52,6 +51,7 @@ public class DesignerProfileController implements DesignerProfileSwagger {
         );
     }
 
+    /* ---------- 마이페이지 프로필 관련 API ---------- */
     // 마이페이지 내 정보(프로필) 조회
     @GetMapping("/designers/me")
     public ApiResponse<DesignerMyPageResponse> getMyPage(
@@ -68,6 +68,5 @@ public class DesignerProfileController implements DesignerProfileSwagger {
     ) {
         return ApiResponse.onSuccess(designerMyPageService.updateMyPage(auth.user(), req));
     }
-
 
 }

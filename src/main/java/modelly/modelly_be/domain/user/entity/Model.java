@@ -26,4 +26,8 @@ public class Model extends BaseEntity {
         model.nickname = nickname;
         return model;
     }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
 }
