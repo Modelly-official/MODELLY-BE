@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.profile.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.profile.controller.swagger.ModelProfileSwagger;
 import modelly.modelly_be.domain.profile.dto.request.UpdateDesignerMyPageRequest;
 import modelly.modelly_be.domain.profile.dto.request.UpdateModelMyPageRequest;
 import modelly.modelly_be.domain.profile.dto.response.DesignerMyPageResponse;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class ModelProfileController {
+public class ModelProfileController implements ModelProfileSwagger {
 
     private final ModelMyPageService modelMyPageService;
 
