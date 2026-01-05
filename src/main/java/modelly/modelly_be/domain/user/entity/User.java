@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import modelly.modelly_be.domain.auth.dto.internal.SocialSignupBase;
+import modelly.modelly_be.domain.notification.entity.NotificationSetting;
 import modelly.modelly_be.domain.user.entity.enums.Gender;
 import modelly.modelly_be.domain.user.entity.enums.LoginType;
 import modelly.modelly_be.domain.user.entity.enums.Permission;
@@ -64,6 +65,9 @@ public class User extends BaseEntity {
     @Column(name = "permission", nullable = false)
     private Permission permission; // USER or ADMIN
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private NotificationSetting notificationSetting;
+
     /* 비밀번호 변경 */
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
@@ -75,6 +79,16 @@ public class User extends BaseEntity {
         this.birth = base.getBirth();
         this.imageUrl = base.getImageUrl();
         this.userRole = base.getUserRole();
+    }
+
+    public void createNotificationSetting() {
+        this.notificationSetting = NotificationSetting.builder()
+                .user(this)
+                .build();
+    }
+
+    public void updateNotificationSetting(NotificationSetting notificationSetting) {
+        this.notificationSetting = notificationSetting;
     }
 
     public void updateImageUrl(String imageUrl) { this.imageUrl = imageUrl; }

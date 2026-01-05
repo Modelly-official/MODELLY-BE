@@ -29,4 +29,6 @@ public class Notification extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(name = "is_read")
+    private boolean isRead = false;
 }

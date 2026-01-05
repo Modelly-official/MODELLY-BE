@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.notification.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import modelly.modelly_be.domain.notification.dto.request.NotificationSettingRequest;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.global.entity.BaseEntity;
 
@@ -35,4 +36,14 @@ public class NotificationSetting extends BaseEntity {
     @Builder.Default
     @Column(name = "review_notification")
     private boolean reviewNotification = true;
+
+    public void updateNotificationSetting(boolean chattingNotification,
+                                          boolean reservationNotification,
+                                          boolean scheduleNotification,
+                                          boolean reviewNotification) {
+        this.chattingNotification = chattingNotification;
+        this.reservationNotification = reservationNotification;
+        this.scheduleNotification = scheduleNotification;
+        this.reviewNotification = reviewNotification;
+    }
 }

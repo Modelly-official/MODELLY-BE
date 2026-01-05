@@ -101,6 +101,9 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_FOUND_PORTFOLIO(HttpStatus.NOT_FOUND, "PORTFOLIO404", "포트폴리오가 존재하지 않습니다."),
     FORBIDDEN_MODIFY_OR_DELETE_PORTFOLIO(HttpStatus.FORBIDDEN,"PORTFOLIO403", "작성자만 포트폴리오 수정 및 삭제가 가능합니다."),
 
+    //Notification
+    NOT_FOUND_NOTIFICATION_SETTING(HttpStatus.NOT_FOUND, "NOTIFICATION_SETTING404", "알림 수신설정이 존재하지 않습니다."),
+
     ;
 
     private final HttpStatus httpStatus;
