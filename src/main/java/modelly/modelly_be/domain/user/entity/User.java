@@ -76,4 +76,6 @@ public class User extends BaseEntity {
         this.imageUrl = base.getImageUrl();
         this.userRole = base.getUserRole();
     }
+
+    public void updateImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }
