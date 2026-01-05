@@ -25,14 +25,14 @@ public class ModelProfileController implements ModelProfileSwagger {
     /* ---------- 모델 마이페이지 프로필 관련 API ---------- */
 
     // 마이페이지 내 정보(프로필) 조회
-    @GetMapping("/models/me")
+    @GetMapping("/models/mypage/profiles")
     public ApiResponse<ModelMyPageResponse> getMyPage(
             @AuthenticationPrincipal AuthDetails auth
     ) {
         return ApiResponse.onSuccess(modelMyPageService.getMyPage(auth.user()));
     }
 
-    @PutMapping("/models/me")
+    @PutMapping("/models/mypage/profiles")
     public ApiResponse<ModelMyPageResponse> updateMyPage(
             @AuthenticationPrincipal AuthDetails auth,
             @RequestBody @Valid UpdateModelMyPageRequest req

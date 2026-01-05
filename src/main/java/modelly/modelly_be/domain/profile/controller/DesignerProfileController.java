@@ -53,7 +53,7 @@ public class DesignerProfileController implements DesignerProfileSwagger {
 
     /* ---------- 마이페이지 프로필 관련 API ---------- */
     // 마이페이지 내 정보(프로필) 조회
-    @GetMapping("/designers/me")
+    @GetMapping("/designers/mypage/profiles")
     public ApiResponse<DesignerMyPageResponse> getMyPage(
             @AuthenticationPrincipal AuthDetails auth
     ) {
@@ -61,7 +61,7 @@ public class DesignerProfileController implements DesignerProfileSwagger {
     }
 
 
-    @PutMapping("/designers/me")
+    @PutMapping("/designers/mypage/profiles")
     public ApiResponse<DesignerMyPageResponse> updateMyPage(
             @AuthenticationPrincipal AuthDetails auth,
             @RequestBody @Valid UpdateDesignerMyPageRequest req
