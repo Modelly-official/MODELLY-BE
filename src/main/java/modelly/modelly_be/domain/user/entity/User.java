@@ -92,4 +92,14 @@ public class User extends BaseEntity {
     }
 
     public void updateImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public void updateMyPage(
+            Gender gender,
+            LocalDate birth,
+            String imageUrl
+    ) {
+        this.gender = gender;
+        this.birth = birth;
+        if (imageUrl != null) this.imageUrl = imageUrl;
+    }
 }

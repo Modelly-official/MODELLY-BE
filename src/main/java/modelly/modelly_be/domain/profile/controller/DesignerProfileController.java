@@ -3,8 +3,11 @@ package modelly.modelly_be.domain.profile.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.profile.controller.swagger.DesignerProfileSwagger;
+import modelly.modelly_be.domain.profile.dto.request.UpdateDesignerMyPageRequest;
 import modelly.modelly_be.domain.profile.dto.request.UpdateDesignerProfileRequest;
+import modelly.modelly_be.domain.profile.dto.response.DesignerMyPageResponse;
 import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse;
+import modelly.modelly_be.domain.profile.service.DesignerMyPageService;
 import modelly.modelly_be.domain.profile.service.DesignerProfileService;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
@@ -17,7 +20,9 @@ import org.springframework.web.bind.annotation.*;
 public class DesignerProfileController implements DesignerProfileSwagger {
 
     private final DesignerProfileService designerProfileService;
+    private final DesignerMyPageService designerMyPageService;
 
+    /* ---------- 프로필 관련 API(마이페이지 X) ---------- */
     // 모델/게스트용 특정 디자이너 프로필 조회
     @GetMapping("/profiles/designers/{designerId}")
     public ApiResponse<DesignerProfileResponse> getPublicProfile(
@@ -45,4 +50,23 @@ public class DesignerProfileController implements DesignerProfileSwagger {
                 designerProfileService.updateMyDesignerProfile(auth.user(), request)
         );
     }
+
+    /* ---------- 마이페이지 프로필 관련 API ---------- */
+    // 마이페이지 내 정보(프로필) 조회
+    @GetMapping("/designers/mypage/profiles")
+    public ApiResponse<DesignerMyPageResponse> getMyPage(
+            @AuthenticationPrincipal AuthDetails auth
+    ) {
+        return ApiResponse.onSuccess(designerMyPageService.getMyPage(auth.user()));
+    }
+
+
+    @PutMapping("/designers/mypage/profiles")
+    public ApiResponse<DesignerMyPageResponse> updateMyPage(
+            @AuthenticationPrincipal AuthDetails auth,
+            @RequestBody @Valid UpdateDesignerMyPageRequest req
+    ) {
+        return ApiResponse.onSuccess(designerMyPageService.updateMyPage(auth.user(), req));
+    }
+
 }
