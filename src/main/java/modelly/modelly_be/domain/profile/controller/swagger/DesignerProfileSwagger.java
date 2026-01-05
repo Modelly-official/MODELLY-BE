@@ -3,7 +3,9 @@ package modelly.modelly_be.domain.profile.controller.swagger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import modelly.modelly_be.domain.profile.dto.request.UpdateDesignerMyPageRequest;
 import modelly.modelly_be.domain.profile.dto.request.UpdateDesignerProfileRequest;
+import modelly.modelly_be.domain.profile.dto.response.DesignerMyPageResponse;
 import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
@@ -118,6 +120,70 @@ public interface DesignerProfileSwagger {
     ApiResponse<DesignerProfileResponse> updateMyProfile(
             @AuthenticationPrincipal AuthDetails auth,
             @RequestBody @Valid UpdateDesignerProfileRequest request
+    );
+
+    @Operation(
+            summary = "디자이너 마이페이지 프로필 조회(마이페이지)",
+            description = """
+                ### 디자이너 마이페이지(내 정보 수정 화면)에서 사용할 정보를 조회하는 API입니다.\n
+                - **디자이너 권한만 호출 가능**합니다.\n
+                - 디자이너 활동명/한줄소개/매장정보/카테고리 + 사용자 성별/생년월일/프로필 이미지 URL을 함께 반환합니다.\n
+                \n
+                ---\n
+                ### Response\n
+                - `designerId` : 디자이너 ID\n
+                - `nickname` : 디자이너 활동명(닉네임)\n
+                - `gender` : 성별 표시값 (ex. \"여자\")\n
+                - `birth` : 생년월일 (YYYY-MM-DD)\n
+                - `intro` : 한 줄 소개\n
+                - `shop` : 매장 이름\n
+                - `address`\n
+                  - `line1` : 매장 주소(기본)\n
+                  - `line2` : 매장 주소(상세)\n
+                - `category` : 카테고리 표시값 (ex. \"헤어\")\n
+                - `profileImageUrl` : 프로필 이미지 URL\n
+                \n
+                ---\n
+                ✅ 권한\n
+                - 디자이너 권한만 호출 가능합니다.\n
+                """
+    )
+    ApiResponse<DesignerMyPageResponse> getMyPage(
+            @AuthenticationPrincipal AuthDetails auth
+    );
+
+    @Operation(
+            summary = "디자이너 마이페이지 프로필 수정(마이페이지)",
+            description = """
+                ### 디자이너 마이페이지(내 정보 수정 화면) 정보를 수정하는 API입니다.\n
+                - **디자이너 권한만 호출 가능**합니다.\n
+                - PUT 방식이며, **요청에 포함된 값으로 전체 업데이트**합니다.\n
+                - 단, `profileImageUrl`은 선택값이며 **null이면 이미지 URL은 변경하지 않습니다.**\n
+                \n
+                ---\n
+                ### Request Body\n
+                - `nickname`(required) : 디자이너 활동명(닉네임) (max=20)\n
+                - `gender`(required) : 성별 (MALE/FEMALE)\n
+                - `birth`(required) : 생년월일 (YYYY-MM-DD)\n
+                - `intro`(required) : 한 줄 소개 (max=100)\n
+                - `shop`(required) : 매장 이름 (max=50)\n
+                - `addressLine1`(required) : 매장 주소(기본) (max=50)\n
+                - `addressLine2`(required) : 매장 주소(상세) (max=50)\n
+                - `category`(required) : 카테고리 (ex. HAIR)\n
+                - `profileImageUrl`(optional) : 프로필 이미지 URL (max=254)\n
+                \n
+                ---\n
+                ### Response\n
+                - 수정된 최신 마이페이지 정보를 반환합니다.\n
+                \n
+                ---\n
+                ✅ 권한\n
+                - 디자이너 권한만 호출 가능합니다.\n
+                """
+    )
+    ApiResponse<DesignerMyPageResponse> updateMyPage(
+            @AuthenticationPrincipal AuthDetails auth,
+            @RequestBody @Valid UpdateDesignerMyPageRequest req
     );
 }
 
