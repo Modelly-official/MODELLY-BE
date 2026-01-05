@@ -42,18 +42,26 @@ public class SwaggerConfig {
     }
 
     @Bean
+    public GroupedOpenApi moandeApi() {
+        return GroupedOpenApi.builder()
+                .group("전체 API")
+                .pathsToMatch("/**")
+                .build();
+    }
+
+    @Bean
     public GroupedOpenApi designerApi() {
         return GroupedOpenApi.builder()
-                .group("1. 디자이너 서비스") // 그룹 이름
-                .pathsToMatch("/designers/**") // 해당 경로만 포함
+                .group("디자이너 서비스")
+                .pathsToMatch("/designers/**")
                 .build();
     }
 
     @Bean
     public GroupedOpenApi modelApi() {
         return GroupedOpenApi.builder()
-                .group("1. 모델 서비스") // 그룹 이름
-                .pathsToMatch("/models/**") // 해당 경로만 포함
+                .group("모델 서비스")
+                .pathsToMatch("/models/**")
                 .build();
     }
 }
