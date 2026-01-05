@@ -86,7 +86,6 @@ public class DesignerProfileService {
                 req.addressLine1(),
                 req.addressLine2()
         );
-        user.updateImageUrl(req.profileImageUrl());
 
         if (req.profileImageUrl() != null) {user.updateImageUrl(req.profileImageUrl());}
 
