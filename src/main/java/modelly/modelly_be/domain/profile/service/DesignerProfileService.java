@@ -44,7 +44,7 @@ public class DesignerProfileService {
             throw new GeneralException(ErrorStatus._FORBIDDEN);
         }
         Designer designer = designerService.getByUser(user);
-        return buildResponse(null, designer);
+        return buildResponse(user, designer);
     }
 
     // 프로필 조회 반환 정보 생성
@@ -78,7 +78,6 @@ public class DesignerProfileService {
     @Transactional
     public DesignerProfileResponse updateMyDesignerProfile(User user, UpdateDesignerProfileRequest req) {
         Designer designer = designerService.getByUser(user);
-        User me = designer.getUser();
 
         designer.updateProfile(
                 req.nickname(),
@@ -87,13 +86,13 @@ public class DesignerProfileService {
                 req.addressLine1(),
                 req.addressLine2()
         );
-        designer.getUser().updateImageUrl(req.profileImageUrl());
+        user.updateImageUrl(req.profileImageUrl());
 
-        if (req.profileImageUrl() != null) {me.updateImageUrl(req.profileImageUrl());}
+        if (req.profileImageUrl() != null) {user.updateImageUrl(req.profileImageUrl());}
 
         // 응답은 최신 정보로 다시 조립
         DesignerProfileInfo info = new DesignerProfileInfo(
-                designer.getUser().getId(),
+                user.getId(),
                 designer.getId(),
                 designer.getNickname(),
                 safeImageUrl(designer),
