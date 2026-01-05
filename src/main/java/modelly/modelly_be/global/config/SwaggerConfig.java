@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,5 +39,21 @@ public class SwaggerConfig {
                 .info(info)
                 .addSecurityItem(securityRequirement)
                 .components(components);
+    }
+
+    @Bean
+    public GroupedOpenApi designerApi() {
+        return GroupedOpenApi.builder()
+                .group("1. 디자이너 서비스") // 그룹 이름
+                .pathsToMatch("/designers/**") // 해당 경로만 포함
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi modelApi() {
+        return GroupedOpenApi.builder()
+                .group("1. 모델 서비스") // 그룹 이름
+                .pathsToMatch("/models/**") // 해당 경로만 포함
+                .build();
     }
 }
