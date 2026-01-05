@@ -1,6 +1,8 @@
 package modelly.modelly_be.domain.notification.entity;
 
 import modelly.modelly_be.domain.user.entity.enums.UserRole;
+import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
+import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 
 public enum NotificationType {
     RESERVATION("예약 알림"),
@@ -25,7 +27,9 @@ public enum NotificationType {
         if (userRole == UserRole.MODEL){
             if (content.contains("확정")) return "예약 확정";
             if (content.contains("취소")) return "예약 취소";
+            else new GeneralException(ErrorStatus._BAD_REQUEST);
         } else if (userRole == UserRole.DESIGNER){
+            if (content.contains("취소")) return "예약 취소";
             return "예약 신청 알림";
         }
 
