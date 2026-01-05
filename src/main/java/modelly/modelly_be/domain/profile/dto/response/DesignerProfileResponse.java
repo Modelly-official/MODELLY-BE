@@ -21,7 +21,8 @@ public record DesignerProfileResponse(
             String profileImageUrl,
             String shop,
             Address address,
-            String intro
+            String intro,
+            boolean isLiked
     ) {}
 
     public record Address(String line1, String line2) {}

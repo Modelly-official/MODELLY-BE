@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.profile.service;
 
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.like.service.DesignerLikeService;
 import modelly.modelly_be.domain.profile.dto.request.UpdateDesignerProfileRequest;
 import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse;
 import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse.DesignerProfileInfo;
@@ -8,9 +9,11 @@ import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse.Ad
 import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse.RecruitmentCard;
 import modelly.modelly_be.domain.profile.repository.ProfileRecruitmentQueryRepository;
 import modelly.modelly_be.domain.user.entity.Designer;
+import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.domain.user.service.DesignerService;
+import modelly.modelly_be.domain.user.service.ModelService;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import org.springframework.stereotype.Service;
@@ -23,13 +26,15 @@ import java.util.List;
 public class DesignerProfileService {
 
     private final DesignerService designerService;
+    private final ModelService modelService;
+    private final DesignerLikeService designerLikeService;
     private final ProfileRecruitmentQueryRepository profileRecruitmentQueryRepository;
 
     // 모델/게스트용 디자니어 프로필 조회
     @Transactional(readOnly = true)
-    public DesignerProfileResponse getPublicDesignerProfile(Long designerId) {
+    public DesignerProfileResponse getPublicDesignerProfile(User user, Long designerId) {
         Designer designer = designerService.getById(designerId);
-        return buildResponse(designer);
+        return buildResponse(user, designer);
     }
 
     // 디자이너 마이프로필 조회용
@@ -39,11 +44,19 @@ public class DesignerProfileService {
             throw new GeneralException(ErrorStatus._FORBIDDEN);
         }
         Designer designer = designerService.getByUser(user);
-        return buildResponse(designer);
+        return buildResponse(null, designer);
     }
 
     // 프로필 조회 반환 정보 생성
-    private DesignerProfileResponse buildResponse(Designer designer) {
+    private DesignerProfileResponse buildResponse(User user, Designer designer) {
+        boolean isLiked = false;
+
+        // user가 모델일 경우 like 여부 조회
+        if (user != null && user.getUserRole() == UserRole.MODEL) {
+            Model model = modelService.getModelByUser(user);
+            isLiked = designerLikeService.existsByModelAndDesigner(model, designer);
+        }
+
         DesignerProfileInfo info = new DesignerProfileInfo(
                 designer.getUser().getId(),
                 designer.getId(),
@@ -51,7 +64,8 @@ public class DesignerProfileService {
                 designer.getUser().getImageUrl(),
                 designer.getShop(),
                 new Address(designer.getAddressLine1(), designer.getAddressLine2()),
-                designer.getIntro()
+                designer.getIntro(),
+                isLiked
         );
 
         List<RecruitmentCard> openRecruitments =
@@ -82,7 +96,8 @@ public class DesignerProfileService {
                 safeImageUrl(designer),
                 designer.getShop(),
                 new Address(designer.getAddressLine1(), designer.getAddressLine2()),
-                designer.getIntro()
+                designer.getIntro(),
+                false
         );
 
         return DesignerProfileResponse.of(

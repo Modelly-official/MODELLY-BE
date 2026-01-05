@@ -1,4 +1,4 @@
-package modelly.modelly_be.domain.profile.controller.swaggger;
+package modelly.modelly_be.domain.profile.controller.swagger;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -49,6 +49,7 @@ public interface DesignerProfileSwagger {
                     """
     )
     ApiResponse<DesignerProfileResponse> getPublicProfile(
+            @AuthenticationPrincipal AuthDetails auth,
             @PathVariable Long designerId
     );
 
