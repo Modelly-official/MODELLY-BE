@@ -7,7 +7,7 @@ import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse;
 import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse.DesignerProfileInfo;
 import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse.Address;
 import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse.RecruitmentCard;
-import modelly.modelly_be.domain.profile.repository.ProfileRecruitmentQueryRepository;
+import modelly.modelly_be.domain.recruitment.repository.recruitmentRepository.RecruitmentRepository;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
@@ -28,7 +28,7 @@ public class DesignerProfileService {
     private final DesignerService designerService;
     private final ModelService modelService;
     private final DesignerLikeService designerLikeService;
-    private final ProfileRecruitmentQueryRepository profileRecruitmentQueryRepository;
+    private final RecruitmentRepository recruitmentRepository;
 
     // 모델/게스트용 디자니어 프로필 조회
     @Transactional(readOnly = true)
@@ -69,7 +69,7 @@ public class DesignerProfileService {
         );
 
         List<RecruitmentCard> openRecruitments =
-                profileRecruitmentQueryRepository.findOpenRecruitmentsByDesigner(designer.getId());
+                recruitmentRepository.findOpenRecruitmentsByDesigner(designer.getId());
 
         return DesignerProfileResponse.of(info, openRecruitments);
     }
@@ -105,7 +105,7 @@ public class DesignerProfileService {
 
         return DesignerProfileResponse.of(
                 info,
-                profileRecruitmentQueryRepository.findOpenRecruitmentsByDesigner(designer.getId())
+                recruitmentRepository.findOpenRecruitmentsByDesigner(designer.getId())
         );
     }
 

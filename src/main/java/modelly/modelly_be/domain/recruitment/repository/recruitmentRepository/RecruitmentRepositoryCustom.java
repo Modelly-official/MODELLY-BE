@@ -1,5 +1,6 @@
 package modelly.modelly_be.domain.recruitment.repository.recruitmentRepository;
 
+import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse;
 import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentBasic;
 import modelly.modelly_be.domain.recruitment.dto.internal.DesignerRecruitmentList;
 import modelly.modelly_be.global.entity.SubCategory;
@@ -25,4 +26,6 @@ public interface RecruitmentRepositoryCustom {
     List<DesignerRecruitmentList> findRecruitmentsByDesignerAndDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId);
 
     Map<Long, Set<SubCategory>> findSubCategoriesByRecruitmentIds(List<Long> recruitmentIds);
+
+    List<DesignerProfileResponse.RecruitmentCard> findOpenRecruitmentsByDesigner(Long designerId);
 }
