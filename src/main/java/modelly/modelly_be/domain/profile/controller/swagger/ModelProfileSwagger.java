@@ -51,7 +51,7 @@ public interface ModelProfileSwagger {
                 \n
                 ---\n
                 ### Request Body\n
-                - `nickname`(required) : 디자이너 활동명(닉네임) (max=20)\n
+                - `nickname`(required) : 모델 활동명(닉네임) (max=20)\n
                 - `gender`(required) : 성별 (MALE/FEMALE)\n
                 - `birth`(required) : 생년월일 (YYYY-MM-DD)\n
                 - `profileImageUrl`(optional) : 프로필 이미지 URL (max=254)\n
