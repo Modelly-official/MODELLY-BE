@@ -90,4 +90,6 @@ public class User extends BaseEntity {
     public void updateNotificationSetting(NotificationSetting notificationSetting) {
         this.notificationSetting = notificationSetting;
     }
+
+    public void updateImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }

@@ -74,4 +74,17 @@ public class Designer extends BaseEntity {
         this.intro = intro;
         this.user = user;
     }
+    public void updateProfile(
+            String nickname,
+            String intro,
+            String shop,
+            String addressLine1,
+            String addressLine2
+    ) {
+        this.nickname = nickname;
+        this.intro = intro;
+        this.shop = shop;
+        this.addressLine1 = addressLine1;
+        this.addressLine2 = addressLine2;
+    }
 }

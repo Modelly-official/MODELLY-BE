@@ -37,7 +37,9 @@ public class TimeFormatter {
             return hours + "시간 전";
         } else if (days == 1) {
             return "어제";
-        } else if (days < 355){
+        } else if (days < 7) {
+            return days + "일 전";
+        } else if (days < 365){
             return dateTime.format(DateTimeFormatter.ofPattern("M월 d일"));
         } else {
             return dateTime.format(DateTimeFormatter.ofPattern("yyyy.MM.dd"));
