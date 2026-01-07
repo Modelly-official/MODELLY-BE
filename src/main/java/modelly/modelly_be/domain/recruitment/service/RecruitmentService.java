@@ -84,13 +84,17 @@ public class RecruitmentService {
 
         AverageReview averageReview = reviewService.calculateRating(recruitment.getDesigner());
 
-        User user = userService.getById(userId);
-
         boolean isLiked = false;
-        if (userId != null && user.getUserRole() == UserRole.MODEL){
+        if (userId != null){
 
-            Model model = modelService.getModelByUserId(userId);
-            isLiked = recruitmentLikeService.existsByModelAndRecruitment(model, recruitment);
+            User user = userService.getById(userId);
+
+            if (user.getUserRole() == UserRole.MODEL){
+
+                Model model = modelService.getModelByUserId(userId);
+                isLiked = recruitmentLikeService.existsByModelAndRecruitment(model, recruitment);
+            }
+
         }
 
         return GuestRecruitmentResponseDto.of(

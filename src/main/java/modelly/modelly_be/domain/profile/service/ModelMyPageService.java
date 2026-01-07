@@ -29,12 +29,13 @@ public class ModelMyPageService {
     public ModelMyPageResponse updateMyPage(User user, UpdateModelMyPageRequest req) {
 
         Model model = modelService.getModelByUser(user);
+        User me = model.getUser();
 
         model.updateNickname(
                 req.nickname()
         );
 
-        user.updateMyPage(
+        me.updateMyPage(
                 req.gender(),
                 req.birth(),
                 req.profileImageUrl()
