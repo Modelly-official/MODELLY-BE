@@ -135,7 +135,6 @@ public interface DesignerProfileSwagger {
                 - `nickname` : 디자이너 활동명(닉네임)\n
                 - `gender` : 성별 표시값 (ex. \"여자\")\n
                 - `birth` : 생년월일 (YYYY-MM-DD)\n
-                - `email` : 이메일\n
                 - `intro` : 한 줄 소개\n
                 - `shop` : 매장 이름\n
                 - `address`\n

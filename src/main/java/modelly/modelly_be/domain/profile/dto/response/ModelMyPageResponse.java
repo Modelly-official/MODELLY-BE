@@ -13,7 +13,6 @@ public record ModelMyPageResponse(
         String nickname,
         String gender,
         LocalDate birth,
-        String email,
         String profileImageUrl
 ) {
 
@@ -24,7 +23,6 @@ public record ModelMyPageResponse(
                 model.getNickname(),
                 user.getGender().getDescription(),
                 user.getBirth(),
-                user.getEmail(),
                 user.getImageUrl()
         );
     }
