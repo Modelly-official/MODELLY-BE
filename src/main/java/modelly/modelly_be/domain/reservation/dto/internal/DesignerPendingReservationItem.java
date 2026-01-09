@@ -5,6 +5,7 @@ import java.util.List;
 
 public record DesignerPendingReservationItem(
         Long reservationId,
+        String recruitmentTitle,
         LocalDate date,
         String time,              // HH:mm
         String modelName,
