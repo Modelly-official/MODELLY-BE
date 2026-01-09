@@ -5,6 +5,7 @@ import modelly.modelly_be.domain.like.dto.response.LikeRecruitmentListResponseDt
 import modelly.modelly_be.domain.notification.dto.response.NotificationListResponse;
 import modelly.modelly_be.domain.portfolio.dto.response.PortfolioListResponse;
 import modelly.modelly_be.domain.recruitment.dto.internal.DesignerRecruitmentList;
+import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponse;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
 import modelly.modelly_be.domain.review.dto.response.DesignerReviewListResponseDto;
 import modelly.modelly_be.domain.review.dto.response.MyReviewListResponseDto;
@@ -32,8 +33,8 @@ public class ScrollUtil {
                 nextCursor = ((LikeRecruitmentListResponseDto) last).recruitmentLikeId();
             } else if (last instanceof LikeDesignerListResponseDto) {
                 nextCursor = ((LikeDesignerListResponseDto) last).designerLikeId();
-            } else if (last instanceof DesignerRecruitmentList) {
-                nextCursor = ((DesignerRecruitmentList) last).recruitmentId();
+            } else if (last instanceof DesignerRecruitmentListResponse) {
+                nextCursor = ((DesignerRecruitmentListResponse) last).recruitmentId();
             } else if (last instanceof MyReviewListResponseDto) {
                 nextCursor = ((MyReviewListResponseDto) last).reviewId();
             } else if (last instanceof ReviewListResponseDto) {
