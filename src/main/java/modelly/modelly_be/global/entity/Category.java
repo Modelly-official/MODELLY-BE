@@ -1,5 +1,7 @@
 package modelly.modelly_be.global.entity;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum Category {
     HAIR("헤어"),
     NAIL("네일"),
@@ -11,6 +13,7 @@ public enum Category {
 
     Category(String description) {this.description = description;}
 
+    @JsonValue
     public String getDescription() {
         return description;
     }
