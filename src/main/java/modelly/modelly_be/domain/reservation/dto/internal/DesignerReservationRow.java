@@ -15,7 +15,7 @@ public record DesignerReservationRow(
         Long recruitmentId,
         String recruitmentTitle,
 
-        Long modelId,
         Long modelUserId,
+        Long modelId,
         String modelName
 ) {}
