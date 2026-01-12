@@ -96,7 +96,7 @@ public interface ChatSwagger {
             @AuthenticationPrincipal AuthDetails currentUser,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "") Category category
+            @RequestParam(required = false) Category category
     );
 
     @Operation(

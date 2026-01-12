@@ -35,7 +35,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
             Pageable pageable
     );
 
-    // 디자이너 ID로 조회 (reservation status 필터링)
+    // 디자이너 ID로 조회
     @Query("""
         SELECT r
         FROM ChatRoom r

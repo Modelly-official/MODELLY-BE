@@ -44,7 +44,7 @@ public class ChatController implements ChatSwagger {
             @AuthenticationPrincipal AuthDetails currentUser,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "") Category category
+            @RequestParam(required = false) Category category
     ) {
         Long currentUserId = currentUser.user().getId();
         List<ChatRoomListResponse> rooms = chatRoomService.getMyChatRoomList(currentUserId, page, size, category);
