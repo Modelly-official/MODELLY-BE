@@ -10,6 +10,7 @@ import modelly.modelly_be.domain.review.dto.response.ReviewResponseDto;
 import modelly.modelly_be.domain.review.entity.Review;
 import modelly.modelly_be.domain.review.service.ReviewService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
+import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.security.AuthDetails;
 import modelly.modelly_be.global.utils.ScrollResponse;
 import modelly.modelly_be.global.utils.ScrollUtil;
@@ -55,10 +56,11 @@ public class ModelReviewController implements ModelReviewSwagger {
     @GetMapping("/reviews")
     public ApiResponse<ScrollResponse<MyReviewListResponseDto>> getReviewList(
             @AuthenticationPrincipal AuthDetails authDetails,
+            @RequestParam(required = false) Category category,
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "10") int size){
 
-        List<MyReviewListResponseDto> listDtos = reviewService.getReviewList(authDetails.user(), cursorId, size);
+        List<MyReviewListResponseDto> listDtos = reviewService.getReviewList(authDetails.user(), category, cursorId, size);
 
         ScrollResponse<MyReviewListResponseDto> responseDtos = ScrollUtil.paginate(listDtos, size);
 

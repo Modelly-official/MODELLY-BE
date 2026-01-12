@@ -1,8 +1,11 @@
 package modelly.modelly_be.global.entity;
 
-import lombok.Getter;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 
-@Getter
+import java.io.IOException;
+
 public enum SubCategory {
     // HAIR
     HAIR_CUT("커트", Category.HAIR),
@@ -32,5 +35,21 @@ public enum SubCategory {
     SubCategory(String description, Category parentCategory) {
         this.description = description;
         this.parentCategory = parentCategory;
+    }
+
+    public Category getParentCategory() {
+        return parentCategory;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public static class SubCategorySerializer extends JsonSerializer<SubCategory> {
+
+        @Override
+        public void serialize(SubCategory value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            gen.writeString(value.getDescription());
+        }
     }
 }
