@@ -9,6 +9,8 @@ public record LikeDesignerListResponseDto(
         String designerProfileImage,
         Category designerCategory,
         String shopName,
-        String shopAddress
+        String shopAddress,
+        long reviewCount,
+        double averageRating
 ) {
 }
