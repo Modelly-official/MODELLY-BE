@@ -13,11 +13,11 @@ import java.time.format.DateTimeParseException;
 public class TimeFormatter {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
-    public static LocalTime parseStartTime(String timeStr) {
+    public static String parseStartTime(LocalTime startTime) {
         try {
-            return LocalTime.parse(timeStr, TIME_FORMATTER);
+            return startTime.format(DateTimeFormatter.ofPattern("M월 d일 HH:mm"));
         } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("잘못된 time 형식: " + timeStr, e);
+            throw new IllegalArgumentException("잘못된 time 형식: " + startTime, e);
         }
     }
 

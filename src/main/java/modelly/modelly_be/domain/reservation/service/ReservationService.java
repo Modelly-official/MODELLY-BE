@@ -46,6 +46,7 @@ public class ReservationService {
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
+    private final ReservationNotificationService reservationNotificationService;
 
     public void hasPendingOrConfirmedReservation(Recruitment recruitment) {
         List<Reservation> reservations = reservationRepository.findAllByRecruitment(recruitment);
@@ -558,6 +559,8 @@ public class ReservationService {
         );
 
         chattingService.publishReservationPayload(me.getId(), finalRoomId, payload);
+
+        reservationNotificationService.createScheduleCancelNotification(me, reservation, finalRoomId);
 
         return new SimpleMessageDTO("예약이 취소되었습니다.");
     }

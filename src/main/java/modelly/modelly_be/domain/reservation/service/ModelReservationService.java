@@ -44,6 +44,7 @@ public class ModelReservationService {
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
+    private final ReservationNotificationService reservationNotificationService;
 
 
     /*----------- 예약 신청 ----------*/
@@ -90,6 +91,8 @@ public class ModelReservationService {
                 .build();
 
         reservationService.save(reservation);
+
+        reservationNotificationService.createReservationRequestNotification(reservation);
     }
 
     /*----------- 예약 조회(다가오는 일정, 완료된 일정) ----------*/

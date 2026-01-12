@@ -12,13 +12,13 @@ public record NotificationData(
         String senderName //채팅일 경우
 ) {
 
-    public static NotificationData chattingNotification(User user, NotificationType type, String title, String message,Long chattingId, String senderName) {
+    public static NotificationData chattingNotification(User user, NotificationType type, String title, String message,Long chattingRoomId, String senderName) {
         return new NotificationData(
                 user,
                 type,
                 title,
                 message,
-                chattingId,
+                chattingRoomId,
                 senderName
         );
     }

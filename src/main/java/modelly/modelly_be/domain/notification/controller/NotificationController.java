@@ -2,8 +2,10 @@ package modelly.modelly_be.domain.notification.controller;
 
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.notification.controller.swagger.NotificationSwagger;
+import modelly.modelly_be.domain.notification.dto.request.FcmTokenRequest;
 import modelly.modelly_be.domain.notification.dto.response.NotificationListResponse;
 import modelly.modelly_be.domain.notification.entity.NotificationType;
+import modelly.modelly_be.domain.notification.service.FcmTokenService;
 import modelly.modelly_be.domain.notification.service.NotificationService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
@@ -18,6 +20,15 @@ import java.util.List;
 public class NotificationController implements NotificationSwagger {
 
     private final NotificationService notificationService;
+    private final FcmTokenService fcmTokenService;
+
+
+    @Override
+    public ApiResponse<String> saveFcmToken(AuthDetails authDetails, FcmTokenRequest fcmTokenRequest) {
+        fcmTokenService.saveOrUpdateToken(authDetails.user().getId(), fcmTokenRequest.fcmToken());
+
+        return ApiResponse.onSuccess("FCM 토큰을 저장했습니다.");
+    }
 
     @Override
     public ApiResponse<ScrollResponse<NotificationListResponse>> getNotifications(AuthDetails authDetails, NotificationType notificationType, Long cursorId, int size) {
