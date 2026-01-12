@@ -1,11 +1,16 @@
 package modelly.modelly_be.domain.like.repository.designerLikeRepository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLSubQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.like.dto.response.LikeDesignerListResponseDto;
 import modelly.modelly_be.domain.like.entity.QDesignerLike;
+import modelly.modelly_be.domain.review.entity.QReview;
 import modelly.modelly_be.domain.user.entity.QDesigner;
 import modelly.modelly_be.global.entity.Category;
 
@@ -41,12 +46,36 @@ public class DesignerLikeRepositoryCustomImpl implements DesignerLikeRepositoryC
                 qDesigner.user.imageUrl,
                 qDesigner.category,
                 qDesigner.shop,
-                qDesigner.addressLine1))
+                qDesigner.addressLine1,
+                ExpressionUtils.as(getReviewCountSubQuery(), "reviewCount"),
+                ExpressionUtils.as(getAverageRatingSubQuery(), "averageRating")
+                        ))
                 .from(qDesignerLike)
                 .join(qDesignerLike.designer, qDesigner)
                 .where(booleanBuilder)
                 .orderBy(qDesignerLike.id.desc())
                 .limit(size+1)
                 .fetch();
+    }
+
+    private JPQLSubQuery<Long> getReviewCountSubQuery() {
+        QReview qReview = QReview.review;
+        QDesigner qDesigner = QDesigner.designer;
+
+        return JPAExpressions
+                .select(qReview.count())
+                .from(qReview)
+                .where(qReview.designer.eq(qDesigner));
+
+    }
+
+    private JPQLSubQuery<Double> getAverageRatingSubQuery() {
+        QReview qReview = QReview.review;
+        QDesigner qDesigner = QDesigner.designer;
+
+        return JPAExpressions.select(qReview.rating.avg().coalesce(0.0))
+                .from(qReview)
+                .where(qReview.designer.eq(qDesigner));
+
     }
 }
