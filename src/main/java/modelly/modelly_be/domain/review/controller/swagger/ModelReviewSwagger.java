@@ -8,6 +8,7 @@ import modelly.modelly_be.domain.review.dto.request.ReviewUpdateRequestDto;
 import modelly.modelly_be.domain.review.dto.response.MyReviewListResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReviewResponseDto;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
+import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.security.AuthDetails;
 import modelly.modelly_be.global.utils.ScrollResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -54,6 +55,7 @@ public interface ModelReviewSwagger {
             """)
     ApiResponse<ScrollResponse<MyReviewListResponseDto>> getReviewList(
             @AuthenticationPrincipal AuthDetails authDetails,
+            @RequestParam(required = false) Category category,
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "10") int size);
 }
