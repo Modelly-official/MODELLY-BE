@@ -8,6 +8,7 @@ import modelly.modelly_be.domain.chat.entity.ChatRoom;
 import modelly.modelly_be.domain.chat.entity.Chatting;
 import modelly.modelly_be.domain.chat.repository.ChatRoomRepository;
 import modelly.modelly_be.domain.chat.repository.ChattingRepository;
+import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
@@ -17,6 +18,7 @@ import modelly.modelly_be.domain.user.repository.ModelRepository;
 import modelly.modelly_be.domain.user.repository.UserRepository;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
+import modelly.modelly_be.global.entity.Category;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -90,7 +92,7 @@ public class ChatRoomService {
 
     /* 채팅방 리스트 조회 */
     @Transactional(readOnly = true)
-    public List<ChatRoomListResponse> getMyChatRoomList(Long currentUserId, int page, int size) {
+    public List<ChatRoomListResponse> getMyChatRoomList(Long currentUserId, int page, int size, Category category) {
 
         var modelOpt = modelRepository.findByUser_Id(currentUserId);
         var designerOpt = designerRepository.findByUser_Id(currentUserId);
@@ -115,14 +117,14 @@ public class ChatRoomService {
         if (isModel) {
             Long modelId = modelOpt.get().getId();
             rooms = chatRoomRepository
-                    .findAllByModelIdOrderByLastMessageTimeDesc(modelId, pageable) // 페이지 단위로 채팅방 수집
+                    .findAllByModelIdOrderByLastMessageTimeDesc(modelId, category, pageable) // 페이지 단위로 채팅방 수집
                     .getContent();
         }
         // 현재 유저가 디자이너인 경우
         else if (isDesigner) {
             Long designerId = designerOpt.get().getId();
             rooms = chatRoomRepository
-                    .findAllByDesignerIdOrderByLastMessageTimeDesc(designerId, pageable) // 페이지 단위로 채팅방 수집
+                    .findAllByDesignerIdOrderByLastMessageTimeDesc(designerId, category, pageable) // 페이지 단위로 채팅방 수집
                     .getContent();
         }
 
