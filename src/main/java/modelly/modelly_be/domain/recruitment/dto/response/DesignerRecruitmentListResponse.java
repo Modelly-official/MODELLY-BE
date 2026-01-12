@@ -1,5 +1,6 @@
 package modelly.modelly_be.domain.recruitment.dto.response;
 
+
 import java.util.List;
 
 public record DesignerRecruitmentListResponse(

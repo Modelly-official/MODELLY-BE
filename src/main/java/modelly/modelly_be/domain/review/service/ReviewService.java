@@ -14,7 +14,7 @@ import modelly.modelly_be.domain.review.dto.response.ReviewThumbnailListResponse
 import modelly.modelly_be.domain.review.entity.Reply;
 import modelly.modelly_be.domain.review.entity.Review;
 import modelly.modelly_be.domain.review.entity.ReviewImage;
-import modelly.modelly_be.domain.review.repository.ReviewRepository;
+import modelly.modelly_be.domain.review.repository.reviewRepository.ReviewRepository;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
@@ -22,6 +22,7 @@ import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.domain.user.service.ModelService;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
+import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.listener.dto.S3FolderDeleteEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +33,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -173,13 +176,13 @@ public class ReviewService {
         reviewRepository.delete(review);
     }
 
-    public List<MyReviewListResponseDto> getReviewList(User user, Long cursorId, int size) {
+    public List<MyReviewListResponseDto> getReviewList(User user, Category category, Long cursorId, int size) {
         Model model = modelService.getModelByUser(user);
+        log.info("모델 id: "+ model.getId());
 
-        Pageable pageable = PageRequest.of(0, size+1);
-        Slice<MyReviewListResponseDto> responseDtos = reviewRepository.findAllByModelAndIdLessThanOrderByCreatedAtDesc(model, cursorId, pageable);
+        List<MyReviewListResponseDto> responseDtos = reviewRepository.findReviewList(model.getId(), category, cursorId, size);
 
-        return responseDtos.getContent();
+        return responseDtos;
     }
 
     public List<ReviewListResponseDto> getDesignerReviewList(Long userId, Long designerId, Long cursorId, int size) {
