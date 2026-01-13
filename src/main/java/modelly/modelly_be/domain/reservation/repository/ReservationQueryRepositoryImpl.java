@@ -42,9 +42,6 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
             ReservationListType type,
             Category category
     ) {
-        // 월 범위 분리 (start: 해당월 1일, end: 다음달 1일)
-        LocalDate start = ym.atDay(1);
-        LocalDate end = ym.plusMonths(1).atDay(1);
 
         // 현재 시간
         LocalDate today = LocalDate.now(KST);
@@ -55,16 +52,31 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
 
         // 조건1: 해당 모델 예약 + 해당 달
         where.and(reservation.model.id.eq(modelId));
-        where.and(reservation.date.goe(start));
-        where.and(reservation.date.lt(end));
 
-        // 조건2: CONFIRMED된 예약만
-        where.and(reservation.status.eq(ReservationStatus.RESERVATION_CONFIRMED));
+        if (ym != null) {
+            // 월 범위 분리 (start: 해당월 1일, end: 다음달 1일)
+            LocalDate start = ym.atDay(1);
+            LocalDate end = ym.plusMonths(1).atDay(1);
 
-        // 조건3: 특정 카테고리만
+            where.and(reservation.date.goe(start));
+            where.and(reservation.date.lt(end));
+        }
+
+        // 조건2: 특정 카테고리만
         if (category != null) {
             where.and(reservation.category.eq(category));
         }
+
+        // 조건3: PENDING과 CONFIRMED 분리
+        if (type == ReservationListType.PENDING) {
+            where.and(reservation.status.eq(ReservationStatus.RESERVATION_PENDING));
+
+            return where;
+        }
+        else {
+            where.and(reservation.status.eq(ReservationStatus.RESERVATION_CONFIRMED));
+        }
+
 
         // 조건4: 다가오는 일정/완료된 일정 분리
         if (type == ReservationListType.UPCOMING) {

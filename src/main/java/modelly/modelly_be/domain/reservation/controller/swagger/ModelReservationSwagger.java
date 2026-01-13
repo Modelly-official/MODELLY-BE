@@ -86,8 +86,8 @@ public interface ModelReservationSwagger {
                     \n
                     ---\n
                     ### Request Param\n
-                    - `month`(optional) : yyyy-MM (미설정 시 서버에서 기본 월 설정)\n
-                    - `type` : UPCOMING / COMPLETED\n
+                    - `month`(optional) : yyyy-MM (미설정 시 전체 조회)\n
+                    - `type` : PENDING(대기중) / UPCOMING(다가오는 일정) / COMPLETED(완료된 일정)\n
                     - `category`(optional) : 카테고리 필터 (전체 조회면 null)\n
                     - `size`(default=12) : 페이지 사이즈\n
                     - `cursorDate`(optional) : 커서 날짜(yyyy-MM-dd)\n

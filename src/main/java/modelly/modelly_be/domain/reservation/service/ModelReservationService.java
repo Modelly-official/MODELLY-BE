@@ -73,6 +73,10 @@ public class ModelReservationService {
         }
         slots.forEach(RecruitmentTime::reserve);
 
+        String imageUrl = (req.imageUrls() == null || req.imageUrls().isBlank())
+                ? null
+                : req.imageUrls();
+
         Reservation reservation = Reservation.builder()
                 .date(date)
                 .startTime(start)
@@ -83,7 +87,7 @@ public class ModelReservationService {
                 .designerName(req.designerName())
                 .shop(req.shop())
                 .status(ReservationStatus.RESERVATION_PENDING)
-                .imageUrl(req.imageUrls())
+                .imageUrl(imageUrl)
                 .recruitment(recruitment)
                 .model(model)
                 .designer(recruitment.getDesigner())
@@ -109,7 +113,9 @@ public class ModelReservationService {
         Model model = modelService.getModelByUser(user);
 
         // month 파싱 (reservationService 유틸 참고)
-        YearMonth ym = reservationService.parseYearMonthOrNow(month);
+        YearMonth ym = (month == null || month.isBlank())
+                ? null
+                : reservationService.parseYearMonthOrNow(month);
 
         // cursorTime(String)을 LocalTime으로 변환
         LocalTime cursorTimeParsed = (cursorTime == null || cursorTime.isBlank())

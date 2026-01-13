@@ -237,6 +237,7 @@ public class DesignerReservationService {
 
         return new DesignerReservationDetailResponse(
                 reservation.getId(),
+                reservation.getRecruitment().getId(),
                 reservation.getRecruitment().getTitle(),
                 reservation.getStatus().getDescription(),
                 reservation.getDate(),

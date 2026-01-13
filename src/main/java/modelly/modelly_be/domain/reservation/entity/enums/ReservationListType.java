@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.reservation.entity.enums;
 
 public enum ReservationListType {
+    PENDING("대기 중"),
     UPCOMING("다가오는 일정"),
     COMPLETED("완료된 일정");
 
