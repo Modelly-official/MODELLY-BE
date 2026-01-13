@@ -109,7 +109,9 @@ public class ModelReservationService {
         Model model = modelService.getModelByUser(user);
 
         // month 파싱 (reservationService 유틸 참고)
-        YearMonth ym = reservationService.parseYearMonthOrNow(month);
+        YearMonth ym = (month == null || month.isBlank())
+                ? null
+                : reservationService.parseYearMonthOrNow(month);
 
         // cursorTime(String)을 LocalTime으로 변환
         LocalTime cursorTimeParsed = (cursorTime == null || cursorTime.isBlank())
