@@ -9,6 +9,7 @@ import java.util.List;
 
 public record DesignerReservationDetailResponse(
         Long reservationId,
+        Long recruitmentId,
         String recruitmentTitle,
         String status,
 

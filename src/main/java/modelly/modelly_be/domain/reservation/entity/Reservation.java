@@ -60,7 +60,7 @@ public class Reservation extends BaseEntity {
     @Column(name = "cancel_reason", length = 100)
     private String cancelReason;
 
-    @Column(name = "image_url", nullable = false, length = 254)
+    @Column(name = "image_url", length = 254)
     private String imageUrl;
 
     @Column(name = "comment", nullable = false, length = 254)
