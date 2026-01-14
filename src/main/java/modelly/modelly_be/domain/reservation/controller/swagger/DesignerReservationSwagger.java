@@ -67,8 +67,10 @@ public interface DesignerReservationSwagger {
                 - `totalCount` : 해당 날짜 총 예약 수\n
                 - `reservations[]`\n
                   - `reservationId` : 예약 ID\n
+                  - `recruitmentId` : 모집글 ID\n
                   - `time` : 예약 시작 시간 (HH:mm)\n
                   - `modelName` : 모델 이름\n
+                  - `imageUrl` : 모델 프로필 이미지\n
                   - `subCategory` : 세부 카테고리 표시값 (ex. 펌/커트)\n
                 \n
                 ---\n
