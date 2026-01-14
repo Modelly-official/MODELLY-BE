@@ -13,10 +13,12 @@ import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationListType;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.domain.reservation.repository.ReservationQueryRepository;
+import modelly.modelly_be.domain.reservation.repository.ReservationRepository;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.service.ModelService;
+import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.Category;
@@ -41,6 +43,7 @@ public class ModelReservationService {
     private final ModelService modelService;
     private final RecruitmentService recruitmentService;
     private final ReservationQueryRepository reservationQueryRepository;
+    private final ReservationRepository reservationRepository;
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
@@ -277,9 +280,31 @@ public class ModelReservationService {
         return new ReservationScrollResponse<>(items, totalCount, hasNext, nextDate, nextTime, nextId);
     }
 
+    // 특정 공고의 예약 가능한 스케줄 조회
     @Transactional(readOnly = true)
     public AvailableReservationScheduleResponse getAvailableSchedules(Long recruitmentId, String month){
         return recruitmentService.getAvailableSchedules(recruitmentId, month);
     }
 
+    // 예약 신청 취소
+    @Transactional
+    public SimpleMessageDTO cancelPendingReservation(User user, Long reservationId) {
+        Model model = modelService.getModelByUser(user);
+
+        Reservation reservation = reservationRepository.findByIdForUpdate(reservationId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION));
+
+        // 내 예약인지 체크
+        if (reservation.getModel() == null || !reservation.getModel().getId().equals(model.getId())) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        // 대기중만 취소 가능
+        if (reservation.getStatus() != ReservationStatus.RESERVATION_PENDING) {
+            throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
+        }
+
+        reservation.cancelByModel();
+        return new SimpleMessageDTO("예약 신청이 취소되었습니다.");
+    }
 }

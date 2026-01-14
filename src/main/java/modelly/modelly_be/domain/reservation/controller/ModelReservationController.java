@@ -94,4 +94,14 @@ public class ModelReservationController implements ModelReservationSwagger {
                 )
         );
     }
+
+    // 예약 신청 취소
+    @PostMapping("/models/reservations/{reservationId}/cancel")
+    public ApiResponse<SimpleMessageDTO> cancelReservation(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long reservationId
+    ) {
+        SimpleMessageDTO res = modelReservationService.cancelPendingReservation(auth.user(), reservationId);
+        return ApiResponse.onSuccess(res);
+    }
 }

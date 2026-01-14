@@ -93,6 +93,10 @@ public class Reservation extends BaseEntity {
         this.cancelReason = reason;
     }
 
+    public void cancelByModel() {
+        this.status = ReservationStatus.RESERVATION_CANCELLED;
+    }
+
     public void confirm() {
         this.status = ReservationStatus.RESERVATION_CONFIRMED;
     }

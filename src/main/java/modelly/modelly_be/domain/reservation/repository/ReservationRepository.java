@@ -1,11 +1,13 @@
 package modelly.modelly_be.domain.reservation.repository;
 
+import jakarta.persistence.LockModeType;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.domain.user.entity.Designer;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -13,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     boolean existsReservationByRecruitmentAndStatus(Recruitment recruitment, ReservationStatus reservationStatus);
@@ -20,15 +23,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     void deleteAllByRecruitment(Recruitment recruitment);
 
     List<Reservation> findAllByRecruitment(Recruitment recruitment);
-
-    // 동일 시간대 예약 확인(예약 상태가 CONFIRMED인 경우만 고려)
-    boolean existsByDesignerAndDateAndStatusInAndStartTimeLessThanAndEndTimeGreaterThan(
-            Designer designer,
-            LocalDate date,
-            Collection<ReservationStatus> statuses,
-            LocalTime end,
-            LocalTime start
-    );
 
     // 모델이 해당 공고에 예약 신청을 했는지 확인(중복 신청 방지)
     boolean existsByModel_IdAndRecruitment_IdAndStatusIn(
@@ -84,5 +78,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             LocalDate date,
             ReservationStatus status
     );
+
+    // 에약 조회(Lock)
+    // 모델의 예약 신청 취소 시 이용, Designer가 예약 확정을 해버리는 순간에 예약 거절을 누를 수도 있으니 필요
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select r from Reservation r where r.id = :id")
+    Optional<Reservation> findByIdForUpdate(@Param("id") Long id);
 
 }
