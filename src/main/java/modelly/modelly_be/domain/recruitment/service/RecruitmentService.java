@@ -243,4 +243,11 @@ public class RecruitmentService {
 
         return new AvailableReservationScheduleResponse(recruitmentId, ym.toString(), schedules);
     }
+
+    public boolean isSlotAvailable(Designer designer, LocalDate date, LocalTime start) {
+
+        return recruitmentTimeRepository.existsAvailableSlotForDesigner(
+                designer.getId(), date, start
+        );
+    }
 }

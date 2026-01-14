@@ -89,16 +89,6 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    public boolean existsTimeConflict(Designer designer, LocalDate date, LocalTime start, LocalTime end) {
-        return reservationRepository.existsByDesignerAndDateAndStatusInAndStartTimeLessThanAndEndTimeGreaterThan(
-                designer,
-                date,
-                List.of(ReservationStatus.RESERVATION_CONFIRMED, ReservationStatus.RESERVATION_PENDING),
-                end,
-                start
-        );
-    }
-
     // 채팅방과 연결된 예약 내역 조회
     @Transactional(readOnly = true)
     public ChatRoomReservationSummary getChatRoomReservationSummary(Long roomId, User me) {
@@ -670,5 +660,17 @@ public class ReservationService {
         } catch (DateTimeParseException e) {
             throw new GeneralException(ErrorStatus.MONTH_BAD_REQUEST);
         }
+    }
+
+    // 해당 공고에 예약 중복 신청 여부 조회
+    public boolean existsDuplicateApplication(Long modelId, Long recruitmentId) {
+        return reservationRepository.existsByModel_IdAndRecruitment_IdAndStatusIn(
+                modelId,
+                recruitmentId,
+                List.of(
+                        ReservationStatus.RESERVATION_PENDING,
+                        ReservationStatus.RESERVATION_CONFIRMED
+                )
+        );
     }
 }

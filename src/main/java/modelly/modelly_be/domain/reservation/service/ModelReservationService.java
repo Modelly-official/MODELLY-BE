@@ -60,18 +60,15 @@ public class ModelReservationService {
         LocalTime end = start.plusMinutes(30);
 
         // 디자이너 단위로 예약 충돌 방지
-        if (reservationService.existsTimeConflict(designer, date, start, end)) {
+        // time slot이 없거나 reserve = true면 exception 발생
+        if (!recruitmentService.isSlotAvailable(designer, date, start)) {
             throw new GeneralException(ErrorStatus.RESERVATION_TIME_CONFLICT);
         }
 
-        // 디자이너의 동일 slot(시간대) Lock + 예약 처리
-        List<RecruitmentTime> slots =
-                recruitmentService.getAllRecruitmentTimesForUpdate(designer.getId(), date, start);
-
-        if (slots.stream().anyMatch(RecruitmentTime::isReserved)) {
-            throw new GeneralException(ErrorStatus.RESERVATION_TIME_CONFLICT);
+        // 중복 신청 방지
+        if (reservationService.existsDuplicateApplication(model.getId(), recruitment.getId())) {
+            throw new GeneralException(ErrorStatus.RESERVATION_ALREADY_APPLIED);
         }
-        slots.forEach(RecruitmentTime::reserve);
 
         String imageUrl = (req.imageUrls() == null || req.imageUrls().isBlank())
                 ? null

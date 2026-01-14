@@ -21,13 +21,20 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     List<Reservation> findAllByRecruitment(Recruitment recruitment);
 
-    // 동일 시간대 예약 확인(예약 상태가 PENDING, CONFIRMED인 경우만 고려)
+    // 동일 시간대 예약 확인(예약 상태가 CONFIRMED인 경우만 고려)
     boolean existsByDesignerAndDateAndStatusInAndStartTimeLessThanAndEndTimeGreaterThan(
             Designer designer,
             LocalDate date,
             Collection<ReservationStatus> statuses,
             LocalTime end,
             LocalTime start
+    );
+
+    // 모델이 해당 공고에 예약 신청을 했는지 확인(중복 신청 방지)
+    boolean existsByModel_IdAndRecruitment_IdAndStatusIn(
+            Long modelId,
+            Long recruitmentId,
+            Collection<ReservationStatus> statuses
     );
 
     // 모델 아이디와 디자이너 아이디로 특정 예약 조회
