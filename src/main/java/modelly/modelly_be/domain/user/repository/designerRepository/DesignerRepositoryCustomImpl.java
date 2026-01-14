@@ -98,7 +98,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
                 .select(Projections.constructor(
                         ShopResponse.class,
                         qDesigner.id,
-                        qDesigner.nickname,
+                        qDesigner.shop,
                         qDesigner.category,
                         qDesigner.latitude,
                         qDesigner.longitude
