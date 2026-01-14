@@ -46,7 +46,7 @@ public interface ModelReservationSwagger {
                     \n
                     ---\n
                     ### 동작\n
-                    - 디자이너 스케줄 conflict(대기/확정) 여부 확인\n
+                    - 디자이너 스케줄 conflict(확정) 여부 확인\n
                     - Reservation 생성 및 상태 PENDING으로 저장\n
                     \n
                     ---\n
