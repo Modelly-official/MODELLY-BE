@@ -39,7 +39,6 @@ public class DesignerReservationService {
     private final RecruitmentService recruitmentService;
     private final ReservationQueryRepository reservationQueryRepository;
     private final ReservationRepository reservationRepository;
-    private final RecruitmentTimeRepository recruitmentTimeRepository;
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
@@ -309,13 +308,6 @@ public class DesignerReservationService {
         if (reservation.getStatus() != ReservationStatus.RESERVATION_PENDING) {
             throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
         }
-
-        // 예약 신청 때 reserve 했던 슬롯 다시 풀기
-        Long designerId = reservation.getDesigner().getId();
-        List<RecruitmentTime> times = recruitmentTimeRepository
-                .findAllTimeForUpdateByDesigner(designerId, reservation.getDate(), reservation.getStartTime());
-
-        times.forEach(RecruitmentTime::unreserve);
 
         reservation.reject();
 
