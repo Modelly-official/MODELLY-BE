@@ -668,8 +668,7 @@ public class ReservationService {
                 modelId,
                 recruitmentId,
                 List.of(
-                        ReservationStatus.RESERVATION_PENDING,
-                        ReservationStatus.RESERVATION_CONFIRMED
+                        ReservationStatus.RESERVATION_PENDING
                 )
         );
     }
