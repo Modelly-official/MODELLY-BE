@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.reservation.service;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
+import modelly.modelly_be.domain.recruitment.service.RecruitmentService;
 import modelly.modelly_be.domain.reservation.dto.internal.DesignerDailyReservationItem;
 import modelly.modelly_be.domain.reservation.dto.internal.DesignerPendingReservationItem;
 import modelly.modelly_be.domain.reservation.dto.internal.DesignerReservationRow;
@@ -35,6 +36,7 @@ public class DesignerReservationService {
 
     private final DesignerService designerService;
     private final ReservationService reservationService;
+    private final RecruitmentService recruitmentService;
     private final ReservationQueryRepository reservationQueryRepository;
     private final ReservationRepository reservationRepository;
     private final RecruitmentTimeRepository recruitmentTimeRepository;
@@ -273,10 +275,19 @@ public class DesignerReservationService {
         LocalDateTime now = LocalDateTime.now(KST);
         LocalDateTime startAt = LocalDateTime.of(reservation.getDate(), reservation.getStartTime());
 
-        // 현지 시간 이후의 예약만 허용
+        // 현재 시간 이후의 예약만 허용
         if (!startAt.isAfter(now)) {
             throw new GeneralException(ErrorStatus.RESERVATION_CONFIRM_NOT_ALLOWED);
         }
+
+        List<RecruitmentTime> slots =
+                recruitmentService.getAllRecruitmentTimesForUpdate(reservation.getDesigner().getId(), reservation.getDate(), reservation.getStartTime());
+
+        if (slots.stream().anyMatch(RecruitmentTime::isReserved)) {
+            throw new GeneralException(ErrorStatus.RESERVATION_TIME_CONFLICT);
+        }
+
+        slots.forEach(RecruitmentTime::reserve);
 
         reservation.confirm();
 
