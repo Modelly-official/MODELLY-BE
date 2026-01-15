@@ -79,7 +79,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             ReservationStatus status
     );
 
-    // 에약 조회(Lock)
+    // 예약 조회(Lock)
     // 모델의 예약 신청 취소 시 이용, Designer가 예약 확정을 해버리는 순간에 예약 거절을 누를 수도 있으니 필요
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select r from Reservation r where r.id = :id")

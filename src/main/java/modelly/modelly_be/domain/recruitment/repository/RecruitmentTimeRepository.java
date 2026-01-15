@@ -33,7 +33,7 @@ public interface RecruitmentTimeRepository extends JpaRepository<RecruitmentTime
 
     // 해당 디자이너의 예약 가능한 시간대가 존재하는지 조회
     @Query("""
-        select (count(rt) > 0)
+        select case when count(rt) > 0 then true else false end
         from RecruitmentTime rt
         where rt.recruitmentDate.recruitment.designer.id = :designerId
           and rt.recruitmentDate.date = :date

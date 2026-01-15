@@ -142,7 +142,7 @@ public class DesignerReservationService {
         List<DesignerDailyReservationItem> items = reservations.stream()
                 .map(r -> new DesignerDailyReservationItem(
                         r.getId(),
-                        r.getRecruitment().getId(),
+                        r.getRecruitment() == null ? null : r.getRecruitment().getId(),
                         r.getStartTime().format(HM),
                         r.getModel().getUser().getName(),
                         r.getModel().getUser().getImageUrl(),
