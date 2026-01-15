@@ -185,7 +185,7 @@ public class DesignerReservationService {
         List<DesignerPendingReservationItem> items = page.stream()
                 .map(r -> new DesignerPendingReservationItem(
                         r.getId(),
-                        r.getRecruitment().getTitle(),
+                        r.getRecruitment() == null ? null : r.getRecruitment().getTitle(),
                         r.getDate(),
                         r.getStartTime().format(HM),
                         r.getModel().getUser().getName(),
@@ -240,8 +240,8 @@ public class DesignerReservationService {
 
         return new DesignerReservationDetailResponse(
                 reservation.getId(),
-                reservation.getRecruitment().getId(),
-                reservation.getRecruitment().getTitle(),
+                reservation.getRecruitment() == null ? null : reservation.getRecruitment().getId(),
+                reservation.getRecruitment() == null ? null : reservation.getRecruitment().getTitle(),
                 reservation.getStatus().getDescription(),
                 reservation.getDate(),
                 reservation.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
