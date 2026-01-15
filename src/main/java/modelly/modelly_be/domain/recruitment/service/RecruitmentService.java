@@ -193,7 +193,6 @@ public class RecruitmentService {
     }
 
     // 공고의 특정 시간대 Lock(디자이너 기준으로 동일 시간대 전부)
-    @Transactional
     public List<RecruitmentTime> getAllRecruitmentTimesForUpdate(Long designerId, LocalDate date, LocalTime startTime) {
         List<RecruitmentTime> slots = recruitmentTimeRepository.findAllTimeForUpdateByDesigner(designerId, date, startTime);
 
@@ -242,5 +241,12 @@ public class RecruitmentService {
                 .toList();
 
         return new AvailableReservationScheduleResponse(recruitmentId, ym.toString(), schedules);
+    }
+
+    public boolean isSlotAvailable(Designer designer, LocalDate date, LocalTime start) {
+
+        return recruitmentTimeRepository.existsAvailableSlotForDesigner(
+                designer.getId(), date, start
+        );
     }
 }

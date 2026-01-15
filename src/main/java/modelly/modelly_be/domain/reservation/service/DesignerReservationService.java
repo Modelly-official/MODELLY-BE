@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.reservation.service;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
+import modelly.modelly_be.domain.recruitment.service.RecruitmentService;
 import modelly.modelly_be.domain.reservation.dto.internal.DesignerDailyReservationItem;
 import modelly.modelly_be.domain.reservation.dto.internal.DesignerPendingReservationItem;
 import modelly.modelly_be.domain.reservation.dto.internal.DesignerReservationRow;
@@ -35,9 +36,9 @@ public class DesignerReservationService {
 
     private final DesignerService designerService;
     private final ReservationService reservationService;
+    private final RecruitmentService recruitmentService;
     private final ReservationQueryRepository reservationQueryRepository;
     private final ReservationRepository reservationRepository;
-    private final RecruitmentTimeRepository recruitmentTimeRepository;
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
@@ -141,8 +142,10 @@ public class DesignerReservationService {
         List<DesignerDailyReservationItem> items = reservations.stream()
                 .map(r -> new DesignerDailyReservationItem(
                         r.getId(),
+                        r.getRecruitment() == null ? null : r.getRecruitment().getId(),
                         r.getStartTime().format(HM),
                         r.getModel().getUser().getName(),
+                        r.getModel().getUser().getImageUrl(),
                         extractSubCategoryLabels(r)
                 ))
                 .toList();
@@ -182,7 +185,7 @@ public class DesignerReservationService {
         List<DesignerPendingReservationItem> items = page.stream()
                 .map(r -> new DesignerPendingReservationItem(
                         r.getId(),
-                        r.getRecruitment().getTitle(),
+                        r.getRecruitment() == null ? null : r.getRecruitment().getTitle(),
                         r.getDate(),
                         r.getStartTime().format(HM),
                         r.getModel().getUser().getName(),
@@ -237,8 +240,8 @@ public class DesignerReservationService {
 
         return new DesignerReservationDetailResponse(
                 reservation.getId(),
-                reservation.getRecruitment().getId(),
-                reservation.getRecruitment().getTitle(),
+                reservation.getRecruitment() == null ? null : reservation.getRecruitment().getId(),
+                reservation.getRecruitment() == null ? null : reservation.getRecruitment().getTitle(),
                 reservation.getStatus().getDescription(),
                 reservation.getDate(),
                 reservation.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
@@ -273,10 +276,19 @@ public class DesignerReservationService {
         LocalDateTime now = LocalDateTime.now(KST);
         LocalDateTime startAt = LocalDateTime.of(reservation.getDate(), reservation.getStartTime());
 
-        // 현지 시간 이후의 예약만 허용
+        // 현재 시간 이후의 예약만 허용
         if (!startAt.isAfter(now)) {
             throw new GeneralException(ErrorStatus.RESERVATION_CONFIRM_NOT_ALLOWED);
         }
+
+        List<RecruitmentTime> slots =
+                recruitmentService.getAllRecruitmentTimesForUpdate(reservation.getDesigner().getId(), reservation.getDate(), reservation.getStartTime());
+
+        if (slots.stream().anyMatch(RecruitmentTime::isReserved)) {
+            throw new GeneralException(ErrorStatus.RESERVATION_TIME_CONFLICT);
+        }
+
+        slots.forEach(RecruitmentTime::reserve);
 
         reservation.confirm();
 
@@ -298,13 +310,6 @@ public class DesignerReservationService {
         if (reservation.getStatus() != ReservationStatus.RESERVATION_PENDING) {
             throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
         }
-
-        // 예약 신청 때 reserve 했던 슬롯 다시 풀기
-        Long designerId = reservation.getDesigner().getId();
-        List<RecruitmentTime> times = recruitmentTimeRepository
-                .findAllTimeForUpdateByDesigner(designerId, reservation.getDate(), reservation.getStartTime());
-
-        times.forEach(RecruitmentTime::unreserve);
 
         reservation.reject();
 

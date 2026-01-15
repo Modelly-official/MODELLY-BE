@@ -82,6 +82,7 @@ public enum ErrorStatus implements BaseErrorCode {
     RESERVATION_CHANGE_NOT_REJECTED(HttpStatus.FORBIDDEN, "RESERVATION403", "거절된 예약 변경 요청이 아닙니다."),
     RESERVATION_CHANGE_ONLY_REQUESTER_CAN_PROCEED_OR_CANCEL(HttpStatus.FORBIDDEN, "RESERVATION403", "예약 변경 요청자만 기존대로 진행 혹은 예약 취소를 선택할 수 있습니다."),
     RESERVATION_CONFIRM_NOT_ALLOWED(HttpStatus.FORBIDDEN,"RESERVATION403", "이미 지난 예약은 확정할 수 없습니다."),
+    RESERVATION_ALREADY_APPLIED(HttpStatus.FORBIDDEN, "RESERVATION400", "이미 예약한 공고입니다."),
 
     //Review
     FORBIDDEN_CREATE_REVIEW(HttpStatus.FORBIDDEN, "REVIEW403", "예약자만 리뷰 작성이 가능합니다."),
