@@ -41,7 +41,8 @@ public class NotificationRepositoryCustomImpl implements NotificationRepositoryC
                         qNotification.notificationType,
                         qNotification.content,
                         qNotification.createdAt,
-                        qNotification.targetId
+                        qNotification.targetId,
+                        qNotification.isRead
                 )
                 .from(qNotification)
                 .where(booleanBuilder)
@@ -65,7 +66,9 @@ public class NotificationRepositoryCustomImpl implements NotificationRepositoryC
                             },
                         t.get(qNotification.content),
                         TimeFormatter.formatTimeAgo(t.get(qNotification.createdAt)),
-                        t.get(qNotification.targetId));
+                        t.get(qNotification.targetId),
+                            t.get(qNotification.isRead)
+                    );
                 })
                 .toList();
     }

@@ -41,5 +41,6 @@ application.yml
 application.yaml
 
 /src/main/resources/moandi_serviceAccountKey.json
+moandi_serviceAccountKey.json
 
 .DS_Store

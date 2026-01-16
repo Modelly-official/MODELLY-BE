@@ -12,6 +12,9 @@ public record NotificationListResponse(
         @Schema(description = "알림이 전송된 시각", example = "어제")
         String createdAt,
         @Schema(description = "알림의 targetId", example = "1")
-        Long targetId
+        Long targetId,
+        @Schema(description = "알림 읽음 여부", example = "true")
+        boolean isRead
+
 ) {
 }

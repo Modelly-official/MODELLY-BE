@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import modelly.modelly_be.domain.notification.dto.request.FcmTokenRequest;
 import modelly.modelly_be.domain.notification.dto.response.NotificationListResponse;
+import modelly.modelly_be.domain.notification.dto.response.UnreadNotificationResponse;
 import modelly.modelly_be.domain.notification.entity.NotificationType;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
@@ -41,4 +42,9 @@ public interface NotificationSwagger {
             @RequestParam(required = false) NotificationType notificationType,
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "10") int size);
+
+    @GetMapping("/unread-notifications")
+    @Operation(summary = "안 읽은 알림 개수 조회 API", description = "유저가 안 읽은 알림 개수를 조회할 때 사용하는 API입니다.")
+    ApiResponse<UnreadNotificationResponse> getUnreadNotifications(@AuthenticationPrincipal AuthDetails authDetails);
+
 }

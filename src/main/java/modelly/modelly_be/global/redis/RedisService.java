@@ -26,7 +26,7 @@ public class RedisService {
     public void setRefreshToken(String key, String value, long ttlSeconds) {
         try {
             ValueOperations<String, Object> values = redisTemplate.opsForValue();
-            values.set(key, value, Duration.ofSeconds(ttlSeconds));
+                values.set(key, value, Duration.ofSeconds(ttlSeconds));
         } catch (Exception e) {
             throw new GeneralException(ErrorStatus.REDIS_ERROR);
         }
@@ -35,7 +35,11 @@ public class RedisService {
     public void setValue(String key, Object value, long ttlSeconds) {
         try {
             ValueOperations<String, Object> values = redisTemplate.opsForValue();
-            values.set(key, value, Duration.ofSeconds(ttlSeconds));
+            if (ttlSeconds > 0) {
+                values.set(key, value, Duration.ofSeconds(ttlSeconds));
+            } else {
+                values.set(key, value);
+            }
         } catch (Exception e) {
             throw new GeneralException(ErrorStatus.REDIS_ERROR);
         }
@@ -70,4 +74,25 @@ public class RedisService {
         }
     }
 
+    // 알림 개수 증가
+    public void incrementCount(String key) {
+        try {
+            redisTemplate.opsForValue().increment(key);
+        } catch (Exception e) {
+            throw new GeneralException(ErrorStatus.REDIS_ERROR);
+        }
+    }
+
+    // 알림 개수 감소
+    public void decrementCount(String key) {
+        try {
+            // 0 이하로 내려가지 않도록 처리
+            Long count = redisTemplate.opsForValue().increment(key, -1);
+            if (count != null && count < 0) {
+                redisTemplate.opsForValue().set(key, 0);
+            }
+        } catch (Exception e) {
+            throw new GeneralException(ErrorStatus.REDIS_ERROR);
+        }
+    }
 }
