@@ -1,11 +1,10 @@
-package modelly.modelly_be.domain.reservation.service;
+package modelly.modelly_be.domain.notification.service.mapping;
 
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.notification.dto.internal.NotificationData;
 import modelly.modelly_be.domain.notification.entity.NotificationType;
 import modelly.modelly_be.domain.notification.service.NotificationService;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
-import modelly.modelly_be.domain.reservation.entity.ReservationChange;
 import modelly.modelly_be.domain.user.entity.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

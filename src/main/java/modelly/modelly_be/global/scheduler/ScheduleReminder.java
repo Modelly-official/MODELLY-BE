@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
-import modelly.modelly_be.domain.reservation.service.ScheduleNotificationService;
+import modelly.modelly_be.domain.notification.service.mapping.ScheduleNotificationService;
 import modelly.modelly_be.domain.user.entity.User;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

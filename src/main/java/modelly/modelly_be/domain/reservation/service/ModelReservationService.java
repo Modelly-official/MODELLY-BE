@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.reservation.service;
 
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.notification.service.mapping.ReservationNotificationService;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.service.RecruitmentService;

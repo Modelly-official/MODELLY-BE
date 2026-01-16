@@ -5,6 +5,8 @@ import modelly.modelly_be.domain.chat.dto.response.*;
 import modelly.modelly_be.domain.chat.entity.ChatRoom;
 import modelly.modelly_be.domain.chat.service.ChatRoomService;
 import modelly.modelly_be.domain.chat.service.ChattingService;
+import modelly.modelly_be.domain.notification.service.mapping.ReservationNotificationService;
+import modelly.modelly_be.domain.notification.service.mapping.ScheduleNotificationService;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;

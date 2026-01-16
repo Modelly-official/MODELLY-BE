@@ -1,8 +1,7 @@
 package modelly.modelly_be.domain.reservation.service;
 
 import lombok.RequiredArgsConstructor;
-import modelly.modelly_be.domain.notification.dto.internal.NotificationData;
-import modelly.modelly_be.domain.notification.entity.NotificationType;
+import modelly.modelly_be.domain.notification.service.mapping.ReservationNotificationService;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
 import modelly.modelly_be.domain.reservation.dto.internal.DesignerDailyReservationItem;
@@ -21,7 +20,6 @@ import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.SubCategory;
-import modelly.modelly_be.global.formatter.TimeFormatter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
