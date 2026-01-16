@@ -16,6 +16,7 @@ import modelly.modelly_be.domain.chat.event.ChatBroadcastEvent;
 import modelly.modelly_be.domain.chat.repository.ChatRoomRepository;
 import modelly.modelly_be.domain.chat.repository.ChattingImageRepository;
 import modelly.modelly_be.domain.chat.repository.ChattingRepository;
+import modelly.modelly_be.domain.notification.service.mapping.ChattingNotificationService;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.repository.UserRepository;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
@@ -23,7 +24,6 @@ import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,14 +36,14 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ChattingService {
+    private final ChatRoomService chatRoomService;
     private final ChatRoomRepository chatRoomRepository;
     private final ChattingRepository chattingRepository;
     private final UserRepository userRepository;
-    private final ChatRoomService chatRoomService;
     private final ChattingImageRepository chattingImageRepository;
-    private final SimpMessagingTemplate messagingTemplate;
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher eventPublisher;
+    private final ChattingNotificationService chattingNotificationService;
 
     // 메세지 보내기(DB 저장)
     @Transactional
@@ -79,7 +79,6 @@ public class ChattingService {
             if (request.getImageUrls() == null || request.getImageUrls().isEmpty()) {
                 throw new GeneralException(ErrorStatus._BAD_REQUEST);
             }
-
             boolean hasInvalidUrl = request.getImageUrls().stream()
                     .anyMatch(url -> url == null || url.isBlank());
             if (hasInvalidUrl) {
@@ -108,6 +107,16 @@ public class ChattingService {
                     .map(url -> ChattingImage.of(saved, url))
                     .toList();
             chattingImageRepository.saveAll(images);
+        }
+
+        User otherUser =null;
+        switch (sender.getUserRole()){
+            case MODEL -> otherUser = room.getDesigner().getUser();
+            case DESIGNER -> otherUser = room.getModel().getUser();
+        }
+
+        if (otherUser.getNotificationSetting().isChattingNotification()){
+            chattingNotificationService.createChattingNotification(type, messageContent, otherUser, room);
         }
 
         // STOMP 응답 DTO 반환

@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.review.service;
 
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.notification.service.mapping.ReviewNotificationService;
 import modelly.modelly_be.domain.review.dto.request.ReplyRequestDto;
 import modelly.modelly_be.domain.review.dto.response.DesignerReviewListResponseDto;
 import modelly.modelly_be.domain.review.entity.Reply;
@@ -25,6 +26,7 @@ public class DesignerReviewService {
     private final ReplyService replyService;
     private final DesignerService designerService;
     private final ReviewService reviewService;
+    private final ReviewNotificationService reviewNotificationService;
 
     @Transactional
     public void fixReview(User user, Long reviewId){
@@ -62,6 +64,12 @@ public class DesignerReviewService {
         checkReviewDesigner(designer, review);
 
         Reply reply = replyService.createReply(designer, review, requestDto.content());
+
+        User model = review.getModel().getUser();
+
+        if (model.getNotificationSetting().isReviewNotification()){
+            reviewNotificationService.createReplyNotification(model, designer.getNickname(), reviewId);
+        }
 
         return reply;
     }
