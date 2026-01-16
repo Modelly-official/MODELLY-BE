@@ -2,20 +2,19 @@ package modelly.modelly_be.global.formatter;
 
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
 
 @Component
 public class TimeFormatter {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
-    public static String parseStartTime(LocalTime startTime) {
+    public static String parseStartTime(LocalDate date, LocalTime startTime) {
         try {
-            return startTime.format(DateTimeFormatter.ofPattern("M월 d일 HH:mm"));
+            LocalDateTime dateTime = LocalDateTime.of(date, startTime);
+            return dateTime.format(DateTimeFormatter.ofPattern("M월 d일 HH:mm"));
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("잘못된 time 형식: " + startTime, e);
         }

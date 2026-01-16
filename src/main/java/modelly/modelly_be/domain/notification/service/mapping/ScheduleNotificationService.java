@@ -25,11 +25,11 @@ public class ScheduleNotificationService {
 
         switch (user.getUserRole()){
             case MODEL -> {
-                message = parseStartTime(reservation.getStartTime()) + reservation.getDesignerName() +"디자이너";
+                message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +"디자이너";
                 senderName = reservation.getDesignerName();
             }
             case DESIGNER -> {
-                message = parseStartTime(reservation.getStartTime()) + reservation.getModel().getNickname() + "님";
+                message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getModel().getNickname() + "님";
                 senderName = reservation.getModel().getNickname();
             }
         }
@@ -48,12 +48,12 @@ public class ScheduleNotificationService {
         switch (user.getUserRole()) {
             case MODEL -> {
                 title = "디자이너 요청으로 취소된 예약 일정이 있어요.";
-                message = parseStartTime(reservation.getStartTime()) + reservation.getDesignerName() +"디자이너";
+                message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +"디자이너";
                 senderName = reservation.getDesignerName();
             }
             case DESIGNER -> {
                 title = "모델의 요청으로 취소된 예약 일정이 있어요.";
-                message = parseStartTime(reservation.getStartTime()) + reservation.getModel().getNickname() + "님";
+                message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getModel().getNickname() + "님";
                 senderName = reservation.getModel().getNickname();
             }
         }
@@ -68,10 +68,10 @@ public class ScheduleNotificationService {
 
         switch (user.getUserRole()) {
             case MODEL -> {
-                message = parseStartTime(reservation.getStartTime()) + reservation.getDesignerName() +"디자이너";
+                message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +"디자이너";
             }
             case DESIGNER -> {
-                message = parseStartTime(reservation.getStartTime()) + reservation.getModel().getNickname() + "님";
+                message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getModel().getNickname() + "님";
             }
         }
 

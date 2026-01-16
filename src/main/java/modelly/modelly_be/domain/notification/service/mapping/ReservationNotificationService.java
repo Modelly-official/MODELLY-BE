@@ -6,6 +6,7 @@ import modelly.modelly_be.domain.notification.entity.NotificationType;
 import modelly.modelly_be.domain.notification.service.NotificationService;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import static modelly.modelly_be.global.formatter.TimeFormatter.*;
 
@@ -18,7 +19,7 @@ public class ReservationNotificationService {
     //모델한테 예약 거절 알림 전송
     public void createReservationRejectNotification(Reservation reservation){
 
-        String message = parseStartTime(reservation.getStartTime());
+        String message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +"디자이너";
         NotificationData notificationData = NotificationData.otherNotification(
                 reservation.getModel().getUser(),
                 NotificationType.RESERVATION,
@@ -30,9 +31,10 @@ public class ReservationNotificationService {
     }
 
     //모델한테 예약 확정 알림 전송
+    @Transactional
     public void createReservationAcceptedNotification(Reservation reservation){
 
-        String message = parseStartTime(reservation.getStartTime()) + reservation+reservation.getDesignerName() +"디자이너";
+        String message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +"디자이너";
         NotificationData notificationData = NotificationData.otherNotification(
                 reservation.getModel().getUser(),
                 NotificationType.RESERVATION,
@@ -48,7 +50,7 @@ public class ReservationNotificationService {
     //디자이너한테 신규 예약 신청 알림 전송
     public void createReservationRequestNotification(Reservation reservation) {
 
-        String message = parseStartTime(reservation.getStartTime()) + reservation.getModel().getNickname() + "님";
+        String message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getModel().getNickname() + "님";
         NotificationData notificationData = NotificationData.otherNotification(
                 reservation.getDesigner().getUser(),
                 NotificationType.RESERVATION,
