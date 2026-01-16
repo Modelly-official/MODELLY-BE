@@ -7,17 +7,13 @@ import modelly.modelly_be.domain.chat.dto.response.ChatRoomDetailResponse;
 import modelly.modelly_be.domain.chat.dto.response.ChatRoomListResponse;
 import modelly.modelly_be.domain.chat.dto.response.OpenRoomResponse;
 import modelly.modelly_be.domain.reservation.dto.response.ChatRoomReservationSummaryResponse;
-import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.entity.Category;
-import modelly.modelly_be.global.s3.PresignedUploadResponse;
 import modelly.modelly_be.global.security.AuthDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
