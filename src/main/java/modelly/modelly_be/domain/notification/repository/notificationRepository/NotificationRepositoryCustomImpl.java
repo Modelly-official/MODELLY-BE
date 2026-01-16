@@ -39,6 +39,7 @@ public class NotificationRepositoryCustomImpl implements NotificationRepositoryC
                 .select(
                         qNotification.id,
                         qNotification.notificationType,
+                        qNotification.title,
                         qNotification.content,
                         qNotification.createdAt,
                         qNotification.targetId,
@@ -55,15 +56,17 @@ public class NotificationRepositoryCustomImpl implements NotificationRepositoryC
         return tuples.stream()
                 .map(t -> {
                     NotificationType type = t.get(qNotification.notificationType);
-                    String content = t.get(qNotification.content);
+                    String title = t.get(qNotification.title);
 
                     return new NotificationListResponse(
                         t.get(qNotification.id),
                             switch (type) {
-                                case RESERVATION -> type.toDisplayReservationType(userRole, content);
+                                case RESERVATION -> type.toDisplayReservationType(userRole, title);
                                 case REVIEW -> type.toDisplayReviewType(userRole);
-                                case CHATTING, SCHEDULE -> type.getDescription();
+                                case CHATTING -> type.getDescription();
+                                case SCHEDULE -> type.toDisplayScheduleType(userRole, title);
                             },
+                        t.get(qNotification.title),
                         t.get(qNotification.content),
                         TimeFormatter.formatTimeAgo(t.get(qNotification.createdAt)),
                         t.get(qNotification.targetId),

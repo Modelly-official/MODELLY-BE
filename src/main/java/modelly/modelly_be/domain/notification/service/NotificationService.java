@@ -50,6 +50,7 @@ public class NotificationService {
                 .user(data.user())
                 .notificationType(data.type())
                 .targetId(data.targetId())
+                .title(data.title())
                 .content(data.message())
                 .isRead(false)
                 .build();
