@@ -92,7 +92,9 @@ public class ModelReservationService {
 
         reservationService.save(reservation);
 
-        reservationNotificationService.createReservationRequestNotification(reservation);
+        if (designer.getUser().getNotificationSetting().isReservationNotification()){
+            reservationNotificationService.createReservationRequestNotification(reservation);
+        }
     }
 
     /*----------- 예약 조회(다가오는 일정, 완료된 일정) ----------*/

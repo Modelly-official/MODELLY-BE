@@ -47,6 +47,7 @@ public class ReservationService {
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
     private final ReservationNotificationService reservationNotificationService;
+    private final ScheduleNotificationService scheduleNotificationService;
 
     public void hasPendingOrConfirmedReservation(Recruitment recruitment) {
         List<Reservation> reservations = reservationRepository.findAllByRecruitment(recruitment);
@@ -293,6 +294,14 @@ public class ReservationService {
                 saved.getProposedEndTime().format(HM),
                 saved.getReason()
         );
+
+        User opponantUser = meIsModel
+                ? reservation.getDesigner().getUser()
+                : reservation.getModel().getUser();
+
+        if (opponantUser.getNotificationSetting().isScheduleNotification()){
+            scheduleNotificationService.createScheduleChangeNotification(opponantUser, finalRoomId, reservation);
+        }
 
         // 채팅 저장 + STOMP 브로드캐스트
         chattingService.publishReservationPayload(me.getId(), finalRoomId, payload);
@@ -560,7 +569,13 @@ public class ReservationService {
 
         chattingService.publishReservationPayload(me.getId(), finalRoomId, payload);
 
-        reservationNotificationService.createScheduleCancelNotification(me, reservation, finalRoomId);
+        User opponentUser = meIsModel
+                ? reservation.getDesigner().getUser()
+                : reservation.getModel().getUser();
+
+        if (opponentUser.getNotificationSetting().isScheduleNotification()){
+            scheduleNotificationService.createScheduleCancelNotification(me, reservation, finalRoomId);
+        }
 
         return new SimpleMessageDTO("예약이 취소되었습니다.");
     }
@@ -673,5 +688,10 @@ public class ReservationService {
         } catch (DateTimeParseException e) {
             throw new GeneralException(ErrorStatus.MONTH_BAD_REQUEST);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<Reservation> getAllByStartDate(LocalDate oneDaysLater) {
+        return reservationRepository.findAllByStartTime(oneDaysLater);
     }
 }

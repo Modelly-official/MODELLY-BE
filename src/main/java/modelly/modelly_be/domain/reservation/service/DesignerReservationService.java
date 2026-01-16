@@ -283,8 +283,9 @@ public class DesignerReservationService {
 
         reservation.confirm();
 
-        reservationNotificationService.createReservationAcceptedNotification(reservation);
-
+        if(reservation.getModel().getUser().getNotificationSetting().isReservationNotification()){
+            reservationNotificationService.createReservationAcceptedNotification(reservation);
+        }
         return new SimpleMessageDTO("예약이 확정되었습니다.");
     }
 
@@ -313,7 +314,9 @@ public class DesignerReservationService {
 
         reservation.reject();
 
-        reservationNotificationService.createReservationRejectNotification(reservation);
+        if (reservation.getModel().getUser().getNotificationSetting().isReservationNotification()){
+            reservationNotificationService.createReservationRejectNotification(reservation);
+        }
 
         return new SimpleMessageDTO("예약이 거절되었습니다.");
     }

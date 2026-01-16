@@ -6,8 +6,6 @@ import modelly.modelly_be.domain.notification.entity.NotificationType;
 import modelly.modelly_be.domain.notification.service.NotificationService;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.user.entity.User;
-import modelly.modelly_be.domain.user.entity.enums.UserRole;
-import modelly.modelly_be.global.formatter.TimeFormatter;
 import org.springframework.stereotype.Service;
 
 import static modelly.modelly_be.global.formatter.TimeFormatter.*;
@@ -46,29 +44,7 @@ public class ReservationNotificationService {
         notificationService.createNotification(notificationData);
     }
 
-    //일정 취소 알림
-    public void createScheduleCancelNotification(User user, Reservation reservation, Long finalRoomId) {
 
-        String title ="";
-        String message ="";
-        String senderName ="";
-
-        switch (user.getUserRole()) {
-            case MODEL -> {
-                title = "디자이너 요청으로 취소된 예약 일정이 있어요.";
-                message = parseStartTime(reservation.getStartTime()) + reservation+reservation.getDesignerName() +"디자이너";
-                senderName = reservation.getDesignerName();
-            }
-            case DESIGNER -> {
-                title = "모델의 요청으로 취소된 예약 일정이 있어요.";
-                message = parseStartTime(reservation.getStartTime()) + reservation.getModel().getNickname() + "님";
-                senderName = reservation.getModel().getNickname();
-            }
-        }
-
-        NotificationData notificationData = NotificationData.chattingNotification(user, NotificationType.SCHEDULE, title, message, finalRoomId, senderName);
-        notificationService.createNotification(notificationData);
-    }
 
     //디자이너한테 신규 예약 신청 알림 전송
     public void createReservationRequestNotification(Reservation reservation) {
