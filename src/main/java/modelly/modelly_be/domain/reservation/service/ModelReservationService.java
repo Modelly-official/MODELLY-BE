@@ -14,10 +14,12 @@ import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationListType;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.domain.reservation.repository.ReservationQueryRepository;
+import modelly.modelly_be.domain.reservation.repository.ReservationRepository;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.service.ModelService;
+import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.Category;
@@ -42,6 +44,7 @@ public class ModelReservationService {
     private final ModelService modelService;
     private final RecruitmentService recruitmentService;
     private final ReservationQueryRepository reservationQueryRepository;
+    private final ReservationRepository reservationRepository;
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
@@ -62,18 +65,19 @@ public class ModelReservationService {
         LocalTime end = start.plusMinutes(30);
 
         // 디자이너 단위로 예약 충돌 방지
-        if (reservationService.existsTimeConflict(designer, date, start, end)) {
+        // time slot이 없거나 reserve = true면 exception 발생
+        if (!recruitmentService.isSlotAvailable(designer, date, start)) {
             throw new GeneralException(ErrorStatus.RESERVATION_TIME_CONFLICT);
         }
 
-        // 디자이너의 동일 slot(시간대) Lock + 예약 처리
-        List<RecruitmentTime> slots =
-                recruitmentService.getAllRecruitmentTimesForUpdate(designer.getId(), date, start);
-
-        if (slots.stream().anyMatch(RecruitmentTime::isReserved)) {
-            throw new GeneralException(ErrorStatus.RESERVATION_TIME_CONFLICT);
+        // 중복 신청 방지
+        if (reservationService.existsDuplicateApplication(model.getId(), recruitment.getId())) {
+            throw new GeneralException(ErrorStatus.RESERVATION_ALREADY_APPLIED);
         }
-        slots.forEach(RecruitmentTime::reserve);
+
+        String imageUrl = (req.imageUrls() == null || req.imageUrls().isBlank())
+                ? null
+                : req.imageUrls();
 
         Reservation reservation = Reservation.builder()
                 .date(date)
@@ -85,7 +89,7 @@ public class ModelReservationService {
                 .designerName(req.designerName())
                 .shop(req.shop())
                 .status(ReservationStatus.RESERVATION_PENDING)
-                .imageUrl(req.imageUrls())
+                .imageUrl(imageUrl)
                 .recruitment(recruitment)
                 .model(model)
                 .designer(recruitment.getDesigner())
@@ -115,7 +119,9 @@ public class ModelReservationService {
         Model model = modelService.getModelByUser(user);
 
         // month 파싱 (reservationService 유틸 참고)
-        YearMonth ym = reservationService.parseYearMonthOrNow(month);
+        YearMonth ym = (month == null || month.isBlank())
+                ? null
+                : reservationService.parseYearMonthOrNow(month);
 
         // cursorTime(String)을 LocalTime으로 변환
         LocalTime cursorTimeParsed = (cursorTime == null || cursorTime.isBlank())
@@ -280,9 +286,31 @@ public class ModelReservationService {
         return new ReservationScrollResponse<>(items, totalCount, hasNext, nextDate, nextTime, nextId);
     }
 
+    // 특정 공고의 예약 가능한 스케줄 조회
     @Transactional(readOnly = true)
     public AvailableReservationScheduleResponse getAvailableSchedules(Long recruitmentId, String month){
         return recruitmentService.getAvailableSchedules(recruitmentId, month);
     }
 
+    // 예약 신청 취소
+    @Transactional
+    public SimpleMessageDTO cancelPendingReservation(User user, Long reservationId) {
+        Model model = modelService.getModelByUser(user);
+
+        Reservation reservation = reservationRepository.findByIdForUpdate(reservationId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION));
+
+        // 내 예약인지 체크
+        if (reservation.getModel() == null || !reservation.getModel().getId().equals(model.getId())) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        // 대기중만 취소 가능
+        if (reservation.getStatus() != ReservationStatus.RESERVATION_PENDING) {
+            throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
+        }
+
+        reservation.cancelByModel();
+        return new SimpleMessageDTO("예약 신청이 취소되었습니다.");
+    }
 }

@@ -7,7 +7,9 @@ import modelly.modelly_be.domain.chat.dto.response.ChatRoomDetailResponse;
 import modelly.modelly_be.domain.chat.dto.response.ChatRoomListResponse;
 import modelly.modelly_be.domain.chat.dto.response.OpenRoomResponse;
 import modelly.modelly_be.domain.reservation.dto.response.ChatRoomReservationSummaryResponse;
+import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
+import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.s3.PresignedUploadResponse;
 import modelly.modelly_be.global.security.AuthDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -58,7 +60,7 @@ public interface ChatSwagger {
     @Operation(
             summary = "내 채팅방 목록 조회 (페이지네이션 / 무한 스크롤)",
             description = """
-                    현재 로그인한 유저가 참여 중인 채팅방 목록을 조회합니다.  
+                    현재 로그인한 유저가 참여 중인 채팅방 목록을 조회합니다.(카테고리 필터링)  
                     각 채팅방은 **가장 최근 메시지 시간**을 기준으로 정렬됩니다.
                     
                     ---
@@ -75,6 +77,7 @@ public interface ChatSwagger {
                       - 예) `page=1, size=20` → 그 다음 채팅방 20개
                       
                     - `size` : 한 번에 가져올 채팅방 개수 (기본값 20)
+                    - `category` : 디자이너 카테고리, 전체 조회는 null (HAIR, NAIL, TATTOO, EYELASH)
                     
                     ---
                     📤 Response (ChatRoomListResponse)
@@ -92,7 +95,8 @@ public interface ChatSwagger {
     ApiResponse<List<ChatRoomListResponse>> getMyChatRoomList(
             @AuthenticationPrincipal AuthDetails currentUser,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) Category category
     );
 
     @Operation(

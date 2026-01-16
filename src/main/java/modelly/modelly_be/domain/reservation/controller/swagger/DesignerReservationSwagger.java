@@ -55,7 +55,7 @@ public interface DesignerReservationSwagger {
             description = """
                 ### 디자이너의 특정 날짜 예약(확정 상태) 목록과 총 개수를 조회하는 API입니다. \n
                 - 프론트에서 `date`를 전달하면, 해당 날짜의 **확정된 예약(RESERVATION_CONFIRMED)** 을 시간순으로 반환합니다. \n
-                - 예약이 없으면 `totalCount=0`, `reservations=[]`로 반환됩니다. \n
+                - 예약이 없으면 `totalCount=0`, `reservations=[]`로 반환됩니다. \
                 \n
                 ---\n
                 ### Request Param\n
@@ -67,8 +67,10 @@ public interface DesignerReservationSwagger {
                 - `totalCount` : 해당 날짜 총 예약 수\n
                 - `reservations[]`\n
                   - `reservationId` : 예약 ID\n
+                  - `recruitmentId` : 모집글 ID\n
                   - `time` : 예약 시작 시간 (HH:mm)\n
                   - `modelName` : 모델 이름\n
+                  - `imageUrl` : 모델 프로필 이미지\n
                   - `subCategory` : 세부 카테고리 표시값 (ex. 펌/커트)\n
                 \n
                 ---\n
@@ -199,7 +201,7 @@ public interface DesignerReservationSwagger {
             description = """
                 ### 디자이너가 '신규 예약 신청(PENDING)'을 거절하는 API입니다. \n
                 - **Request Body 없이** 호출합니다. (거절 사유 입력 없음)\n
-                - 예약 신청 시점에 이미 reserve 처리된 시간대(RecruitmentTime)를 **unreserve로 되돌린 뒤**, 예약 상태를 변경합니다.\n
+               
                 \n
                 ---\n
                 ### Path Variable\n
@@ -212,7 +214,6 @@ public interface DesignerReservationSwagger {
                 \n
                 ---\n
                 ### 동작\n
-                - (동일 디자이너/날짜/시작시간) RecruitmentTime row들을 조회 후 **unreserve** 처리\n
                 - Reservation 상태를 거절 상태로 변경(사유 저장 없음)\n
                 \n
                 ---\n

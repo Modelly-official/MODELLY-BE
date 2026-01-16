@@ -13,6 +13,7 @@ import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.security.AuthDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -45,7 +46,7 @@ public interface ModelReservationSwagger {
                     \n
                     ---\n
                     ### 동작\n
-                    - 디자이너 스케줄 conflict(대기/확정) 여부 확인\n
+                    - 디자이너 스케줄 conflict(확정) 여부 확인\n
                     - Reservation 생성 및 상태 PENDING으로 저장\n
                     \n
                     ---\n
@@ -86,8 +87,8 @@ public interface ModelReservationSwagger {
                     \n
                     ---\n
                     ### Request Param\n
-                    - `month`(optional) : yyyy-MM (미설정 시 서버에서 기본 월 설정)\n
-                    - `type` : UPCOMING / COMPLETED\n
+                    - `month`(optional) : yyyy-MM (미설정 시 전체 조회)\n
+                    - `type` : PENDING(대기중) / UPCOMING(다가오는 일정) / COMPLETED(완료된 일정)\n
                     - `category`(optional) : 카테고리 필터 (전체 조회면 null)\n
                     - `size`(default=12) : 페이지 사이즈\n
                     - `cursorDate`(optional) : 커서 날짜(yyyy-MM-dd)\n
@@ -135,5 +136,29 @@ public interface ModelReservationSwagger {
             @RequestParam(required = false) LocalDate cursorDate,
             @RequestParam(required = false) String cursorTime,
             @RequestParam(required = false) Long cursorId
+    );
+
+    @Operation(
+            summary = "예약 신청 취소(모델)",
+            description = """
+                ### 모델이 '대기 중(PENDING)' 상태의 예약 신청을 취소하는 API입니다. \n
+                \n
+                ---\n
+                ### Path Variable\n
+                - `reservationId`(required) : 취소할 예약 ID\n
+                \n
+                ---\n
+                ✅ 동작\n
+                - 본인이 신청한 예약인지 검증 후, 예약 상태를 `RESERVATION_CANCELLED` 로 변경합니다. \n
+                - `RESERVATION_PENDING` 상태에서만 취소가 가능합니다. (그 외 상태면 예외)\n
+                \n
+                ---\n
+                ✅ 권한\n
+                - 모델 권한만 호출 가능합니다.\n
+                """
+    )
+    ApiResponse<SimpleMessageDTO> cancelReservation(
+            @AuthenticationPrincipal AuthDetails auth,
+            @PathVariable Long reservationId
     );
 }

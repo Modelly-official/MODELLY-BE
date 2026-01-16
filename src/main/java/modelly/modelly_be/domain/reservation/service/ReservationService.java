@@ -19,7 +19,6 @@ import modelly.modelly_be.domain.reservation.entity.enums.ReservationChangeStatu
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.domain.reservation.repository.ReservationChangeRepository;
 import modelly.modelly_be.domain.reservation.repository.ReservationRepository;
-import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
@@ -91,16 +90,6 @@ public class ReservationService {
     @Transactional
     public Reservation save(Reservation reservation) {
         return reservationRepository.save(reservation);
-    }
-
-    public boolean existsTimeConflict(Designer designer, LocalDate date, LocalTime start, LocalTime end) {
-        return reservationRepository.existsByDesignerAndDateAndStatusInAndStartTimeLessThanAndEndTimeGreaterThan(
-                designer,
-                date,
-                List.of(ReservationStatus.RESERVATION_CONFIRMED, ReservationStatus.RESERVATION_PENDING),
-                end,
-                start
-        );
     }
 
     // 채팅방과 연결된 예약 내역 조회
@@ -690,6 +679,17 @@ public class ReservationService {
         } catch (DateTimeParseException e) {
             throw new GeneralException(ErrorStatus.MONTH_BAD_REQUEST);
         }
+    }
+
+    // 해당 공고에 예약 중복 신청 여부 조회
+    public boolean existsDuplicateApplication(Long modelId, Long recruitmentId) {
+        return reservationRepository.existsByModel_IdAndRecruitment_IdAndStatusIn(
+                modelId,
+                recruitmentId,
+                List.of(
+                        ReservationStatus.RESERVATION_PENDING
+                )
+        );
     }
 
     @Transactional(readOnly = true)
