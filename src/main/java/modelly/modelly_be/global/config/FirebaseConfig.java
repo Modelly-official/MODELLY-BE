@@ -17,6 +17,10 @@ public class FirebaseConfig {
     public void init() throws IOException {
         InputStream serviceAccount = getClass().getResourceAsStream("/moandi_serviceAccountKey.json");
 
+        if (serviceAccount == null) {
+            throw new IllegalStateException("Firebase 서비스 계정 키를 찾을 수 없습니다");
+        }
+
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                 .build();

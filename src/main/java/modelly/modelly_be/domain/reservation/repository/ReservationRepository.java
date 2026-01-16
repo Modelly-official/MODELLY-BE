@@ -88,5 +88,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             "JOIN FETCH r.model " +
             "JOIN FETCH r.designer " +
             "WHERE r.date = :date ")
-    List<Reservation> findAllByStartTime(LocalDate date);
+    List<Reservation> findAllByDate(LocalDate date);
 }

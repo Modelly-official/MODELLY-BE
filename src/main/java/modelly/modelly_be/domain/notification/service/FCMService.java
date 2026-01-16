@@ -1,9 +1,6 @@
 package modelly.modelly_be.domain.notification.service;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import modelly.modelly_be.domain.notification.dto.internal.NotificationData;
@@ -38,7 +35,7 @@ public class FCMService {
                     .build();
 
             FirebaseMessaging.getInstance().send(message);
-            log.info("FCM 알림 전송 선공");
+            log.info("FCM 알림 전송 성공");
 
         } catch (FirebaseMessagingException e) {
             log.error("❌ 알림 전송 실패", e);

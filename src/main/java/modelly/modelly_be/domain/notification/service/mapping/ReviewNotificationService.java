@@ -21,17 +21,17 @@ public class ReviewNotificationService {
 
         NotificationData notificationData = NotificationData.otherNotification(designer, NotificationType.REVIEW, title, message, reviewId);
 
-        notificationService.createNotification(notificationData);
+        notificationService.sendNotification(notificationData);
     }
 
     //모델한테 리뷰 답글 알림 전송
     @Transactional
     public void createReplyNotification(User model, String designerNickname, Long reviewId) {
-        String title = "작성한 리뷰에 " + designerNickname + "디자이너님이 답글을 작성했어요.";
+        String title = "작성한 리뷰에 " + designerNickname + " 디자이너님이 답글을 작성했어요.";
         String message = "리뷰 내역에서 확인해보세요.";
 
         NotificationData notificationData = NotificationData.otherNotification(model, NotificationType.REVIEW, title, message, reviewId);
-        notificationService.createNotification(notificationData);
+        notificationService.sendNotification(notificationData);
     }
 
 }

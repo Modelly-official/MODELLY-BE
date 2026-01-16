@@ -25,6 +25,6 @@ public class ChattingNotificationService {
         }
 
         NotificationData notificationData = NotificationData.chattingNotification(otherUser, NotificationType.CHATTING, title, message, room.getId(), title);
-        notificationService.createNotification(notificationData);
+        notificationService.sendNotification(notificationData);
     }
 }

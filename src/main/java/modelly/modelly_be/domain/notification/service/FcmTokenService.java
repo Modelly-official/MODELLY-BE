@@ -56,7 +56,7 @@ public class FcmTokenService {
                     redisService.setValue(key, fcmToken, TOKEN_EXPIRATION_TIME);
                     return fcmToken;
                 })
-                .orElseThrow(()-> new GeneralException(ErrorStatus.NOT_FOUND_FCM_TOKEN));
+                .orElse(null);
     }
 
     @Transactional

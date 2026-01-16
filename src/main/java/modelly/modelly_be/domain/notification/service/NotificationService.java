@@ -42,10 +42,21 @@ public class NotificationService {
         return notificationList;
     }
 
+    public void sendNotification(NotificationData data) {
+        createNotification(data);
 
+        String fcmToken = fcmTokenService.getToken(data.user().getId());
+
+        // fcm 전송
+        if (fcmToken != null) {
+            fcmService.pushToFCM(data, fcmToken);
+        }
+
+        afterPushSuccess(data.user().getId());
+    }
 
     @Transactional
-    public void createNotification(NotificationData data) {
+    public void createNotification(NotificationData data){
         Notification notification = Notification.builder()
                 .user(data.user())
                 .notificationType(data.type())
@@ -56,13 +67,6 @@ public class NotificationService {
                 .build();
 
         notificationRepository.save(notification);
-
-        String fcmToken = fcmTokenService.getToken(data.user().getId());
-
-        // fcm 전송
-        fcmService.pushToFCM(data, fcmToken);
-
-        afterPushSuccess(data.user().getId());
     }
 
     @Transactional(readOnly = true)

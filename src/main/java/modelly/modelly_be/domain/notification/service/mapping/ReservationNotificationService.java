@@ -27,7 +27,7 @@ public class ReservationNotificationService {
                 message,
                 reservation.getId());
 
-        notificationService.createNotification(notificationData);
+        notificationService.sendNotification(notificationData);
     }
 
     //모델한테 예약 확정 알림 전송
@@ -42,7 +42,7 @@ public class ReservationNotificationService {
                 message,
                 reservation.getId());
 
-        notificationService.createNotification(notificationData);
+        notificationService.sendNotification(notificationData);
     }
 
 
@@ -58,6 +58,6 @@ public class ReservationNotificationService {
                 message,
                 reservation.getId());
 
-        notificationService.createNotification(notificationData);
+        notificationService.sendNotification(notificationData);
     }
 }

@@ -565,7 +565,7 @@ public class ReservationService {
                 : reservation.getModel().getUser();
 
         if (opponentUser.getNotificationSetting().isScheduleNotification()){
-            scheduleNotificationService.createScheduleCancelNotification(me, reservation, finalRoomId);
+            scheduleNotificationService.createScheduleCancelNotification(opponentUser, reservation, finalRoomId);
         }
 
         return new SimpleMessageDTO("예약이 취소되었습니다.");
@@ -693,7 +693,7 @@ public class ReservationService {
     }
 
     @Transactional(readOnly = true)
-    public List<Reservation> getAllByStartDate(LocalDate oneDaysLater) {
-        return reservationRepository.findAllByStartTime(oneDaysLater);
+    public List<Reservation> getAllByDate(LocalDate oneDaysLater) {
+        return reservationRepository.findAllByDate(oneDaysLater);
     }
 }

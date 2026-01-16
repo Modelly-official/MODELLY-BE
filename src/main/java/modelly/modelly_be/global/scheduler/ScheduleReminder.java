@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 @Slf4j
@@ -22,23 +23,30 @@ public class ScheduleReminder {
 
     @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Seoul")
     public void scheduleRemind(){
-        LocalDate oneDaysLater = LocalDate.now().plusDays(1);
+        LocalDate oneDaysLater = LocalDate.now(ZoneId.of("Asia/Seoul")).plusDays(1);
         //다음날 스케줄들 예약 id 가져와서 알림전송
 
-        List<Reservation> reservationList = reservationService.getAllByStartDate(oneDaysLater);
+        List<Reservation> reservationList = reservationService.getAllByDate(oneDaysLater);
 
         for (Reservation reservation : reservationList){
             try {
                 User model = reservation.getModel().getUser();
-                User designer = reservation.getDesigner().getUser();
 
                 if (model.getNotificationSetting().isScheduleNotification()){
                     scheduleNotificationService.createRemindNotification(model, reservation);
                 }
 
+            } catch (Exception e){
+                log.error("❌ 알림 전송 실패", e);
+            }
+
+            try {
+                User designer = reservation.getDesigner().getUser();
+
                 if (designer.getNotificationSetting().isScheduleNotification()){
                     scheduleNotificationService.createRemindNotification(designer, reservation);
                 }
+
             } catch (Exception e){
                 log.error("❌ 알림 전송 실패", e);
             }

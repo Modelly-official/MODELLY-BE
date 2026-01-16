@@ -109,13 +109,13 @@ public class ChattingService {
             chattingImageRepository.saveAll(images);
         }
 
-        User otherUser =null;
-        switch (sender.getUserRole()){
-            case MODEL -> otherUser = room.getDesigner().getUser();
-            case DESIGNER -> otherUser = room.getModel().getUser();
-        }
+        User otherUser = switch (sender.getUserRole()){
+            case MODEL -> room.getDesigner().getUser();
+            case DESIGNER -> room.getModel().getUser();
+            default -> null;
+        };
 
-        if (otherUser.getNotificationSetting().isChattingNotification()){
+        if (otherUser != null &&otherUser.getNotificationSetting().isChattingNotification()){
             chattingNotificationService.createChattingNotification(type, messageContent, otherUser, room);
         }
 

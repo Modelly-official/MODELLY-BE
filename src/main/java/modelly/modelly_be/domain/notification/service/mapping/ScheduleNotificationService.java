@@ -25,7 +25,7 @@ public class ScheduleNotificationService {
 
         switch (user.getUserRole()){
             case MODEL -> {
-                message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +"디자이너";
+                message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +" 디자이너";
                 senderName = reservation.getDesignerName();
             }
             case DESIGNER -> {
@@ -35,7 +35,7 @@ public class ScheduleNotificationService {
         }
 
         NotificationData notificationData = NotificationData.chattingNotification(user, NotificationType.SCHEDULE, title, message, finalRoomId, senderName);
-        notificationService.createNotification(notificationData);
+        notificationService.sendNotification(notificationData);
     }
 
     //일정 취소 알림
@@ -48,7 +48,7 @@ public class ScheduleNotificationService {
         switch (user.getUserRole()) {
             case MODEL -> {
                 title = "디자이너 요청으로 취소된 예약 일정이 있어요.";
-                message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +"디자이너";
+                message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +" 디자이너";
                 senderName = reservation.getDesignerName();
             }
             case DESIGNER -> {
@@ -59,7 +59,7 @@ public class ScheduleNotificationService {
         }
 
         NotificationData notificationData = NotificationData.chattingNotification(user, NotificationType.SCHEDULE, title, message, finalRoomId, senderName);
-        notificationService.createNotification(notificationData);
+        notificationService.sendNotification(notificationData);
     }
 
     @Transactional
@@ -68,7 +68,7 @@ public class ScheduleNotificationService {
 
         switch (user.getUserRole()) {
             case MODEL -> {
-                message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +"디자이너";
+                message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +" 디자이너";
             }
             case DESIGNER -> {
                 message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getModel().getNickname() + "님";
@@ -78,6 +78,6 @@ public class ScheduleNotificationService {
         String title = "내일 예정된 모델 일정이 있어요.";
 
         NotificationData notificationData = NotificationData.otherNotification(user, NotificationType.SCHEDULE, title, message, reservation.getId());
-        notificationService.createNotification(notificationData);
+        notificationService.sendNotification(notificationData);
     }
 }

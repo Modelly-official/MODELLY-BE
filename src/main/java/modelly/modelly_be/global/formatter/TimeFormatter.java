@@ -4,19 +4,13 @@ import org.springframework.stereotype.Component;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 
 @Component
 public class TimeFormatter {
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     public static String parseStartTime(LocalDate date, LocalTime startTime) {
-        try {
-            LocalDateTime dateTime = LocalDateTime.of(date, startTime);
-            return dateTime.format(DateTimeFormatter.ofPattern("M월 d일 HH:mm"));
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("잘못된 time 형식: " + startTime, e);
-        }
+        LocalDateTime dateTime = LocalDateTime.of(date, startTime);
+        return dateTime.format(DateTimeFormatter.ofPattern("M월 d일 HH:mm"));
     }
 
     public static String formatTimeAgo(LocalDateTime dateTime) {
