@@ -5,6 +5,8 @@ import modelly.modelly_be.domain.chat.dto.response.*;
 import modelly.modelly_be.domain.chat.entity.ChatRoom;
 import modelly.modelly_be.domain.chat.service.ChatRoomService;
 import modelly.modelly_be.domain.chat.service.ChattingService;
+import modelly.modelly_be.domain.notification.event.dto.schedule.ScheduleCancelEvent;
+import modelly.modelly_be.domain.notification.event.dto.schedule.ScheduleChangeEvent;
 import modelly.modelly_be.domain.notification.service.mapping.ReservationNotificationService;
 import modelly.modelly_be.domain.notification.service.mapping.ScheduleNotificationService;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
@@ -23,6 +25,7 @@ import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,11 +47,11 @@ public class ReservationService {
 
     private final ChatRoomService chatRoomService;
     private final ChattingService chattingService;
+    private final ScheduleNotificationService scheduleNotificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
-    private final ReservationNotificationService reservationNotificationService;
-    private final ScheduleNotificationService scheduleNotificationService;
 
     public void hasPendingOrConfirmedReservation(Recruitment recruitment) {
         List<Reservation> reservations = reservationRepository.findAllByRecruitment(recruitment);
@@ -286,12 +289,12 @@ public class ReservationService {
                 saved.getReason()
         );
 
-        User opponantUser = meIsModel
+        User opponentUser = meIsModel
                 ? reservation.getDesigner().getUser()
                 : reservation.getModel().getUser();
 
-        if (opponantUser.getNotificationSetting().isScheduleNotification()){
-            scheduleNotificationService.createScheduleChangeNotification(opponantUser, finalRoomId, reservation);
+        if (opponentUser.getNotificationSetting().isScheduleNotification()){
+            eventPublisher.publishEvent(new ScheduleChangeEvent(opponentUser, reservation, finalRoomId));
         }
 
         // 채팅 저장 + STOMP 브로드캐스트
@@ -565,7 +568,7 @@ public class ReservationService {
                 : reservation.getModel().getUser();
 
         if (opponentUser.getNotificationSetting().isScheduleNotification()){
-            scheduleNotificationService.createScheduleCancelNotification(opponentUser, reservation, finalRoomId);
+            eventPublisher.publishEvent(new ScheduleCancelEvent(opponentUser, reservation, finalRoomId));
         }
 
         return new SimpleMessageDTO("예약이 취소되었습니다.");

@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.review.service;
 
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.notification.event.dto.review.ReplyCreateEvent;
 import modelly.modelly_be.domain.notification.service.mapping.ReviewNotificationService;
 import modelly.modelly_be.domain.review.dto.request.ReplyRequestDto;
 import modelly.modelly_be.domain.review.dto.response.DesignerReviewListResponseDto;
@@ -11,6 +12,7 @@ import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -26,7 +28,7 @@ public class DesignerReviewService {
     private final ReplyService replyService;
     private final DesignerService designerService;
     private final ReviewService reviewService;
-    private final ReviewNotificationService reviewNotificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void fixReview(User user, Long reviewId){
@@ -68,7 +70,7 @@ public class DesignerReviewService {
         User model = review.getModel().getUser();
 
         if (model.getNotificationSetting().isReviewNotification()){
-            reviewNotificationService.createReplyNotification(model, designer.getNickname(), reviewId);
+            eventPublisher.publishEvent(new ReplyCreateEvent(model, designer.getNickname(), reviewId));
         }
 
         return reply;

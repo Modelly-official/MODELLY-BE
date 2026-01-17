@@ -18,7 +18,7 @@ public class ScheduleNotificationService {
     private final NotificationService notificationService;
 
     //일정 변동 알림
-    public void createScheduleChangeNotification(User user, Long finalRoomId, Reservation reservation) {
+    public NotificationData createScheduleChangeNotification(User user, Reservation reservation, Long finalRoomId) {
         String title = "예약 변경 요청이 있어요. 상세 내용 확인 후 수락 혹은 거절을 진행해주세요.";
         String message = "";
         String senderName = "";
@@ -34,12 +34,10 @@ public class ScheduleNotificationService {
             }
         }
 
-        NotificationData notificationData = NotificationData.chattingNotification(user, NotificationType.SCHEDULE, title, message, finalRoomId, senderName);
-        notificationService.sendNotification(notificationData);
-    }
+        return NotificationData.chattingNotification(user, NotificationType.SCHEDULE, title, message, finalRoomId, senderName);}
 
     //일정 취소 알림
-    public void createScheduleCancelNotification(User user, Reservation reservation, Long finalRoomId) {
+    public NotificationData createScheduleCancelNotification(User user, Reservation reservation, Long finalRoomId) {
 
         String title ="";
         String message ="";
@@ -58,8 +56,7 @@ public class ScheduleNotificationService {
             }
         }
 
-        NotificationData notificationData = NotificationData.chattingNotification(user, NotificationType.SCHEDULE, title, message, finalRoomId, senderName);
-        notificationService.sendNotification(notificationData);
+        return NotificationData.chattingNotification(user, NotificationType.SCHEDULE, title, message, finalRoomId, senderName);
     }
 
     @Transactional

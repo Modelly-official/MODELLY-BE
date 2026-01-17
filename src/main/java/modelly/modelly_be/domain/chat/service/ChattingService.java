@@ -16,7 +16,8 @@ import modelly.modelly_be.domain.chat.event.ChatBroadcastEvent;
 import modelly.modelly_be.domain.chat.repository.ChatRoomRepository;
 import modelly.modelly_be.domain.chat.repository.ChattingImageRepository;
 import modelly.modelly_be.domain.chat.repository.ChattingRepository;
-import modelly.modelly_be.domain.notification.service.mapping.ChattingNotificationService;
+import modelly.modelly_be.domain.notification.event.dto.chat.ChatEvent;
+import modelly.modelly_be.domain.notification.service.mapping.ChatNotificationService;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.repository.UserRepository;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
@@ -43,7 +44,7 @@ public class ChattingService {
     private final ChattingImageRepository chattingImageRepository;
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher eventPublisher;
-    private final ChattingNotificationService chattingNotificationService;
+    private final ChatNotificationService chatNotificationService;
 
     // 메세지 보내기(DB 저장)
     @Transactional
@@ -116,7 +117,7 @@ public class ChattingService {
         };
 
         if (otherUser != null &&otherUser.getNotificationSetting().isChattingNotification()){
-            chattingNotificationService.createChattingNotification(type, messageContent, otherUser, room);
+            eventPublisher.publishEvent(new ChatEvent(type, messageContent, otherUser, room));
         }
 
         // STOMP 응답 DTO 반환

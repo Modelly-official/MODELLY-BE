@@ -1,9 +1,9 @@
 package modelly.modelly_be.domain.reservation.service;
 
 import lombok.RequiredArgsConstructor;
-import modelly.modelly_be.domain.notification.service.mapping.ReservationNotificationService;
+import modelly.modelly_be.domain.notification.event.dto.reservation.ReservationAcceptEvent;
+import modelly.modelly_be.domain.notification.event.dto.reservation.ReservationRejectEvent;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
-import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
 import modelly.modelly_be.domain.recruitment.service.RecruitmentService;
 import modelly.modelly_be.domain.reservation.dto.internal.DesignerDailyReservationItem;
 import modelly.modelly_be.domain.reservation.dto.internal.DesignerPendingReservationItem;
@@ -21,6 +21,7 @@ import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.SubCategory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,8 +41,7 @@ public class DesignerReservationService {
     private final RecruitmentService recruitmentService;
     private final ReservationQueryRepository reservationQueryRepository;
     private final ReservationRepository reservationRepository;
-    private final RecruitmentTimeRepository recruitmentTimeRepository;
-    private final ReservationNotificationService reservationNotificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
@@ -296,7 +296,7 @@ public class DesignerReservationService {
         reservation.confirm();
 
         if(reservation.getModel().getUser().getNotificationSetting().isReservationNotification()){
-            reservationNotificationService.createReservationAcceptedNotification(reservation);
+            eventPublisher.publishEvent(new ReservationAcceptEvent(reservation));
         }
         return new SimpleMessageDTO("예약이 확정되었습니다.");
     }
@@ -320,7 +320,7 @@ public class DesignerReservationService {
         reservation.reject();
 
         if (reservation.getModel().getUser().getNotificationSetting().isReservationNotification()){
-            reservationNotificationService.createReservationRejectNotification(reservation);
+            eventPublisher.publishEvent(new ReservationRejectEvent(reservation));
         }
 
         return new SimpleMessageDTO("예약이 거절되었습니다.");

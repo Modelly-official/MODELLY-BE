@@ -2,7 +2,7 @@ package modelly.modelly_be.domain.review.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import modelly.modelly_be.domain.notification.service.mapping.ReviewNotificationService;
+import modelly.modelly_be.domain.notification.event.dto.review.ReviewCreateEvent;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.domain.review.dto.internal.AverageReview;
@@ -46,7 +46,6 @@ public class ReviewService {
     private final ReservationService reservationService;
     private final ReplyService replyService;
     private final DesignerService designerService;
-    private final ReviewNotificationService reviewNotificationService;
     private final ReviewRepository reviewRepository;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -103,7 +102,7 @@ public class ReviewService {
         //디자이너한테 리뷰 알림 전송
         User designerUser = designer.getUser();
         if (designerUser.getNotificationSetting().isReviewNotification()){
-            reviewNotificationService.createReviewNotification(designerUser, model.getNickname(), review.getId());
+            eventPublisher.publishEvent(new ReviewCreateEvent(designerUser, model.getNickname(), review.getId()));
         }
 
         return review;
