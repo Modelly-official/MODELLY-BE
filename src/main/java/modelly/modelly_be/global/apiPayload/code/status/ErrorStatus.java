@@ -104,6 +104,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     //Notification
     NOT_FOUND_NOTIFICATION_SETTING(HttpStatus.NOT_FOUND, "NOTIFICATION_SETTING404", "알림 수신설정이 존재하지 않습니다."),
+    NOT_FOUND_FCM_TOKEN(HttpStatus.NOT_FOUND, "FCMTOKEN404", "FCM 토큰이 존재하지 않습니다."),
 
     ;
 

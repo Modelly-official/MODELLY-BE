@@ -19,6 +19,9 @@ public class Notification extends BaseEntity {
     @Column(name = "notification_type", nullable = false)
     private NotificationType notificationType;
 
+    @Column(name = "title", nullable = false, length = 100)
+    private String title;
+
     @Column(name = "content", nullable = false, length = 254)
     private String content;
 
@@ -31,4 +34,5 @@ public class Notification extends BaseEntity {
 
     @Column(name = "is_read")
     private boolean isRead = false;
+
 }

@@ -1,7 +1,6 @@
 package modelly.modelly_be.domain.chat.repository;
 
 import modelly.modelly_be.domain.chat.entity.ChatRoom;
-import modelly.modelly_be.domain.chat.entity.Chatting;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.global.entity.Category;
@@ -11,7 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {

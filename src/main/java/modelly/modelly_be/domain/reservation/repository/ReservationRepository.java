@@ -4,7 +4,6 @@ import jakarta.persistence.LockModeType;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
-import modelly.modelly_be.domain.user.entity.Designer;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -85,4 +84,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("select r from Reservation r where r.id = :id")
     Optional<Reservation> findByIdForUpdate(@Param("id") Long id);
 
+    @Query("SELECT r FROM Reservation r " +
+            "JOIN FETCH r.model " +
+            "JOIN FETCH r.designer " +
+            "WHERE r.date = :date ")
+    List<Reservation> findAllByDate(LocalDate date);
 }

@@ -8,8 +8,6 @@ import modelly.modelly_be.domain.chat.service.ChatRoomService;
 import modelly.modelly_be.domain.chat.service.ChattingService;
 import modelly.modelly_be.domain.reservation.dto.internal.ChatRoomReservationSummary;
 import modelly.modelly_be.domain.reservation.dto.response.ChatRoomReservationSummaryResponse;
-import modelly.modelly_be.domain.reservation.entity.Reservation;
-import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.entity.Category;
@@ -18,7 +16,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor

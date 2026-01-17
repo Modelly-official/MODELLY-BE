@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.review.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import modelly.modelly_be.domain.notification.event.dto.review.ReviewCreateEvent;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.domain.review.dto.internal.AverageReview;
@@ -33,9 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -98,6 +97,12 @@ public class ReviewService {
 
                 review.addReviewImage(reviewImage);
             }
+        }
+
+        //디자이너한테 리뷰 알림 전송
+        User designerUser = designer.getUser();
+        if (designerUser.getNotificationSetting().isReviewNotification()){
+            eventPublisher.publishEvent(new ReviewCreateEvent(designerUser, model.getNickname(), review.getId()));
         }
 
         return review;

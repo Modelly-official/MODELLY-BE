@@ -1,8 +1,8 @@
 package modelly.modelly_be.domain.reservation.service;
 
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.notification.event.dto.reservation.ReservationCreatedEvent;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
-import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.service.RecruitmentService;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationCreateRequest;
 import modelly.modelly_be.domain.reservation.dto.response.AvailableReservationScheduleResponse;
@@ -23,6 +23,7 @@ import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.entity.SubCategory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,10 +45,10 @@ public class ModelReservationService {
     private final RecruitmentService recruitmentService;
     private final ReservationQueryRepository reservationQueryRepository;
     private final ReservationRepository reservationRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
-
 
     /*----------- 예약 신청 ----------*/
     @Transactional
@@ -94,6 +95,10 @@ public class ModelReservationService {
                 .build();
 
         reservationService.save(reservation);
+
+        if (designer.getUser().getNotificationSetting().isReservationNotification()) {
+            eventPublisher.publishEvent(new ReservationCreatedEvent(reservation));
+        }
     }
 
     /*----------- 예약 조회(다가오는 일정, 완료된 일정) ----------*/

@@ -7,11 +7,16 @@ public record NotificationListResponse(
         Long notificationId,
         @Schema(description = "알림 타입", example = "예약 확정")
         String notificationType,
-        @Schema(description = "알림 내용", example = "예약이 확정되었습니다.")
+        @Schema(description = "알림 제목", example = "예약이 확정되었습니다.")
+        String title,
+        @Schema(description = "알림 내용", example = "1/13 18:00 커트 00디자이너")
         String content,
         @Schema(description = "알림이 전송된 시각", example = "어제")
         String createdAt,
         @Schema(description = "알림의 targetId", example = "1")
-        Long targetId
+        Long targetId,
+        @Schema(description = "알림 읽음 여부", example = "true")
+        boolean isRead
+
 ) {
 }
