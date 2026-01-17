@@ -28,7 +28,7 @@ public class ScheduleNotificationEventListener {
                 event.reservation(),
                 event.finalRoomId()
         );
-        notificationService.createNotification(data);
+        notificationService.sendNotification(data);
     }
 
     @Async
@@ -40,6 +40,6 @@ public class ScheduleNotificationEventListener {
                 event.reservation(),
                 event.finalRoomId()
         );
-        notificationService.createNotification(data);
+        notificationService.sendNotification(data);
     }
 }

@@ -52,7 +52,7 @@ public class NotificationService {
             fcmService.pushToFCM(data, fcmToken);
         }
 
-        afterPushSuccess(data.user());
+        incrementUnreadCount(data.user());
     }
 
     @Transactional
@@ -91,7 +91,8 @@ public class NotificationService {
         return new UnreadNotificationResponse(isAllRead, count);
     }
 
-    public void afterPushSuccess(User user) {
+    @Transactional
+    public void incrementUnreadCount(User user) {
         String key = UNREAD_COUNT_KEY + user.getId();
         if (redisService.checkExistsValue(key)) {
             redisService.incrementCount(key);
