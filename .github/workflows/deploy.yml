@@ -20,6 +20,15 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Make Firebase serviceAccountKey.json
+        run: |
+          mkdir -p ./src/main/resources
+          echo "${{ secrets.SERVICE_ACCOUNT_KEY_B64 }}" | base64 -d > ./src/main/resources/moandi_serviceAccountKey.json
+
+      - name: Verify Firebase key exists
+        run: |
+          ls -al ./src/main/resources | grep moandi_serviceAccountKey.json
+
       - name: Build JAR
         run: ./gradlew clean bootJar -x test
 
