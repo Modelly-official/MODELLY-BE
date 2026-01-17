@@ -11,6 +11,7 @@ import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListRespons
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentDate;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
+import modelly.modelly_be.domain.recruitment.entity.enums.RecruitmentStatus;
 import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
 import modelly.modelly_be.domain.reservation.dto.response.AvailableReservationScheduleResponse;
 import modelly.modelly_be.domain.user.entity.Model;
@@ -163,8 +164,8 @@ public class RecruitmentService {
         return recruitmentRepository.updateStatusToClosed(today);
     }
 
-    public List<DesignerRecruitmentListResponse> getByDesignerAndRecruitmentDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId) {
-        List<DesignerRecruitmentList> recruitmentLists = recruitmentRepository.findRecruitmentsByDesignerAndDate(designer,yearMonth,size,cursorEarliestDate,cursorId);
+    public List<DesignerRecruitmentListResponse> getByDesignerAndRecruitmentDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId, RecruitmentStatus status) {
+        List<DesignerRecruitmentList> recruitmentLists = recruitmentRepository.findRecruitmentsByDesignerAndDate(designer,yearMonth,size,cursorEarliestDate,cursorId, status);
 
         List<Long> recruitmentIds = recruitmentLists.stream()
                 .map(DesignerRecruitmentList::recruitmentId)

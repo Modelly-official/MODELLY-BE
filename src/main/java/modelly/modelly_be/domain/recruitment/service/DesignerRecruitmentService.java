@@ -185,7 +185,7 @@ public class DesignerRecruitmentService {
         }
     }
 
-    public List<DesignerRecruitmentListResponse> getDesginerRecruitments(User user, String month, int size, LocalDate cursorEarliestDate, Long cursorId) {
+    public List<DesignerRecruitmentListResponse> getDesginerRecruitments(User user, String month, int size, LocalDate cursorEarliestDate, Long cursorId, RecruitmentStatus status) {
         YearMonth yearMonth;
         try {
             yearMonth = YearMonth.parse(month);
@@ -195,7 +195,7 @@ public class DesignerRecruitmentService {
 
         Designer designer = designerService.getByUser(user);
 
-        List<DesignerRecruitmentListResponse> responseDtos = recruitmentService.getByDesignerAndRecruitmentDate(designer, yearMonth, size,cursorEarliestDate,cursorId);
+        List<DesignerRecruitmentListResponse> responseDtos = recruitmentService.getByDesignerAndRecruitmentDate(designer, yearMonth, size,cursorEarliestDate,cursorId, status);
 
         return responseDtos;
     }
