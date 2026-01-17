@@ -208,6 +208,8 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
     private BooleanBuilder buildCommonWhere(SearchCondition cond) {
         BooleanBuilder b = new BooleanBuilder();
 
+        b.and(qRecruitment.recruitmentStatus.eq(RecruitmentStatus.OPEN));
+
         if (cond.keyword() != null && !cond.keyword().isBlank()) {
             b.and(qRecruitment.title.contains(cond.keyword())
                     .or(qRecruitment.content.contains(cond.keyword())));
