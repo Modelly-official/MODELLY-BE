@@ -91,13 +91,17 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
     }
 
     @Override
-    public List<DesignerRecruitmentList> findRecruitmentsByDesignerAndDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId) {
+    public List<DesignerRecruitmentList> findRecruitmentsByDesignerAndDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId, RecruitmentStatus status) {
 
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         booleanBuilder.and(qRecruitment.designer.id.eq(designer.getId()));
 
         booleanBuilder.and(qRecruitmentDate.date.year().eq(yearMonth.getYear())
                 .and(qRecruitmentDate.date.month().eq(yearMonth.getMonthValue())));
+
+        if (status != null) {
+            booleanBuilder.and(qRecruitment.recruitmentStatus.eq(status));
+        }
 
         NumberPath<Long> reviewCount = Expressions.numberPath(Long.class, "reviewCount");
         JPQLSubQuery<Long> reviewCountSubQuery=JPAExpressions

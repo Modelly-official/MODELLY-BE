@@ -8,6 +8,7 @@ import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentReques
 import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponse;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentResponseDto;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
+import modelly.modelly_be.domain.recruitment.entity.enums.RecruitmentStatus;
 import modelly.modelly_be.domain.recruitment.service.DesignerRecruitmentService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
@@ -57,10 +58,11 @@ public class DesignerRecruitmentController implements DesignerRecruitmentSwagger
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam String month,
             @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) RecruitmentStatus status,
             @RequestParam(required = false) LocalDate cursorEarliestDate,
             @RequestParam(required = false) Long cursorId
     ) {
-        List<DesignerRecruitmentListResponse> listDtos = designerRecruitmentService.getDesginerRecruitments(authDetails.user(),month, size, cursorEarliestDate, cursorId);
+        List<DesignerRecruitmentListResponse> listDtos = designerRecruitmentService.getDesginerRecruitments(authDetails.user(),month, size, cursorEarliestDate, cursorId, status);
 
         ScrollResponse<DesignerRecruitmentListResponse> responseDtos = ScrollUtil.paginate(listDtos,size);
 

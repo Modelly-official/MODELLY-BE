@@ -8,6 +8,7 @@ import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentReques
 import modelly.modelly_be.domain.recruitment.dto.internal.DesignerRecruitmentList;
 import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponse;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentResponseDto;
+import modelly.modelly_be.domain.recruitment.entity.enums.RecruitmentStatus;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
 import modelly.modelly_be.global.utils.ScrollResponse;
@@ -41,6 +42,7 @@ public interface DesignerRecruitmentSwagger {
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam String month,
             @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) RecruitmentStatus status,
             @RequestParam(required = false) LocalDate cursorEarliestDate,
             @RequestParam(required = false) Long cursorId);
 

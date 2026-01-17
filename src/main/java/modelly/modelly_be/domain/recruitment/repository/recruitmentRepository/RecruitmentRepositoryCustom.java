@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.recruitment.repository.recruitmentRepository;
 import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse;
 import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentBasic;
 import modelly.modelly_be.domain.recruitment.dto.internal.DesignerRecruitmentList;
+import modelly.modelly_be.domain.recruitment.entity.enums.RecruitmentStatus;
 import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.utils.SearchCondition;
@@ -23,7 +24,7 @@ public interface RecruitmentRepositoryCustom {
 
     List<RecruitmentBasic> findRecruitmentsByDistance(Long userId, SearchCondition searchCondition, Long cursorId, Double cursorDistance, int size, Coordinate userCoordinate);
 
-    List<DesignerRecruitmentList> findRecruitmentsByDesignerAndDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId);
+    List<DesignerRecruitmentList> findRecruitmentsByDesignerAndDate(Designer designer, YearMonth yearMonth, int size, LocalDate cursorEarliestDate, Long cursorId, RecruitmentStatus status);
 
     Map<Long, Set<SubCategory>> findSubCategoriesByRecruitmentIds(List<Long> recruitmentIds);
 
