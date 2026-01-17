@@ -43,7 +43,7 @@ public interface NotificationSwagger {
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "10") int size);
 
-    @GetMapping("/unread-notifications")
+    @GetMapping("/notifications/unread")
     @Operation(summary = "안 읽은 알림 개수 조회 API", description = "유저가 안 읽은 알림 개수를 조회할 때 사용하는 API입니다.")
     ApiResponse<UnreadNotificationResponse> getUnreadNotifications(@AuthenticationPrincipal AuthDetails authDetails);
 

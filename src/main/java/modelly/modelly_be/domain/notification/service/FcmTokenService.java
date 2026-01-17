@@ -21,7 +21,7 @@ public class FcmTokenService {
 
     @Transactional(readOnly = true)
     public String getTokenByUserId(Long userId) {
-        return fcmTokenRepository.findTokenByUserId(userId)
+        return fcmTokenRepository.findTokenValueByUserId(userId)
                 .orElseThrow(()-> new GeneralException(ErrorStatus.NOT_FOUND_FCM_TOKEN));
     }
 
@@ -51,7 +51,7 @@ public class FcmTokenService {
             return token;
         }
 
-        return fcmTokenRepository.findTokenByUserId(userId)
+        return fcmTokenRepository.findTokenValueByUserId(userId)
                 .map(fcmToken -> {
                     redisService.setValue(key, fcmToken, TOKEN_EXPIRATION_TIME);
                     return fcmToken;

@@ -52,7 +52,7 @@ public class NotificationService {
             fcmService.pushToFCM(data, fcmToken);
         }
 
-        afterPushSuccess(data.user().getId());
+        afterPushSuccess(data.user());
     }
 
     @Transactional
@@ -91,10 +91,14 @@ public class NotificationService {
         return new UnreadNotificationResponse(isAllRead, count);
     }
 
-    public void afterPushSuccess(Long userId) {
-        String key = UNREAD_COUNT_KEY + userId;
+    public void afterPushSuccess(User user) {
+        String key = UNREAD_COUNT_KEY + user.getId();
         if (redisService.checkExistsValue(key)) {
             redisService.incrementCount(key);
+        } else {
+            log.info("DB에서 가져옵니다.");
+            int count = notificationRepository.countAllByUserAndRead(user);
+            redisService.setValue(key, count, 0L);
         }
     }
 }
