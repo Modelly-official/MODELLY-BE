@@ -15,8 +15,17 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class FCMService {
 
+    private final FcmTokenService fcmTokenService;
+
     @Transactional
-    public void pushToFCM(NotificationData notificationData, String fcmToken) {
+    public void pushToFCM(NotificationData notificationData) {
+        String fcmToken = fcmTokenService.getToken(notificationData.userId());
+
+        if (fcmToken == null || fcmToken.isEmpty()) {
+            log.warn("FCM token is null or empty", notificationData.userId());
+            return;
+        }
+
         try {
             Notification notification = Notification.builder()
                     .setTitle(notificationData.title())

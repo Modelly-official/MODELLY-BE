@@ -23,8 +23,6 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserService userService;
-    private final FcmTokenService fcmTokenService;
-    private final FCMService fcmService;
     private final RedisService redisService;
 
     private static final String UNREAD_COUNT_KEY = "user:unread_notification_count:";
@@ -49,14 +47,6 @@ public class NotificationService {
         User user = userService.getById(data.userId());
 
         createNotification(user, data);
-
-        String fcmToken = fcmTokenService.getToken(data.userId());
-        log.info("FCM Token for user {} = {}", data.userId(), fcmToken);
-
-        // fcm 전송
-        if (fcmToken != null) {
-            fcmService.pushToFCM(data, fcmToken);
-        }
 
         incrementUnreadCount(user);
     }

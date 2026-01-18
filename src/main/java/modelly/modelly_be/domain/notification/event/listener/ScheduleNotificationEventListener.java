@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import modelly.modelly_be.domain.notification.dto.internal.NotificationData;
 import modelly.modelly_be.domain.notification.event.dto.schedule.ScheduleCancelEvent;
 import modelly.modelly_be.domain.notification.event.dto.schedule.ScheduleChangeEvent;
+import modelly.modelly_be.domain.notification.service.FCMService;
 import modelly.modelly_be.domain.notification.service.NotificationService;
 import modelly.modelly_be.domain.notification.service.mapping.ScheduleNotificationService;
 import org.springframework.scheduling.annotation.Async;
@@ -19,6 +20,7 @@ public class ScheduleNotificationEventListener {
 
     private final ScheduleNotificationService scheduleNotificationService;
     private final NotificationService notificationService;
+    private final FCMService fcmService;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -29,6 +31,8 @@ public class ScheduleNotificationEventListener {
                 event.finalRoomId()
         );
         notificationService.sendNotification(data);
+
+        fcmService.pushToFCM(data);
     }
 
     @Async
@@ -41,5 +45,7 @@ public class ScheduleNotificationEventListener {
                 event.finalRoomId()
         );
         notificationService.sendNotification(data);
+
+        fcmService.pushToFCM(data);
     }
 }
