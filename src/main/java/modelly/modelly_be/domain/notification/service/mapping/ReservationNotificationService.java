@@ -16,7 +16,7 @@ public class ReservationNotificationService {
 
         String message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +"디자이너";
         return NotificationData.otherNotification(
-                reservation.getModel().getUser(),
+                reservation.getModel().getUser().getId(),
                 NotificationType.RESERVATION,
                 "해당 예약은 확정되지 않았어요.",
                 message,
@@ -30,7 +30,7 @@ public class ReservationNotificationService {
 
         String message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +"디자이너";
         return NotificationData.otherNotification(
-                reservation.getModel().getUser(),
+                reservation.getModel().getUser().getId(),
                 NotificationType.RESERVATION,
                 "신청한 예약이 확정되었어요.",
                 message,
@@ -43,7 +43,7 @@ public class ReservationNotificationService {
 
         String message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getModel().getNickname() + "님";
         return NotificationData.otherNotification(
-                reservation.getDesigner().getUser(),
+                reservation.getDesigner().getUser().getId(),
                 NotificationType.RESERVATION,
                 "새로운 예약 신청이 있어요.",
                 message,

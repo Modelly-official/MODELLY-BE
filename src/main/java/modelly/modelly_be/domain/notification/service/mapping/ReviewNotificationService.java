@@ -17,7 +17,7 @@ public class ReviewNotificationService {
         String title = modelNickname + "님이 작성하신 새로운 리뷰가 등록되었어요.";
         String message = "리뷰 관리에서 답글을 작성해보세요.";
 
-        return NotificationData.otherNotification(designer, NotificationType.REVIEW, title, message, reviewId);
+        return NotificationData.otherNotification(designer.getId(), NotificationType.REVIEW, title, message, reviewId);
     }
 
     //모델한테 리뷰 답글 알림 전송
@@ -26,7 +26,7 @@ public class ReviewNotificationService {
         String title = "작성한 리뷰에 " + designerNickname + " 디자이너님이 답글을 작성했어요.";
         String message = "리뷰 내역에서 확인해보세요.";
 
-        return NotificationData.otherNotification(model, NotificationType.REVIEW, title, message, reviewId);
+        return NotificationData.otherNotification(model.getId(), NotificationType.REVIEW, title, message, reviewId);
     }
 
 }

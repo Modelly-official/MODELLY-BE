@@ -9,6 +9,7 @@ import modelly.modelly_be.domain.notification.entity.Notification;
 import modelly.modelly_be.domain.notification.entity.NotificationType;
 import modelly.modelly_be.domain.notification.repository.notificationRepository.NotificationRepository;
 import modelly.modelly_be.domain.user.entity.User;
+import modelly.modelly_be.domain.user.service.UserService;
 import modelly.modelly_be.global.redis.RedisService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final UserService userService;
     private final FcmTokenService fcmTokenService;
     private final FCMService fcmService;
     private final RedisService redisService;
@@ -42,23 +44,27 @@ public class NotificationService {
         return notificationList;
     }
 
+    @Transactional
     public void sendNotification(NotificationData data) {
-        createNotification(data);
+        User user = userService.getById(data.userId());
 
-        String fcmToken = fcmTokenService.getToken(data.user().getId());
+        createNotification(user, data);
+
+        String fcmToken = fcmTokenService.getToken(data.userId());
+        log.info("FCM Token for user {} = {}", data.userId(), fcmToken);
 
         // fcm 전송
         if (fcmToken != null) {
             fcmService.pushToFCM(data, fcmToken);
         }
 
-        incrementUnreadCount(data.user());
+        incrementUnreadCount(user);
     }
 
     @Transactional
-    public void createNotification(NotificationData data){
+    public void createNotification(User user, NotificationData data){
         Notification notification = Notification.builder()
-                .user(data.user())
+                .user(user)
                 .notificationType(data.type())
                 .targetId(data.targetId())
                 .title(data.title())
