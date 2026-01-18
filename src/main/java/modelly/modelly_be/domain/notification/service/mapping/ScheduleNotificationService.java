@@ -34,7 +34,7 @@ public class ScheduleNotificationService {
             }
         }
 
-        return NotificationData.chattingNotification(user, NotificationType.SCHEDULE, title, message, finalRoomId, senderName);}
+        return NotificationData.chattingNotification(user.getId(), NotificationType.SCHEDULE, title, message, finalRoomId, senderName);}
 
     //일정 취소 알림
     public NotificationData createScheduleCancelNotification(User user, Reservation reservation, Long finalRoomId) {
@@ -56,7 +56,7 @@ public class ScheduleNotificationService {
             }
         }
 
-        return NotificationData.chattingNotification(user, NotificationType.SCHEDULE, title, message, finalRoomId, senderName);
+        return NotificationData.chattingNotification(user.getId(), NotificationType.SCHEDULE, title, message, finalRoomId, senderName);
     }
 
     @Transactional
@@ -74,7 +74,7 @@ public class ScheduleNotificationService {
 
         String title = "내일 예정된 모델 일정이 있어요.";
 
-        NotificationData notificationData = NotificationData.otherNotification(user, NotificationType.SCHEDULE, title, message, reservation.getId());
+        NotificationData notificationData = NotificationData.otherNotification(user.getId(), NotificationType.SCHEDULE, title, message, reservation.getId());
         notificationService.sendNotification(notificationData);
     }
 }

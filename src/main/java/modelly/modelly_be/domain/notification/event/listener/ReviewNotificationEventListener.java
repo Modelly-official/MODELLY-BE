@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import modelly.modelly_be.domain.notification.dto.internal.NotificationData;
 import modelly.modelly_be.domain.notification.event.dto.review.ReplyCreateEvent;
 import modelly.modelly_be.domain.notification.event.dto.review.ReviewCreateEvent;
+import modelly.modelly_be.domain.notification.service.FCMService;
 import modelly.modelly_be.domain.notification.service.NotificationService;
 import modelly.modelly_be.domain.notification.service.mapping.ReviewNotificationService;
 import org.springframework.scheduling.annotation.Async;
@@ -19,6 +20,7 @@ public class ReviewNotificationEventListener {
 
     private final ReviewNotificationService reviewNotificationService;
     private final NotificationService notificationService;
+    private final FCMService fcmService;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -29,6 +31,8 @@ public class ReviewNotificationEventListener {
                 event.reviewId()
         );
         notificationService.sendNotification(data);
+
+        fcmService.pushToFCM(data);
     }
 
     @Async
@@ -40,5 +44,7 @@ public class ReviewNotificationEventListener {
                 event.reviewId()
         );
         notificationService.sendNotification(data);
+
+        fcmService.pushToFCM(data);
     }
 }
