@@ -22,6 +22,8 @@ import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.listener.dto.S3FolderDeleteEvent;
+import modelly.modelly_be.global.utils.ScrollResponse;
+import modelly.modelly_be.global.utils.ScrollUtil;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -185,7 +187,7 @@ public class DesignerRecruitmentService {
         }
     }
 
-    public List<DesignerRecruitmentListResponse> getDesginerRecruitments(User user, String month, int size, LocalDate cursorEarliestDate, Long cursorId, RecruitmentStatus status) {
+    public ScrollResponse<DesignerRecruitmentListResponse> getDesginerRecruitments(User user, String month, int size, LocalDate cursorEarliestDate, Long cursorId, RecruitmentStatus status) {
         YearMonth yearMonth;
         try {
             yearMonth = YearMonth.parse(month);
@@ -195,7 +197,11 @@ public class DesignerRecruitmentService {
 
         Designer designer = designerService.getByUser(user);
 
-        List<DesignerRecruitmentListResponse> responseDtos = recruitmentService.getByDesignerAndRecruitmentDate(designer, yearMonth, size,cursorEarliestDate,cursorId, status);
+        List<DesignerRecruitmentListResponse> listDtos = recruitmentService.getByDesignerAndRecruitmentDate(designer, yearMonth, size,cursorEarliestDate,cursorId, status);
+
+        Long totalCount = recruitmentService.countDesignerRecruitmentsByCondition(designer, yearMonth, status);
+
+        ScrollResponse<DesignerRecruitmentListResponse> responseDtos = ScrollUtil.paginate(listDtos,size, totalCount);
 
         return responseDtos;
     }

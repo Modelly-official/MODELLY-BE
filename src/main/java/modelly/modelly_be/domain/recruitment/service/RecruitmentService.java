@@ -29,6 +29,8 @@ import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.SortOption;
+import modelly.modelly_be.global.utils.ScrollResponse;
+import modelly.modelly_be.global.utils.ScrollUtil;
 import modelly.modelly_be.global.utils.SearchCondition;
 import modelly.modelly_be.global.utils.Coordinate;
 import org.springframework.stereotype.Service;
@@ -106,7 +108,7 @@ public class RecruitmentService {
         );
     }
 
-    public List<RecruitmentListResponseDto> getRecruitmensList(Long userId, SearchCondition searchCondition, SortOption sortOption, CursorInformation cursorInformation, int size, Coordinate userCoordinate) {
+    public ScrollResponse<RecruitmentListResponseDto> getRecruitmensList(Long userId, SearchCondition searchCondition, SortOption sortOption, CursorInformation cursorInformation, int size, Coordinate userCoordinate) {
         List<RecruitmentBasic> recruitmentBasics;
         Long cursorId = cursorInformation.cursorId() == null || cursorInformation.cursorId() == 0 ? null : cursorInformation.cursorId();
 
@@ -134,7 +136,7 @@ public class RecruitmentService {
 
         Map<Long, Set<SubCategory>> setMap = recruitmentRepository.findSubCategoriesByRecruitmentIds(recruitmentIds);
 
-        return recruitmentBasics.stream()
+        List<RecruitmentListResponseDto> recruitments = recruitmentBasics.stream()
                 .map(basic -> {
                     List<String> subCategories = setMap.getOrDefault(basic.recruitmentId(), Set.of())
                             .stream().map(SubCategory::getDescription)
@@ -157,6 +159,12 @@ public class RecruitmentService {
                             basic.averageRating()
                     );
                 }).toList();
+
+        Long totalCount = countByCondition(searchCondition);
+
+        ScrollResponse<RecruitmentListResponseDto> responseDtos = ScrollUtil.paginate(recruitments,size, totalCount);
+
+        return responseDtos;
     }
 
     @Transactional
@@ -248,6 +256,24 @@ public class RecruitmentService {
 
         return recruitmentTimeRepository.existsAvailableSlotForDesigner(
                 designer.getId(), date, start
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public Long countDesignerRecruitmentsByCondition(Designer designer, YearMonth yearMonth, RecruitmentStatus status) {
+        return recruitmentRepository.countByDesignerAndDateAndStatus(
+                designer,
+                yearMonth.getYear(),
+                yearMonth.getMonthValue(),
+                status
+        );
+    }
+
+    private Long countByCondition(SearchCondition searchCondition) {
+        return recruitmentRepository.countByCondition(
+                searchCondition.keyword(),
+                searchCondition.category(),
+                searchCondition.subCategory()
         );
     }
 }

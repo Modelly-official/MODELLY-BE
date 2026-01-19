@@ -2,6 +2,10 @@ package modelly.modelly_be.domain.recruitment.repository.recruitmentRepository;
 
 import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentBasic;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
+import modelly.modelly_be.domain.recruitment.entity.enums.RecruitmentStatus;
+import modelly.modelly_be.domain.user.entity.Designer;
+import modelly.modelly_be.global.entity.Category;
+import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.global.utils.Coordinate;
 import modelly.modelly_be.global.utils.SearchCondition;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -48,4 +52,17 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
             @Param("endDate") LocalDate endDate
     );
 
+    @Query("SELECT COUNT(distinct r.id) FROM Recruitment r " +
+            "JOIN r.recruitmentDates rd " +
+            "WHERE r.designer = :designer " +
+            "AND r.recruitmentStatus = :status " +
+            "AND YEAR(rd.date) = :year AND MONTH(rd.date) = :month ")
+    Long countByDesignerAndDateAndStatus(Designer designer, int year, int monthValue, RecruitmentStatus status);
+
+    @Query("SELECT COUNT(DISTINCT r.id) FROM Recruitment r " +
+            "LEFT JOIN r.subCategoryList sc " +
+            "WHERE (:keyword IS NULL OR r.title LIKE %:keyword%) " +
+            "AND (:category IS NULL OR r.category = :category) " +
+            "AND (:subCategory IS NULL OR sc = :subCategory) ")
+    Long countByCondition(String keyword, Category category, SubCategory subCategory);
 }

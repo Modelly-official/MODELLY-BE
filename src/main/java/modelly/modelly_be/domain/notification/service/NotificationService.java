@@ -11,6 +11,8 @@ import modelly.modelly_be.domain.notification.repository.notificationRepository.
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.service.UserService;
 import modelly.modelly_be.global.redis.RedisService;
+import modelly.modelly_be.global.utils.ScrollResponse;
+import modelly.modelly_be.global.utils.ScrollUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +30,7 @@ public class NotificationService {
     private static final String UNREAD_COUNT_KEY = "user:unread_notification_count:";
 
     @Transactional
-    public List<NotificationListResponse> getNotifications(User user, NotificationType notificationType, Long cursorId, int size) {
+    public ScrollResponse<NotificationListResponse> getNotifications(User user, NotificationType notificationType, Long cursorId, int size) {
 
         //카테고리별 조회
         List<NotificationListResponse> notificationList = notificationRepository.findAllByUserAndType(user, notificationType, cursorId, size);
@@ -39,7 +41,11 @@ public class NotificationService {
         String key = UNREAD_COUNT_KEY + user.getId();
         redisService.setValue(key, 0, 0L);
 
-        return notificationList;
+        Long totalCount = countByUserAndNotificationType(user, notificationType);
+
+        ScrollResponse<NotificationListResponse> response = ScrollUtil.paginate(notificationList, size, totalCount);
+
+        return response;
     }
 
     @Transactional
@@ -97,5 +103,9 @@ public class NotificationService {
             int count = notificationRepository.countAllByUserAndRead(user);
             redisService.setValue(key, count, 0L);
         }
+    }
+
+    private Long countByUserAndNotificationType(User user, NotificationType notificationType) {
+        return notificationRepository.countByUserAndNotificationType(user, notificationType);
     }
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.LockModeType;
 import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.User;
+import modelly.modelly_be.global.entity.Category;
+import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.global.utils.Coordinate;
 import modelly.modelly_be.global.utils.SearchCondition;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,4 +28,8 @@ public interface DesignerRepository extends JpaRepository<Designer, Long>, Desig
     @Query("select d from Designer d where d.id = :id")
     Designer findByIdForUpdate(@Param("id") Long id);
 
+    @Query("SELECT COUNT(DISTINCT d.id) FROM Designer d " +
+            "WHERE (:keyword IS NULL OR d.nickname LIKE %:keyword% OR d.shop LIKE %:keyword%) " +
+            "AND (:category IS NULL OR d.category = :category) ")
+    Long countByCondition(String keyword, Category category);
 }

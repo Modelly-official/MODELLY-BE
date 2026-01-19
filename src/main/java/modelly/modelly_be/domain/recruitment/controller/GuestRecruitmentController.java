@@ -57,9 +57,7 @@ public class GuestRecruitmentController implements GuestRecruitmentSwagger {
         Coordinate coordinate = new Coordinate(userLatitude, userLongitude);
         Long userId = (authDetails != null ? authDetails.user().getId() : null);
 
-        List<RecruitmentListResponseDto> recruitments = recruitmentService.getRecruitmensList(userId, searchCondition, sortOption, cursorInformation, size, coordinate);
-
-        ScrollResponse<RecruitmentListResponseDto> responseDtos = ScrollUtil.paginate(recruitments,size);
+        ScrollResponse<RecruitmentListResponseDto> responseDtos = recruitmentService.getRecruitmensList(userId, searchCondition, sortOption, cursorInformation, size, coordinate);
 
         return ApiResponse.onSuccess(responseDtos);
     }
@@ -82,9 +80,7 @@ public class GuestRecruitmentController implements GuestRecruitmentSwagger {
         Coordinate coordinate = new Coordinate(userLatitude, userLongitude);
         Long userId = (authDetails != null ? authDetails.user().getId() : null);
 
-        List<DesignerListResponseDto> designers = designerService.getDesignerList(userId, searchCondition, sortOption, cursorInformation, size, coordinate);
-
-        ScrollResponse<DesignerListResponseDto> responseDtos = ScrollUtil.paginate(designers,size);
+        ScrollResponse<DesignerListResponseDto> responseDtos = designerService.getDesignerList(userId, searchCondition, sortOption, cursorInformation, size, coordinate);
 
         return ApiResponse.onSuccess(responseDtos);
     }

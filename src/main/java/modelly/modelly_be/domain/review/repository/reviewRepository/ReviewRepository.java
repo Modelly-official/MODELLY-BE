@@ -41,5 +41,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
 
     Long countByDesigner(Designer designer);
 
+    @Query("SELECT COUNT(DISTINCT r) FROM Review r " +
+            "WHERE r.model = :model AND r.reservation.category = :category ")
     Long countByModelAndCategory(Model model, Category category);
 }
