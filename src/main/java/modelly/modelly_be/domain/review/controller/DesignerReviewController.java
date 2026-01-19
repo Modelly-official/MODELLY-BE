@@ -53,9 +53,7 @@ public class DesignerReviewController implements DesignerReviewSwagger {
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "10") int size
     ){
-        List<DesignerReviewListResponseDto> dtoList = designerReviewService.getDesignerReviewList(authDetails.user(), cursorId, size);
-
-        ScrollResponse<DesignerReviewListResponseDto> responseDtos = ScrollUtil.paginate(dtoList, size);
+        ScrollResponse<DesignerReviewListResponseDto> responseDtos = designerReviewService.getDesignerReviewList(authDetails.user(), cursorId, size);
 
         return ApiResponse.onSuccess(responseDtos);
     }

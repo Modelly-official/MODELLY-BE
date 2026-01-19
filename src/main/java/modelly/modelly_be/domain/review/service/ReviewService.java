@@ -25,6 +25,8 @@ import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.listener.dto.S3FolderDeleteEvent;
+import modelly.modelly_be.global.utils.ScrollResponse;
+import modelly.modelly_be.global.utils.ScrollUtil;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -181,20 +183,31 @@ public class ReviewService {
         reviewRepository.delete(review);
     }
 
-    public List<MyReviewListResponseDto> getReviewList(User user, Category category, Long cursorId, int size) {
+    public ScrollResponse<MyReviewListResponseDto> getReviewList(User user, Category category, Long cursorId, int size) {
         Model model = modelService.getModelByUser(user);
         log.info("모델 id: "+ model.getId());
 
-        List<MyReviewListResponseDto> responseDtos = reviewRepository.findReviewList(model.getId(), category, cursorId, size);
+        List<MyReviewListResponseDto> listDtos = reviewRepository.findReviewList(model.getId(), category, cursorId, size);
+
+        Long totalCount = countByModelAndCategory(model, category);
+
+        ScrollResponse<MyReviewListResponseDto> responseDtos = ScrollUtil.paginate(listDtos, size, totalCount);
 
         return responseDtos;
     }
 
-    public List<ReviewListResponseDto> getDesignerReviewList(Long userId, Long designerId, Long cursorId, int size) {
+    @Transactional(readOnly = true)
+    public Long countByModelAndCategory(Model model, Category category) {
+        return reviewRepository.countByModelAndCategory(model, category);
+    }
+
+    public ScrollResponse<ReviewListResponseDto> getDesignerReviewList(Long userId, Long designerId, Long cursorId, int size) {
         Designer designer = designerService.getById(designerId);
 
         Pageable pageable = PageRequest.of(0, size+1);
         Slice<Review> reviews = reviewRepository.findAllByDesignerAndIdLessThanOrderByCreatedAtDesc(designer, cursorId, pageable);
+
+        Long totalCount = countByDesigner(designer);
 
         Long modelId;
         if (userId != null){
@@ -204,9 +217,7 @@ public class ReviewService {
             modelId = null;
         }
 
-
-
-        return reviews.getContent().stream()
+        List<ReviewListResponseDto> dtolist = reviews.getContent().stream()
                 .map(review -> {
                     boolean isMine = false;
                     if ( modelId != null){
@@ -223,15 +234,22 @@ public class ReviewService {
                 })
                 .toList();
 
+        ScrollResponse<ReviewListResponseDto> responseDtos = ScrollUtil.paginate(dtolist, size, totalCount);
+        return responseDtos;
+
     }
 
-    public List<ReviewThumbnailListResponseDto> getReviewThumbnailList(Long designerId, Long cursorId, int size) {
+    public ScrollResponse<ReviewThumbnailListResponseDto> getReviewThumbnailList(Long designerId, Long cursorId, int size) {
         Designer designer = designerService.getById(designerId);
         Pageable pageable = PageRequest.of(0, size+1);
 
         Slice<ReviewThumbnailListResponseDto> dtoSlice = reviewRepository.findThumbNailByDesignerAndIdLessThanOrderByCreatedAtDesc(designer, cursorId, pageable);
 
-        return dtoSlice.getContent();
+        Long totalCount = countByDesigner(designer);
+
+        ScrollResponse<ReviewThumbnailListResponseDto> responseDtos = ScrollUtil.paginate(dtoSlice.getContent(), size, totalCount);
+
+        return responseDtos;
     }
 
     @Transactional(readOnly = true)
@@ -275,5 +293,10 @@ public class ReviewService {
 
     public Slice<Review> findAllByDesigner(Designer designer, Long cursorId, Pageable pageable) {
         return reviewRepository.findAllByDesignerAndIdLessThanOrderByCreatedAtDesc(designer, cursorId, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Long countByDesigner(Designer designer) {
+        return reviewRepository.countByDesigner(designer);
     }
 }

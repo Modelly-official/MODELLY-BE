@@ -39,4 +39,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
             "WHERE r.designer = :designer")
     AverageReview findAverageRatingByDesigner(Designer designer);
 
+    Long countByDesigner(Designer designer);
+
+    Long countByModelAndCategory(Model model, Category category);
 }
