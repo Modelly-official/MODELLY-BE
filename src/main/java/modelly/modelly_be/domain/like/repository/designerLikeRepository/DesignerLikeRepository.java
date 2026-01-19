@@ -14,6 +14,6 @@ public interface DesignerLikeRepository extends JpaRepository<DesignerLike, Long
     void deleteByModelAndDesigner(Model model, Designer designer);
 
     @Query("SELECT COUNT(dl.id) FROM DesignerLike dl " +
-            "WHERE dl.model = :model AND dl.designer.category = :category")
+            "WHERE dl.model = :model AND (:category IS NULL OR dl.designer.category = :category)")
     Long countByModelAndCategory(Model model, Category category);
 }

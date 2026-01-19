@@ -17,5 +17,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             "WHERE n.user = :user AND n.isRead = false")
     int countAllByUserAndRead(User user);
 
+    @Query("SELECT COUNT(distinct n) FROM Notification n " +
+            "WHERE n.user = :user AND (:notificationType IS NULL OR n.notificationType = :notificationType) ")
     Long countByUserAndNotificationType(User user, NotificationType notificationType);
 }

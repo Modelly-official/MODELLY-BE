@@ -15,6 +15,6 @@ public interface RecruitmentLikeRepository extends JpaRepository<RecruitmentLike
     void deleteByModelAndRecruitment(Model model, Recruitment recruitment);
 
     @Query("SELECT COUNT(rl.id) FROM RecruitmentLike rl " +
-            "WHERE rl.model = :rl AND rl.recruitment.category = :category ")
+            "WHERE rl.model = :model AND (:category IS NULL OR rl.recruitment.category = :category) ")
     Long countByModelAndCategory(Model model, Category category);
 }

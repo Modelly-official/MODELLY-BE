@@ -56,7 +56,6 @@ public class LikeService {
         modelService.checkModel(user);
         List<LikeRecruitmentListResponseDto> likeList = recruitmentLikeService.getLikeRecruitmentList(user,category,cursorId,size);
 
-
         Model model = modelService.getModelByUser(user);
 
         Long totalCount = recruitmentLikeService.countByModelAndCategory(model, category);

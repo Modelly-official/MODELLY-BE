@@ -56,7 +56,7 @@ public class DesignerRecruitmentController implements DesignerRecruitmentSwagger
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam String month,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) RecruitmentStatus status,
+            @RequestParam(defaultValue = "OPEN") RecruitmentStatus status,
             @RequestParam(required = false) LocalDate cursorEarliestDate,
             @RequestParam(required = false) Long cursorId
     ) {

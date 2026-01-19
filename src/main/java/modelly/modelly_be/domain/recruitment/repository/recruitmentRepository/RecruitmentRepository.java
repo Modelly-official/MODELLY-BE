@@ -57,7 +57,7 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
             "WHERE r.designer = :designer " +
             "AND r.recruitmentStatus = :status " +
             "AND YEAR(rd.date) = :year AND MONTH(rd.date) = :month ")
-    Long countByDesignerAndDateAndStatus(Designer designer, int year, int monthValue, RecruitmentStatus status);
+    Long countByDesignerAndDateAndStatus(Designer designer, int year, int month, RecruitmentStatus status);
 
     @Query("SELECT COUNT(DISTINCT r.id) FROM Recruitment r " +
             "LEFT JOIN r.subCategoryList sc " +

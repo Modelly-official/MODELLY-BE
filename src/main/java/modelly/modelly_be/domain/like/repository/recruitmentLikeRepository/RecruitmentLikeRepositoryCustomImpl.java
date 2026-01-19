@@ -55,7 +55,7 @@ public class RecruitmentLikeRepositoryCustomImpl implements RecruitmentLikeRepos
                 qRecruitment.thumbnail,
                 qRecruitment.designer.shop,
                 qRecruitment.designer.addressLine1,
-                qRecruitment.designer.category,
+                qRecruitment.category,
                 Expressions.constant(new ArrayList<String>()),
                 ExpressionUtils.as(getReviewCountSubQuery(), "reviewCount"),
                 ExpressionUtils.as(getAverageRatingSubQuery(), "averageRating"),
@@ -79,19 +79,21 @@ public class RecruitmentLikeRepositoryCustomImpl implements RecruitmentLikeRepos
                 .where(qRecruitment.id.in(recruitmentIds))
                 .fetch();
 
-        Map<Long, List<SubCategory>> subCategoryMap = recruitmentsWithSubCategories.stream()
+        Map<Long, List<String>> subCategoryMap = recruitmentsWithSubCategories.stream()
                 .collect(Collectors.toMap(
                         Recruitment::getId,
                         r -> r.getSubCategoryList().stream()
+                                .map(SubCategory::getDescription)
                                 .collect(Collectors.toUnmodifiableList())
                 ));
 
+        List<LikeRecruitmentListResponseDto> updated = new ArrayList<>();
         recruitments.forEach(dto -> {
-            List<SubCategory> subCategories = subCategoryMap.getOrDefault(dto.recruitmentId(),new ArrayList<>());
-            dto.withSubCategories(subCategories);
+            List<String> subCategories = subCategoryMap.getOrDefault(dto.recruitmentId(),new ArrayList<>());
+            updated.add(dto.withSubCategories(subCategories));
         });
 
-        return recruitments;
+        return updated;
     }
 
     private JPQLSubQuery<Long> getReviewCountSubQuery() {

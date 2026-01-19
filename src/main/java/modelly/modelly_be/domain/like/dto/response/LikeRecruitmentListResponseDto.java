@@ -1,7 +1,7 @@
 package modelly.modelly_be.domain.like.dto.response;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import modelly.modelly_be.global.entity.SubCategory;
+import modelly.modelly_be.global.entity.Category;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,15 +15,16 @@ public record LikeRecruitmentListResponseDto(
         String recruitmentThumbnail,
         String shop,
         String shopAddress,
-        String category,
-        @JsonSerialize(using = SubCategory.SubCategorySerializer.class)
-        List<SubCategory> subCategories,
+        @JsonSerialize(using = Category.CategorySerializer.class)
+        Category category,
+        //@JsonSerialize(using = SubCategory.SubCategorySerializer.class)
+        List<String> subCategories,
         Long reviewCount,
         Double averageRating,
         LocalDateTime createdAt
 ) {
 
-    public LikeRecruitmentListResponseDto withSubCategories(List<SubCategory> subCategories) {
+    public LikeRecruitmentListResponseDto withSubCategories(List<String> subCategories) {
         return new LikeRecruitmentListResponseDto(
                 recruitmentLikeId,
                 recruitmentId,
