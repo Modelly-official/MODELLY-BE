@@ -15,6 +15,8 @@ import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.global.listener.dto.S3FolderDeleteEvent;
+import modelly.modelly_be.global.utils.ScrollResponse;
+import modelly.modelly_be.global.utils.ScrollUtil;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -134,11 +136,17 @@ public class DesignerPortfolioService {
     }
 
     @Transactional(readOnly = true)
-    public List<PortfolioListResponse> getMyPortfolios(User user, Long cursorId, int size) {
+    public ScrollResponse<PortfolioListResponse> getMyPortfolios(User user, Long cursorId, int size) {
         Designer designer = designerService.getByUser(user);
 
         Pageable pageable = PageRequest.of(0, size+1);
 
-        return portfolioService.getAllPortfolios(designer, pageable, cursorId);
+        List<PortfolioListResponse> portfolioList = portfolioService.getAllPortfolios(designer, pageable, cursorId);
+
+        Long totalCount = portfolioService.countByDesigner(designer);
+
+        ScrollResponse<PortfolioListResponse> response = ScrollUtil.paginate(portfolioList, size, totalCount);
+
+        return response;
     }
 }

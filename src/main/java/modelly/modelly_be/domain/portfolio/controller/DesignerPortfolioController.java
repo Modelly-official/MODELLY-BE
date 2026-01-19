@@ -50,9 +50,8 @@ public class DesignerPortfolioController implements DesignerPortfolioSwagger {
     //포트폴리오 리스트 조회
     @Override
     public ApiResponse<ScrollResponse<PortfolioListResponse>> getMyPortfolios(AuthDetails authDetails, Long cursorId, int size) {
-        List<PortfolioListResponse> portfolioList = designerPortfolioService.getMyPortfolios(authDetails.user(), cursorId, size);
 
-        ScrollResponse<PortfolioListResponse> response = ScrollUtil.paginate(portfolioList, size);
+        ScrollResponse<PortfolioListResponse> response = designerPortfolioService.getMyPortfolios(authDetails.user(), cursorId, size);
 
         return ApiResponse.onSuccess(response);
     }

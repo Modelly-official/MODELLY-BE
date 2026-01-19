@@ -28,15 +28,15 @@ public class LikeController implements LikeSwagger {
         return ApiResponse.onSuccess("공고 찜 / 찜 취소가 완료되었습니다.");
     }
 
+    //모델이 찜한 공고 리스트 조회
     @GetMapping("/likes/recruitments")
     public ApiResponse<ScrollResponse<LikeRecruitmentListResponseDto>> getLikeRecruitmentList(@AuthenticationPrincipal AuthDetails authDetails,
                                                                                               @RequestParam(required = false) Category category,
                                                                                               @RequestParam(required = false) Long cursorId,
                                                                                               @RequestParam(defaultValue = "20") int size) {
 
-        List<LikeRecruitmentListResponseDto> likeList = likeService.getLikeRecruitmentList(authDetails.user(), category, cursorId, size);
+        ScrollResponse<LikeRecruitmentListResponseDto> responseDtos = likeService.getLikeRecruitmentList(authDetails.user(), category, cursorId, size);
 
-        ScrollResponse<LikeRecruitmentListResponseDto> responseDtos = ScrollUtil.paginate(likeList,size);
         return ApiResponse.onSuccess(responseDtos);
     }
 
@@ -47,6 +47,7 @@ public class LikeController implements LikeSwagger {
         return ApiResponse.onSuccess("디자이너 찜 / 찜 취소가 완료되었습니다.");
     }
 
+    //모델이 찜한 디자이너 리스트 조회
     @GetMapping("/likes/designers")
     public ApiResponse<ScrollResponse<LikeDesignerListResponseDto>> getLikeDesignerList(
             @AuthenticationPrincipal AuthDetails authDetails,
@@ -54,9 +55,8 @@ public class LikeController implements LikeSwagger {
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "20") int size) {
 
-        List<LikeDesignerListResponseDto> likeList = likeService.getLikeDesignerList(authDetails.user(), category, cursorId, size);
+        ScrollResponse<LikeDesignerListResponseDto> responseDtos = likeService.getLikeDesignerList(authDetails.user(), category, cursorId, size);
 
-        ScrollResponse<LikeDesignerListResponseDto> responseDtos = ScrollUtil.paginate(likeList,size);
         return ApiResponse.onSuccess(responseDtos);
     }
 

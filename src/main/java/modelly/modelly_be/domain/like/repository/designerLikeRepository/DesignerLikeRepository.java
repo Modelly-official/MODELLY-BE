@@ -3,11 +3,17 @@ package modelly.modelly_be.domain.like.repository.designerLikeRepository;
 import modelly.modelly_be.domain.like.entity.DesignerLike;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
+import modelly.modelly_be.global.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface DesignerLikeRepository extends JpaRepository<DesignerLike, Long>, DesignerLikeRepositoryCustom {
 
     boolean existsByModelAndDesigner(Model model, Designer designer);
 
     void deleteByModelAndDesigner(Model model, Designer designer);
+
+    @Query("SELECT COUNT(dl.id) FROM DesignerLike dl " +
+            "WHERE dl.model = :model AND dl.designer.category = :category")
+    Long countByModelAndCategory(Model model, Category category);
 }

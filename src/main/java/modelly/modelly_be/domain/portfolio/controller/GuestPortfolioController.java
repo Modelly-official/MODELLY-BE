@@ -25,9 +25,7 @@ public class GuestPortfolioController implements GuestPortfolioSwagger {
     @Override
     public ApiResponse<ScrollResponse<PortfolioListResponse>> getPortfolios(Long designerId, Long cursorId, int size) {
 
-        List<PortfolioListResponse> portfolioList = guestPortfolioService.getDesignerPortfolios(designerId, cursorId, size);
-
-        ScrollResponse<PortfolioListResponse> response = ScrollUtil.paginate(portfolioList, size);
+        ScrollResponse<PortfolioListResponse> response = guestPortfolioService.getDesignerPortfolios(designerId, cursorId, size);
 
         return ApiResponse.onSuccess(response);
     }

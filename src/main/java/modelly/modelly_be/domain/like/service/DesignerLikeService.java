@@ -9,6 +9,7 @@ import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.global.entity.Category;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -31,5 +32,10 @@ public class DesignerLikeService {
 
     public List<LikeDesignerListResponseDto> getLikeDesignerList(User user, Category category, Long cursorId, int size) {
         return designerLikeRepository.findAllByConditions(user.getId(),category, cursorId, size);
+    }
+
+    @Transactional(readOnly = true)
+    public Long countByModelAndCategory(Model model, Category category) {
+        return designerLikeRepository.countByModelAndCategory(model, category);
     }
 }

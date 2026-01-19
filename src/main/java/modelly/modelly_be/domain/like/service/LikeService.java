@@ -13,6 +13,8 @@ import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.domain.user.service.ModelService;
 import modelly.modelly_be.global.entity.Category;
+import modelly.modelly_be.global.utils.ScrollResponse;
+import modelly.modelly_be.global.utils.ScrollUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,10 +52,18 @@ public class LikeService {
     }
 
     @Transactional(readOnly = true)
-    public List<LikeRecruitmentListResponseDto> getLikeRecruitmentList(User user, Category category, Long cursorId, int size) {
+    public ScrollResponse<LikeRecruitmentListResponseDto> getLikeRecruitmentList(User user, Category category, Long cursorId, int size) {
         modelService.checkModel(user);
-        List<LikeRecruitmentListResponseDto> likeRecruitmentListResponseDtos = recruitmentLikeService.getLikeRecruitmentList(user,category,cursorId,size);
-        return likeRecruitmentListResponseDtos;
+        List<LikeRecruitmentListResponseDto> likeList = recruitmentLikeService.getLikeRecruitmentList(user,category,cursorId,size);
+
+
+        Model model = modelService.getModelByUser(user);
+
+        Long totalCount = recruitmentLikeService.countByModelAndCategory(model, category);
+
+        ScrollResponse<LikeRecruitmentListResponseDto> responseDtos = ScrollUtil.paginate(likeList,size, totalCount);
+
+        return responseDtos;
     }
 
     @Transactional
@@ -78,8 +88,17 @@ public class LikeService {
     }
 
     @Transactional(readOnly = true)
-    public List<LikeDesignerListResponseDto> getLikeDesignerList(User user, Category category, Long cursorId, int size) {
+    public ScrollResponse<LikeDesignerListResponseDto> getLikeDesignerList(User user, Category category, Long cursorId, int size) {
         modelService.checkModel(user);
-        return designerLikeService.getLikeDesignerList(user, category, cursorId, size);
+
+        List<LikeDesignerListResponseDto> likeList = designerLikeService.getLikeDesignerList(user, category, cursorId, size);
+
+        Model model = modelService.getModelByUser(user);
+
+        Long totalCount = designerLikeService.countByModelAndCategory(model, category);
+
+        ScrollResponse<LikeDesignerListResponseDto> responseDtos = ScrollUtil.paginate(likeList,size, totalCount);
+
+        return responseDtos;
     }
 }

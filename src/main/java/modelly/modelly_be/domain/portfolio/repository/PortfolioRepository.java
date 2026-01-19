@@ -24,4 +24,6 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
             "LEFT JOIN FETCH p.portfolioImages " +
             "WHERE p.id = :portfolioId")
     Optional<Portfolio> findByPortfolioId(Long portfolioId);
+
+    Long countByDesigner(Designer designer);
 }
