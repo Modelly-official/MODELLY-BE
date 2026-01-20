@@ -60,9 +60,7 @@ public class ModelReviewController implements ModelReviewSwagger {
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "10") int size){
 
-        List<MyReviewListResponseDto> listDtos = reviewService.getReviewList(authDetails.user(), category, cursorId, size);
-
-        ScrollResponse<MyReviewListResponseDto> responseDtos = ScrollUtil.paginate(listDtos, size);
+        ScrollResponse<MyReviewListResponseDto> responseDtos = reviewService.getReviewList(authDetails.user(), category, cursorId, size);
 
         return ApiResponse.onSuccess(responseDtos);
     }

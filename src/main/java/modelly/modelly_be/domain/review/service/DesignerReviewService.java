@@ -2,7 +2,6 @@ package modelly.modelly_be.domain.review.service;
 
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.notification.event.dto.review.ReplyCreateEvent;
-import modelly.modelly_be.domain.notification.service.mapping.ReviewNotificationService;
 import modelly.modelly_be.domain.review.dto.request.ReplyRequestDto;
 import modelly.modelly_be.domain.review.dto.response.DesignerReviewListResponseDto;
 import modelly.modelly_be.domain.review.entity.Reply;
@@ -12,6 +11,8 @@ import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
+import modelly.modelly_be.global.utils.ScrollResponse;
+import modelly.modelly_be.global.utils.ScrollUtil;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -94,13 +95,13 @@ public class DesignerReviewService {
         }
     }
 
-    public List<DesignerReviewListResponseDto> getDesignerReviewList(User user, Long cursorId, int size) {
+    public ScrollResponse<DesignerReviewListResponseDto> getDesignerReviewList(User user, Long cursorId, int size) {
         Designer designer = designerService.getByUser(user);
 
         Pageable pageable = PageRequest.of(0, size+1);
         Slice<Review> reviews = reviewService.findAllByDesigner(designer, cursorId, pageable);
 
-        return reviews.getContent().stream()
+        List<DesignerReviewListResponseDto> dtoList = reviews.getContent().stream()
                 .map(review -> {
                     Reply reply = replyService.getByReview(review)
                             .orElse(null);
@@ -112,5 +113,10 @@ public class DesignerReviewService {
                     }
                 })
                 .toList();
+
+        Long totalCount = reviewService.countByDesigner(designer);
+
+        ScrollResponse<DesignerReviewListResponseDto> responseDtos = ScrollUtil.paginate(dtoList, size, totalCount);
+        return responseDtos;
     }
 }

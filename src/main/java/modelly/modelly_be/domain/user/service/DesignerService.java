@@ -13,6 +13,8 @@ import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.entity.SortOption;
 import modelly.modelly_be.global.utils.Coordinate;
+import modelly.modelly_be.global.utils.ScrollResponse;
+import modelly.modelly_be.global.utils.ScrollUtil;
 import modelly.modelly_be.global.utils.SearchCondition;
 import org.springframework.stereotype.Service;
 
@@ -28,29 +30,33 @@ public class DesignerService {
                 .orElseThrow(()-> new GeneralException(ErrorStatus.NOT_FOUND_DESIGNER));
     }
 
-    public List<DesignerListResponseDto> getDesignerList(Long userId, SearchCondition searchCondition, SortOption sortOption, CursorInformation cursorInformation, int size, Coordinate userCoordinate) {
-        List<DesignerListResponseDto> designerListResponseDtoList;
+    public ScrollResponse<DesignerListResponseDto> getDesignerList(Long userId, SearchCondition searchCondition, SortOption sortOption, CursorInformation cursorInformation, int size, Coordinate userCoordinate) {
+        List<DesignerListResponseDto> designers;
         Long cursorId = cursorInformation.cursorId() == null || cursorInformation.cursorId() == 0 ? null : cursorInformation.cursorId();
 
         switch (sortOption) {
             case NEWEST:
-                designerListResponseDtoList = designerRepository.findDesignersByCreatedAt(userId,searchCondition, cursorId, size, userCoordinate);
+                designers = designerRepository.findDesignersByCreatedAt(userId,searchCondition, cursorId, size, userCoordinate);
                 break;
             case MOST_REVIEWS:
                 Long cursorReviewCount = cursorInformation.cursorReviewCount();
-                designerListResponseDtoList = designerRepository.findDesignersByReviews(userId,searchCondition,cursorId,cursorReviewCount,size, userCoordinate);
+                designers = designerRepository.findDesignersByReviews(userId,searchCondition,cursorId,cursorReviewCount,size, userCoordinate);
                 break;
             case DISTANCE:
                 Double cursorDistance = cursorInformation.cursorDistance();
-                designerListResponseDtoList = designerRepository.findDesignersByDistance(userId, searchCondition, cursorId, cursorDistance, size, userCoordinate);
+                designers = designerRepository.findDesignersByDistance(userId, searchCondition, cursorId, cursorDistance, size, userCoordinate);
                 break;
             default:
-                designerListResponseDtoList = designerRepository.findDesignersByCreatedAt(userId,searchCondition, cursorId, size, userCoordinate);
+                designers = designerRepository.findDesignersByCreatedAt(userId,searchCondition, cursorId, size, userCoordinate);
                 break;
 
         }
 
-        return designerListResponseDtoList;
+        Long totalCount = countByCondition(searchCondition);
+
+        ScrollResponse<DesignerListResponseDto> responseDtos = ScrollUtil.paginate(designers,size, totalCount);
+
+        return responseDtos;
     }
 
     public Designer getById(Long designerId) {
@@ -75,5 +81,11 @@ public class DesignerService {
 
     public List<ShopResponse> getShopList(Long userId, Category category, int size, Coordinate coordinate){
         return designerRepository.findShopsByDistance(userId,category,size,coordinate);
+    }
+
+    private Long countByCondition(SearchCondition searchCondition) {
+        return designerRepository.countByCondition(
+                searchCondition.keyword(),
+                searchCondition.category());
     }
 }

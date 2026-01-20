@@ -9,10 +9,7 @@ import modelly.modelly_be.domain.portfolio.service.GuestPortfolioService;
 import modelly.modelly_be.domain.portfolio.service.PortfolioService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.utils.ScrollResponse;
-import modelly.modelly_be.global.utils.ScrollUtil;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,9 +22,7 @@ public class GuestPortfolioController implements GuestPortfolioSwagger {
     @Override
     public ApiResponse<ScrollResponse<PortfolioListResponse>> getPortfolios(Long designerId, Long cursorId, int size) {
 
-        List<PortfolioListResponse> portfolioList = guestPortfolioService.getDesignerPortfolios(designerId, cursorId, size);
-
-        ScrollResponse<PortfolioListResponse> response = ScrollUtil.paginate(portfolioList, size);
+        ScrollResponse<PortfolioListResponse> response = guestPortfolioService.getDesignerPortfolios(designerId, cursorId, size);
 
         return ApiResponse.onSuccess(response);
     }

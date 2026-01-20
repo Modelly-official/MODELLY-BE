@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.notification.repository.notificationRepository;
 
 import modelly.modelly_be.domain.notification.entity.Notification;
+import modelly.modelly_be.domain.notification.entity.NotificationType;
 import modelly.modelly_be.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,4 +16,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query("SELECT COUNT(n) FROM Notification n " +
             "WHERE n.user = :user AND n.isRead = false")
     int countAllByUserAndRead(User user);
+
+    @Query("SELECT COUNT(distinct n) FROM Notification n " +
+            "WHERE n.user = :user AND (:notificationType IS NULL OR n.notificationType = :notificationType) ")
+    Long countByUserAndNotificationType(User user, NotificationType notificationType);
 }

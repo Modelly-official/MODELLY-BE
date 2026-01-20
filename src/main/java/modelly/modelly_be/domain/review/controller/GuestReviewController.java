@@ -33,9 +33,7 @@ public class GuestReviewController implements GuestReviewSwagger {
 
         Long userId = (authDetails != null ? authDetails.user().getId() : null);
 
-        List<ReviewListResponseDto> dtolist = reviewService.getDesignerReviewList(userId, designerId, cursorId, size);
-
-        ScrollResponse<ReviewListResponseDto> responseDtos = ScrollUtil.paginate(dtolist, size);
+        ScrollResponse<ReviewListResponseDto> responseDtos = reviewService.getDesignerReviewList(userId, designerId, cursorId, size);
 
         return ApiResponse.onSuccess(responseDtos);
     }
@@ -46,9 +44,7 @@ public class GuestReviewController implements GuestReviewSwagger {
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "10") int size) {
 
-        List<ReviewThumbnailListResponseDto> dtoList = reviewService.getReviewThumbnailList(designerId, cursorId, size);
-
-        ScrollResponse<ReviewThumbnailListResponseDto> responseDtos = ScrollUtil.paginate(dtoList, size);
+        ScrollResponse<ReviewThumbnailListResponseDto> responseDtos = reviewService.getReviewThumbnailList(designerId, cursorId, size);
 
         return ApiResponse.onSuccess(responseDtos);
     }

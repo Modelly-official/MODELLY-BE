@@ -43,4 +43,9 @@ public class PortfolioService {
     public List<PortfolioListResponse> getAllPortfolios(Designer designer, Pageable pageable, Long cursorId) {
         return portfolioRepository.findAllByDesigner(designer, pageable, cursorId);
     }
+
+    @Transactional(readOnly = true)
+    public Long countByDesigner(Designer designer) {
+        return portfolioRepository.countByDesigner(designer);
+    }
 }

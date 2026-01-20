@@ -39,4 +39,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
             "WHERE r.designer = :designer")
     AverageReview findAverageRatingByDesigner(Designer designer);
 
+    Long countByDesigner(Designer designer);
+
+    @Query("SELECT COUNT(DISTINCT r) FROM Review r " +
+            "WHERE r.model = :model AND (:category IS NULL OR r.reservation.category = :category) ")
+    Long countByModelAndCategory(Model model, Category category);
 }

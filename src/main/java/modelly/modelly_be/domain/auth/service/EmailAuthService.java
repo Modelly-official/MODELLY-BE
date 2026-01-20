@@ -95,8 +95,8 @@ public class EmailAuthService {
     /* 메일 제목 설정 */
     private String makeSubject(EmailAuthType type) {
         return switch (type) {
-            case FIND_ID -> "[Monde] 아이디 찾기 인증번호 안내";
-            case RESET_PASSWORD -> "[Monde] 비밀번호 재설정 인증번호 안내";
+            case FIND_ID -> "[Moandi] 아이디 찾기 인증번호 안내";
+            case RESET_PASSWORD -> "[Moandi] 비밀번호 재설정 인증번호 안내";
         };
     }
 }

@@ -10,12 +10,9 @@ import modelly.modelly_be.domain.portfolio.service.DesignerPortfolioService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
 import modelly.modelly_be.global.utils.ScrollResponse;
-import modelly.modelly_be.global.utils.ScrollUtil;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -50,9 +47,8 @@ public class DesignerPortfolioController implements DesignerPortfolioSwagger {
     //포트폴리오 리스트 조회
     @Override
     public ApiResponse<ScrollResponse<PortfolioListResponse>> getMyPortfolios(AuthDetails authDetails, Long cursorId, int size) {
-        List<PortfolioListResponse> portfolioList = designerPortfolioService.getMyPortfolios(authDetails.user(), cursorId, size);
 
-        ScrollResponse<PortfolioListResponse> response = ScrollUtil.paginate(portfolioList, size);
+        ScrollResponse<PortfolioListResponse> response = designerPortfolioService.getMyPortfolios(authDetails.user(), cursorId, size);
 
         return ApiResponse.onSuccess(response);
     }

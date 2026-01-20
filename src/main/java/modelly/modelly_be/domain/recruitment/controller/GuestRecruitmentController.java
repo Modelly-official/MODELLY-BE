@@ -14,13 +14,10 @@ import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.entity.SortOption;
 import modelly.modelly_be.global.security.AuthDetails;
 import modelly.modelly_be.global.utils.ScrollResponse;
-import modelly.modelly_be.global.utils.ScrollUtil;
 import modelly.modelly_be.global.utils.SearchCondition;
 import modelly.modelly_be.global.utils.Coordinate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,6 +35,7 @@ public class GuestRecruitmentController implements GuestRecruitmentSwagger {
         return ApiResponse.onSuccess(responseDto);
     }
 
+    //공고별로 보기
     @GetMapping("/recruitments")
     public ApiResponse<ScrollResponse<RecruitmentListResponseDto>> getRecruitmentList(
             @AuthenticationPrincipal AuthDetails authDetails, //찜 여부를 위해서
@@ -57,9 +55,7 @@ public class GuestRecruitmentController implements GuestRecruitmentSwagger {
         Coordinate coordinate = new Coordinate(userLatitude, userLongitude);
         Long userId = (authDetails != null ? authDetails.user().getId() : null);
 
-        List<RecruitmentListResponseDto> recruitments = recruitmentService.getRecruitmensList(userId, searchCondition, sortOption, cursorInformation, size, coordinate);
-
-        ScrollResponse<RecruitmentListResponseDto> responseDtos = ScrollUtil.paginate(recruitments,size);
+        ScrollResponse<RecruitmentListResponseDto> responseDtos = recruitmentService.getRecruitmensList(userId, searchCondition, sortOption, cursorInformation, size, coordinate);
 
         return ApiResponse.onSuccess(responseDtos);
     }
@@ -82,9 +78,7 @@ public class GuestRecruitmentController implements GuestRecruitmentSwagger {
         Coordinate coordinate = new Coordinate(userLatitude, userLongitude);
         Long userId = (authDetails != null ? authDetails.user().getId() : null);
 
-        List<DesignerListResponseDto> designers = designerService.getDesignerList(userId, searchCondition, sortOption, cursorInformation, size, coordinate);
-
-        ScrollResponse<DesignerListResponseDto> responseDtos = ScrollUtil.paginate(designers,size);
+        ScrollResponse<DesignerListResponseDto> responseDtos = designerService.getDesignerList(userId, searchCondition, sortOption, cursorInformation, size, coordinate);
 
         return ApiResponse.onSuccess(responseDtos);
     }

@@ -13,12 +13,10 @@ import modelly.modelly_be.domain.recruitment.service.DesignerRecruitmentService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
 import modelly.modelly_be.global.utils.ScrollResponse;
-import modelly.modelly_be.global.utils.ScrollUtil;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @RequestMapping("/designers")
 @RestController
@@ -58,13 +56,11 @@ public class DesignerRecruitmentController implements DesignerRecruitmentSwagger
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam String month,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) RecruitmentStatus status,
+            @RequestParam(defaultValue = "OPEN") RecruitmentStatus status,
             @RequestParam(required = false) LocalDate cursorEarliestDate,
             @RequestParam(required = false) Long cursorId
     ) {
-        List<DesignerRecruitmentListResponse> listDtos = designerRecruitmentService.getDesginerRecruitments(authDetails.user(),month, size, cursorEarliestDate, cursorId, status);
-
-        ScrollResponse<DesignerRecruitmentListResponse> responseDtos = ScrollUtil.paginate(listDtos,size);
+        ScrollResponse<DesignerRecruitmentListResponse> responseDtos = designerRecruitmentService.getDesginerRecruitments(authDetails.user(),month, size, cursorEarliestDate, cursorId, status);
 
         return ApiResponse.onSuccess(responseDtos);
     }
