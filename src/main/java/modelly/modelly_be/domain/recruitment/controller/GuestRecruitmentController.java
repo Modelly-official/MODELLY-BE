@@ -35,6 +35,7 @@ public class GuestRecruitmentController implements GuestRecruitmentSwagger {
         return ApiResponse.onSuccess(responseDto);
     }
 
+    //공고별로 보기
     @GetMapping("/recruitments")
     public ApiResponse<ScrollResponse<RecruitmentListResponseDto>> getRecruitmentList(
             @AuthenticationPrincipal AuthDetails authDetails, //찜 여부를 위해서

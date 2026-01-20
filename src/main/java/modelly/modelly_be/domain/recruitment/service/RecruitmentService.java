@@ -273,7 +273,8 @@ public class RecruitmentService {
         return recruitmentRepository.countByCondition(
                 searchCondition.keyword(),
                 searchCondition.category(),
-                searchCondition.subCategory()
+                searchCondition.subCategory(),
+                RecruitmentStatus.OPEN
         );
     }
 }

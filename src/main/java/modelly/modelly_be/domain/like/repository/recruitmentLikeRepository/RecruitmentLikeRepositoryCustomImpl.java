@@ -32,6 +32,7 @@ public class RecruitmentLikeRepositoryCustomImpl implements RecruitmentLikeRepos
     public List<LikeRecruitmentListResponseDto> findAllByConditions(Long userId, Category category, Long cursorId, int size){
         QRecruitment qRecruitment = QRecruitment.recruitment;
         QRecruitmentLike qRecruitmentLike = QRecruitmentLike.recruitmentLike;
+        QDesigner qDesigner = QDesigner.designer;
 
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
@@ -50,11 +51,11 @@ public class RecruitmentLikeRepositoryCustomImpl implements RecruitmentLikeRepos
                 qRecruitmentLike.id,
                 qRecruitment.id,
                 qRecruitment.title,
-                qRecruitment.designer.user.imageUrl,
-                qRecruitment.designer.user.name,
+                qDesigner.user.imageUrl,
+                qDesigner.user.name,
                 qRecruitment.thumbnail,
-                qRecruitment.designer.shop,
-                qRecruitment.designer.addressLine1,
+                qDesigner.shop,
+                qDesigner.addressLine1,
                 qRecruitment.category,
                 Expressions.constant(new ArrayList<String>()),
                 ExpressionUtils.as(getReviewCountSubQuery(), "reviewCount"),
@@ -63,6 +64,7 @@ public class RecruitmentLikeRepositoryCustomImpl implements RecruitmentLikeRepos
                         ))
                 .from(qRecruitmentLike)
                 .join(qRecruitmentLike.recruitment, qRecruitment)
+                .join(qRecruitment.designer, qDesigner)
                 .where(booleanBuilder)
                 .orderBy(qRecruitmentLike.id.desc())
                 .limit(size+1)

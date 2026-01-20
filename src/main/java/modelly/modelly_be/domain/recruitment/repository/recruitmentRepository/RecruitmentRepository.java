@@ -57,8 +57,9 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
 
     @Query("SELECT COUNT(DISTINCT r.id) FROM Recruitment r " +
             "LEFT JOIN r.subCategoryList sc " +
-            "WHERE (:keyword IS NULL OR r.title LIKE %:keyword%) " +
+            "WHERE r.recruitmentStatus = :status "+
+            "AND (:keyword IS NULL OR r.title LIKE %:keyword%) " +
             "AND (:category IS NULL OR r.category = :category) " +
             "AND (:subCategory IS NULL OR sc = :subCategory) ")
-    Long countByCondition(String keyword, Category category, SubCategory subCategory);
+    Long countByCondition(String keyword, Category category, SubCategory subCategory, RecruitmentStatus status);
 }
