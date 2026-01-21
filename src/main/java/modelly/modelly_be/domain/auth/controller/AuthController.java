@@ -34,8 +34,13 @@ public class AuthController {
     private final SmsAuthService smsAuthService;
     private final AccountRecoveryService accountRecoveryService;
 
+    // secure 설정
     @Value("${security.cookie.secure:true}")
     private boolean refreshCookieSecure;
+
+    // 쿠키 도메인 설정
+    @Value("${security.cookie.domain:}")
+    private String cookieDomain;
 
     /* ---------- 회원가입/로그인/로그아웃 ----------*/
     @Operation(summary = "회원가입", description = "회원가입 완료 메시지, loginId, 이름, 닉네임을 반환합니다.")
@@ -53,7 +58,7 @@ public class AuthController {
         var cookie = CookieUtil.buildRefreshCookie(
                 result.getRefreshToken(),
                 result.getRefreshTtlSec(),
-                "",
+                cookieDomain,
                 refreshCookieSecure,
                 ""
         );
@@ -67,7 +72,7 @@ public class AuthController {
     @PostMapping("/auth/logout")
     public ApiResponse<SimpleMessageDTO> logout(HttpServletRequest request, HttpServletResponse response) {
         var del = CookieUtil.deleteRefreshCookie(
-                "",
+                cookieDomain,
                 refreshCookieSecure,
                 ""
         );
@@ -90,7 +95,7 @@ public class AuthController {
         var cookie = CookieUtil.buildRefreshCookie(
                 result.getRefreshToken(),
                 result.getRefreshTtlSec(),
-                "",
+                cookieDomain,
                 refreshCookieSecure,
                 ""
         );
@@ -151,7 +156,7 @@ public class AuthController {
         var cookie = CookieUtil.buildRefreshCookie(
                 result.getRefreshToken(),
                 result.getRefreshTtlSec(),
-                "",
+                cookieDomain,
                 refreshCookieSecure,
                 ""
         );
@@ -176,7 +181,7 @@ public class AuthController {
         var cookie = CookieUtil.buildRefreshCookie(
                 result.getRefreshToken(),
                 result.getRefreshTtlSec(),
-                "",
+                cookieDomain,
                 refreshCookieSecure,
                 ""
         );
@@ -205,7 +210,7 @@ public class AuthController {
         var cookie = CookieUtil.buildRefreshCookie(
                 result.getRefreshToken(),
                 result.getRefreshTtlSec(),
-                "",
+                cookieDomain,
                 refreshCookieSecure,
                 ""
         );
