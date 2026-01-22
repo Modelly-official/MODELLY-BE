@@ -95,4 +95,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Reservation r SET r.designer = NULL WHERE r.designer.id = :designerId")
     void setDesignerNull(@Param("designerId") Long designerId);
+
+    // 모델이 포함된 예약의 model 필드를 null로 설정(모델 탈퇴 시 이용)
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Reservation r SET r.model = NULL WHERE r.model.id = :modelId")
+    void setModelNull(@Param("modelId") Long modelId);
 }

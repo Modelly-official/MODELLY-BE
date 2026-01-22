@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import modelly.modelly_be.domain.chat.repository.ChatRoomRepository;
 import modelly.modelly_be.domain.like.repository.designerLikeRepository.DesignerLikeRepository;
+import modelly.modelly_be.domain.like.repository.recruitmentLikeRepository.RecruitmentLikeRepository;
 import modelly.modelly_be.domain.portfolio.entity.Portfolio;
 import modelly.modelly_be.domain.portfolio.repository.PortfolioRepository;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
@@ -13,6 +14,7 @@ import modelly.modelly_be.domain.review.entity.Review;
 import modelly.modelly_be.domain.review.repository.ReplyRepository;
 import modelly.modelly_be.domain.review.repository.reviewRepository.ReviewRepository;
 import modelly.modelly_be.domain.user.entity.Designer;
+import modelly.modelly_be.domain.user.entity.Model;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,7 @@ public class UserHardDeleteService {
     private final ReplyRepository replyRepository;
     private final DesignerLikeRepository designerLikeRepository;
     private final RecruitmentRepository recruitmentRepository;
+    private final RecruitmentLikeRepository recruitmentLikeRepository;
 
     /**
      * 디자이너 탈퇴 시 연관 데이터 정리
@@ -65,5 +68,29 @@ public class UserHardDeleteService {
         chatRoomRepository.setDesignerNull(designerId);
 
         log.info("디자이너 연관 데이터 DB 정리 완료");
+    }
+
+    /**
+     * 모델 탈퇴 시 연관 데이터 정리
+     */
+    @Transactional
+    public void deleteModelData(Model model) {
+        Long modelId = model.getId();
+        log.info("모델 데이터 DB 정리 시작: modelId={}", modelId);
+
+        /* --- 찜 내역 삭제(DesignerLike, RecruitmentLike) --- */
+        designerLikeRepository.deleteByModelId(modelId);
+        recruitmentLikeRepository.deleteByModelId(modelId);
+
+        /* --- 리뷰 (Review -> NULL) --- */
+        reviewRepository.setModelNull(modelId);
+
+        /* --- 예약 내역 (Reservation -> NULL) --- */
+        reservationRepository.setModelNull(modelId);
+
+        /* --- 채팅방 (ChatRoom -> NULL) --- */
+        chatRoomRepository.setModelNull(modelId);
+
+        log.info("모델 연관 데이터 DB 정리 완료");
     }
 }

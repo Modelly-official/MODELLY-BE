@@ -23,4 +23,9 @@ public interface DesignerLikeRepository extends JpaRepository<DesignerLike, Long
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM DesignerLike d WHERE d.designer.id = :designerId")
     void deleteByDesignerId(@Param("designerId") Long designerId);
+
+    // 해당 모델이 포함된 찜 삭제
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM DesignerLike d WHERE d.model.id = :modelId")
+    void deleteByModelId(@Param("modelId") Long modelId);
 }
