@@ -97,6 +97,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("UPDATE Reservation r SET r.designer = NULL WHERE r.designer.id = :designerId")
     void setDesignerNull(@Param("designerId") Long designerId);
 
+    // 모델이 포함된 예약의 model 필드를 null로 설정(모델 탈퇴 시 이용)
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Reservation r SET r.model = NULL WHERE r.model.id = :modelId")
+    void setModelNull(@Param("modelId") Long modelId);
+
     @Query("SELECT r FROM Reservation r " +
             "JOIN FETCH r.designer " +
             "JOIN FETCH r.recruitment rec " +
@@ -107,16 +112,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("model") Model model,
             @Param("status") ReservationStatus status
     );
-
-    // 디자이너가 포함된 예약의 designer 필드를 null로 설정(디자이너 탈퇴 시 이용)
-    @Modifying(clearAutomatically = true)
-    @Query("UPDATE Reservation r SET r.designer = NULL WHERE r.designer.id = :designerId")
-    void setDesignerNull(@Param("designerId") Long designerId);
-
-    // 모델이 포함된 예약의 model 필드를 null로 설정(모델 탈퇴 시 이용)
-    @Modifying(clearAutomatically = true)
-    @Query("UPDATE Reservation r SET r.model = NULL WHERE r.model.id = :modelId")
-    void setModelNull(@Param("modelId") Long modelId);
 
     // 디자이너의 PENDING(대기중) 예약 삭제
     @Modifying(clearAutomatically = true)

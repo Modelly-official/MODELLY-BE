@@ -23,6 +23,7 @@ import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.repository.UserRepository;
+import modelly.modelly_be.domain.user.entity.Model;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
