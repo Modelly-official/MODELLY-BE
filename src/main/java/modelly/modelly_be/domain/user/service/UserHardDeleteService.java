@@ -15,6 +15,8 @@ import modelly.modelly_be.domain.review.repository.ReplyRepository;
 import modelly.modelly_be.domain.review.repository.reviewRepository.ReviewRepository;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
+import modelly.modelly_be.domain.user.entity.User;
+import modelly.modelly_be.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,28 @@ public class UserHardDeleteService {
     private final DesignerLikeRepository designerLikeRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final RecruitmentLikeRepository recruitmentLikeRepository;
+    private final UserRepository userRepository;
+
+    /**
+     * 유저 탈퇴 통합 관리
+     * 역할에 따라 연관 데이터를 정리한 후, 최종적으로 User 엔티티를 삭제
+     */
+    @Transactional
+    public void deleteUser(User user) {
+        // 디자이너인 경우의 연관 데이터 정리
+        if (user.getDesigner() != null) {
+            deleteDesignerData(user.getDesigner());
+        }
+
+        // 모델인 경우의 연관 데이터 정리
+        if (user.getModel() != null) {
+            deleteModelData(user.getModel());
+        }
+
+//        // 유저 삭제
+//        userRepository.delete(user);
+        log.info("유저 삭제 완료: userId={}", user.getId());
+    }
 
     /**
      * 디자이너 탈퇴 시 연관 데이터 정리
