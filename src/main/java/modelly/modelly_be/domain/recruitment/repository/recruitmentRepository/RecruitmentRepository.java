@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -62,4 +63,7 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
             "AND (:category IS NULL OR r.category = :category) " +
             "AND (:subCategory IS NULL OR sc = :subCategory) ")
     Long countByCondition(String keyword, Category category, SubCategory subCategory, RecruitmentStatus status);
+
+    // 해당 디자이너의 공고 조회
+    List<Recruitment> findAllByDesignerId(Long designerId);
 }

@@ -14,6 +14,8 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 
 public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRepositoryCustom {
     boolean existsByModelAndReservation(Model model, Reservation reservation);
@@ -44,4 +46,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
     @Query("SELECT COUNT(DISTINCT r) FROM Review r " +
             "WHERE r.model = :model AND (:category IS NULL OR r.reservation.category = :category) ")
     Long countByModelAndCategory(Model model, Category category);
+
+    // 해당 디자이너의 리뷰 조회
+    List<Review> findAllByDesignerId(Long designerId);
 }

@@ -26,4 +26,7 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     Optional<Portfolio> findByPortfolioId(Long portfolioId);
 
     Long countByDesigner(Designer designer);
+
+    // 해당 디자이너의 포트폴리오 조회
+    List<Portfolio> findAllByDesignerId(Long designerId);
 }

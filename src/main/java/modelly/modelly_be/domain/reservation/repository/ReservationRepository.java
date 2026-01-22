@@ -7,6 +7,7 @@ import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -89,4 +90,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             "JOIN FETCH r.designer " +
             "WHERE r.date = :date ")
     List<Reservation> findAllByDate(LocalDate date);
+
+    // 디자이너가 포함된 예약의 designer 필드를 null로 설정(디자이너 탈퇴 시 이용)
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Reservation r SET r.designer = NULL WHERE r.designer.id = :designerId")
+    void setDesignerNull(@Param("designerId") Long designerId);
 }
