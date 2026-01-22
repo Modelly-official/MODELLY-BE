@@ -7,6 +7,7 @@ import modelly.modelly_be.domain.calendar.dto.response.CalendarReservationDotsRe
 import modelly.modelly_be.domain.calendar.dto.internal.CalendarReservationItem;
 import modelly.modelly_be.domain.calendar.dto.response.CalendarReservationResponse;
 import modelly.modelly_be.domain.calendar.repository.DesignerCalendarQueryRepository;
+import modelly.modelly_be.domain.reservation.entity.enums.ReservationListType;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.domain.user.entity.Designer;
@@ -82,7 +83,8 @@ public class DesignerCalendarService {
                         subMap.getOrDefault(r.reservationId(), List.of()),
                         r.date(),
                         r.startTime().format(HM),
-                        r.endTime().format(HM)
+                        r.endTime().format(HM),
+                        resolveListType(r.date(), r.startTime())
                 ))
                 .toList();
 
@@ -147,5 +149,27 @@ public class DesignerCalendarService {
 
             return enumName;
         }
+    }
+
+    // 헬퍼 메서드
+    private ReservationListType resolveListType(
+            LocalDate date,
+            LocalTime startTime
+    ) {
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
+
+        if (date.isBefore(today)) {
+            return ReservationListType.COMPLETED;
+        }
+
+        if (date.isAfter(today)) {
+            return ReservationListType.UPCOMING;
+        }
+
+        // date == today
+        return startTime.isAfter(now)
+                ? ReservationListType.UPCOMING
+                : ReservationListType.COMPLETED;
     }
 }
