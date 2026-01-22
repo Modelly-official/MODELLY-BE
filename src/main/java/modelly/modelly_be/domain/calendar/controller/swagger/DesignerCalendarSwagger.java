@@ -41,6 +41,7 @@ public interface DesignerCalendarSwagger {
                       - `subCategories` : 시술 목록(문자열 리스트)\n
                       - `date` : 예약 날짜 (yyyy-MM-dd)\n
                       - `startTime` / `endTime` : 예약 시간 (HH:mm)\n
+                      - `reservationStatus` : UPCOMING/COMPLETED (다가오는 일정/완료된 일정)\n
                     - `totalCount` : 조건에 해당하는 전체 예약 수 (month + date 필터 기준)\n
                     \n
                     ---\n
