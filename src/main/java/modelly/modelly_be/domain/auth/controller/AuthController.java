@@ -16,7 +16,9 @@ import modelly.modelly_be.domain.auth.service.AuthService;
 import modelly.modelly_be.domain.auth.service.SmsAuthService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
+import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.code.status.SuccessStatus;
+import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.security.jwt.CookieUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -287,4 +289,24 @@ public class AuthController {
         accountRecoveryService.resetPassword(request);
         return ApiResponse.onSuccess(new SimpleMessageDTO("비밀번호 재설정 완료"));
     }
+
+    /* ---------- 탈퇴하기 ---------- */
+    @Operation(summary = "탈퇴하기", description = "로그인된 사용자의 계정을 탈퇴(Soft Delete) 처리합니다.")
+    @DeleteMapping("/auth/withdraw")
+    public ApiResponse<SimpleMessageDTO> withdraw(HttpServletRequest request, HttpServletResponse response) {
+
+        // 토큰 검증 및 Soft Delete 수행
+        authService.withdraw(request);
+
+        // 쿠키(Refresh Token) 삭제 (로그아웃 처리)
+        var del = CookieUtil.deleteRefreshCookie(
+                cookieDomain,
+                refreshCookieSecure,
+                ""
+        );
+        response.addHeader("Set-Cookie", del.toString());
+
+        return ApiResponse.onSuccess(new SimpleMessageDTO("회원 탈퇴가 완료되었습니다."));
+    }
+
 }

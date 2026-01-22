@@ -21,6 +21,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // User
     NOT_FOUND_USER(HttpStatus.NOT_FOUND, "USER404", "해당 유저를 찾을 수 없습니다."),
+    WITHDRAWN_USER(HttpStatus.FORBIDDEN, "USER403", "탈퇴한 회원입니다."),
 
     //Designer
     NOT_FOUND_DESIGNER(HttpStatus.NOT_FOUND, "DESIGNER404", "해당 디자이너를 찾을 수 없습니다."),
