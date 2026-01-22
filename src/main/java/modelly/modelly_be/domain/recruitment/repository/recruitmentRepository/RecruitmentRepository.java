@@ -64,6 +64,9 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
             "AND (:subCategory IS NULL OR sc = :subCategory) ")
     Long countByCondition(String keyword, Category category, SubCategory subCategory, RecruitmentStatus status);
 
+    // 해당 디자이너의 공고 조회
+    List<Recruitment> findAllByDesignerId(Long designerId);
+
 
     // 해당 디자이너의 공고 삭제
     @Modifying

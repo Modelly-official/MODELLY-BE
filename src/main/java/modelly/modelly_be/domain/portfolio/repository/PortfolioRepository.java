@@ -28,8 +28,13 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
 
     Long countByDesigner(Designer designer);
 
+<<<<<<< HEAD
     @Modifying
     @Query("delete from Portfolio p where p.designer.id = :designerId")
     void deleteByDesignerId(Long designerId);
 
+=======
+    // 해당 디자이너의 포트폴리오 조회
+    List<Portfolio> findAllByDesignerId(Long designerId);
+>>>>>>> df44597 (feat: 디자이너 정보 hard delete 시 연관 DB 정리 서비스 구현 (#86))
 }

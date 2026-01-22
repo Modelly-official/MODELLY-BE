@@ -59,9 +59,12 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     @Modifying(clearAutomatically = true)
     @Query("UPDATE ChatRoom c SET c.designer = NULL WHERE c.designer.id = :designerId")
     void setDesignerNull(@Param("designerId") Long designerId);
+<<<<<<< HEAD
 
     // 해당 모델이 포함된 채팅방의 model 필드를 null로 설정 (모델 탈퇴 시 이용)
     @Modifying(clearAutomatically = true)
     @Query("UPDATE ChatRoom c SET c.model = NULL WHERE c.model.id = :modelId")
     void setModelNull(@Param("modelId") Long modelId);
+=======
+>>>>>>> df44597 (feat: 디자이너 정보 hard delete 시 연관 DB 정리 서비스 구현 (#86))
 }

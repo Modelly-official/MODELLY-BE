@@ -92,6 +92,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             "WHERE r.date = :date ")
     List<Reservation> findAllByDate(LocalDate date);
 
+    // 디자이너가 포함된 예약의 designer 필드를 null로 설정(디자이너 탈퇴 시 이용)
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Reservation r SET r.designer = NULL WHERE r.designer.id = :designerId")
+    void setDesignerNull(@Param("designerId") Long designerId);
+
     @Query("SELECT r FROM Reservation r " +
             "JOIN FETCH r.designer " +
             "JOIN FETCH r.recruitment rec " +
