@@ -40,6 +40,7 @@ import modelly.modelly_be.global.security.jwt.TokenProvider;
 public class AuthService {
 
     private static final String RT_KEY_PREFIX = "refresh-token:";
+    private static final long OVERLAP_TTL_SECONDS = 10; // refresh token overlap 시간 (10초)
 
     private final UserRepository userRepository;
     private final DesignerRepository designerRepository;
@@ -158,7 +159,15 @@ public class AuthService {
 
         // userId 기준으로 레디스에 refresh token 저장(TTL=refresh 남은 시간)
         long ttlSec = tokenProvider.getRemainingSeconds(tokens.getRefreshToken());
-        redisService.setRefreshToken(RT_KEY_PREFIX + user.getId(), tokens.getRefreshToken(), ttlSec);
+
+        // current key 저장
+        String currentKey = RT_KEY_PREFIX + user.getId() + ":current";
+
+        redisService.setRefreshToken(
+                currentKey,
+                refreshToken,
+                ttlSec
+        );
 
         // 로그인 응답 생성
         LoginResponse loginResponse = LoginResponse.of(
@@ -180,7 +189,10 @@ public class AuthService {
             throw new GeneralException(ErrorStatus.TOKEN_INVALID);
 
         String userId = tokenProvider.getUserIdFromToken(accessToken);
-        redisService.deleteValue(RT_KEY_PREFIX + userId);
+
+        // current, previous key 둘 다 삭제
+        redisService.deleteValue(RT_KEY_PREFIX + userId + ":current");
+        redisService.deleteValue(RT_KEY_PREFIX + userId + ":previous");
 
         return new SimpleMessageDTO("로그아웃이 완료되었습니다.");
     }
@@ -205,14 +217,15 @@ public class AuthService {
         String userId = tokenProvider.getUserIdFromToken(refreshToken);
 
         // Redis의 refresh 토큰과 비교
-        String key = RT_KEY_PREFIX + userId;
-        String stored = (String) redisService.getValue(key);
-        if (stored == null || stored.isEmpty()) {
-            // 만료/로그아웃 등으로 없는 상태
-            throw new GeneralException(ErrorStatus.REFRESH_TOKEN_EXPIRED);
-        }
-        if (!stored.equals(refreshToken)) {
-            // 탈취 등으로 일치하지 않는 상태
+        String currentKey = RT_KEY_PREFIX + userId + ":current";
+        String previousKey = RT_KEY_PREFIX + userId + ":previous";
+
+        String current = (String) redisService.getValue(currentKey);
+        String previous = (String) redisService.getValue(previousKey);
+
+        boolean valid = refreshToken.equals(current) || refreshToken.equals(previous);
+
+        if (!valid) {
             throw new GeneralException(ErrorStatus.TOKEN_INVALID);
         }
 
@@ -225,11 +238,24 @@ public class AuthService {
         String newRefresh = tokenProvider.createRefreshToken(user);
 
         // Redis에 새 refresh 저장
-        long ttlSec = tokenProvider.getRemainingSeconds(newRefresh);
-        redisService.setRefreshToken(key, newRefresh, ttlSec);
+        long refreshTtl = tokenProvider.getRemainingSeconds(newRefresh);
 
+        // current를 previous로 설정
+        if (current != null && !current.isEmpty()) {
+            redisService.setRefreshToken(
+                    previousKey,
+                    current,
+                    OVERLAP_TTL_SECONDS
+            );
+        }
 
-        return NewTokenResult.of(AccessTokenResponse.of(newAccess), newRefresh, ttlSec);
+        redisService.setRefreshToken(
+                currentKey,
+                newRefresh,
+                refreshTtl
+        );
+
+        return NewTokenResult.of(AccessTokenResponse.of(newAccess), newRefresh, refreshTtl);
     }
 
     /* Access Token 유효 여부 확인 */
@@ -452,7 +478,14 @@ public class AuthService {
         TokenResponse tokens = tokenProvider.createToken(user);
         String refreshToken = tokens.getRefreshToken();
         long ttlSec = tokenProvider.getRemainingSeconds(refreshToken);
-        redisService.setRefreshToken(RT_KEY_PREFIX + user.getId(), refreshToken, ttlSec);
+
+        String currentKey = RT_KEY_PREFIX + user.getId() + ":current";
+
+        redisService.setRefreshToken(
+                currentKey,
+                refreshToken,
+                ttlSec
+        );
 
         Designer designer = null;
         if (user.getUserRole() == UserRole.DESIGNER){
