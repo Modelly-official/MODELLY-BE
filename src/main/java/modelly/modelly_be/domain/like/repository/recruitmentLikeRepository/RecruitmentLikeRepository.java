@@ -24,4 +24,12 @@ public interface RecruitmentLikeRepository extends JpaRepository<RecruitmentLike
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM RecruitmentLike r WHERE r.model.id = :modelId")
     void deleteByModelId(@Param("modelId") Long modelId);
+
+    // 해당 디자이너가 포함된 공고찜 삭제
+    @Modifying
+    @Query("""
+        delete from RecruitmentLike rl
+        where rl.recruitment.designer.id = :designerId
+    """)
+    void deleteByDesignerId(Long designerId);
 }

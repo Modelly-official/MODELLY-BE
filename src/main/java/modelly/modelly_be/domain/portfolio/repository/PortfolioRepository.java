@@ -5,6 +5,7 @@ import modelly.modelly_be.domain.portfolio.entity.Portfolio;
 import modelly.modelly_be.domain.user.entity.Designer;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -27,6 +28,8 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
 
     Long countByDesigner(Designer designer);
 
-    // 해당 디자이너의 포트폴리오 조회
-    List<Portfolio> findAllByDesignerId(Long designerId);
+    @Modifying
+    @Query("delete from Portfolio p where p.designer.id = :designerId")
+    void deleteByDesignerId(Long designerId);
+
 }

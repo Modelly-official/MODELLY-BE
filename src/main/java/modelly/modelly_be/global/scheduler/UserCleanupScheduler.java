@@ -21,7 +21,7 @@ public class UserCleanupScheduler {
     private final UserHardDeleteService userHardDeleteService;
 
     // 데이터 삭제 시간 설정
-    @Scheduled(cron = "30 50 1 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 38 3 * * *", zone = "Asia/Seoul")
     public void deleteExpiredUsers() {
         log.info("=== 탈퇴 유저 영구 삭제 스케줄러 시작 ===");
 

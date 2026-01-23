@@ -110,4 +110,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM Reservation r WHERE r.model.id = :modelId AND r.status = 'RESERVATION_PENDING'")
     void deletePendingByModelId(@Param("modelId") Long modelId);
+
+    // 해당 디자이너의 예약과 공고와의 연결 끊기
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Reservation r SET r.recruitment = NULL WHERE r.designer.id = :designerId")
+    void setRecruitmentNullByDesignerId(@Param("designerId") Long designerId);
 }

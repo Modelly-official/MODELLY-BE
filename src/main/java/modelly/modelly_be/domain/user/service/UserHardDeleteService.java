@@ -6,13 +6,18 @@ import modelly.modelly_be.domain.chat.repository.ChatRoomRepository;
 import modelly.modelly_be.domain.like.repository.designerLikeRepository.DesignerLikeRepository;
 import modelly.modelly_be.domain.like.repository.recruitmentLikeRepository.RecruitmentLikeRepository;
 import modelly.modelly_be.domain.portfolio.entity.Portfolio;
+import modelly.modelly_be.domain.portfolio.repository.PortfolioImageRepository;
 import modelly.modelly_be.domain.portfolio.repository.PortfolioRepository;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
+import modelly.modelly_be.domain.recruitment.repository.RecruitmentDateRepository;
+import modelly.modelly_be.domain.recruitment.repository.RecruitmentImageRepository;
+import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
 import modelly.modelly_be.domain.recruitment.repository.recruitmentRepository.RecruitmentRepository;
 import modelly.modelly_be.domain.reservation.repository.ReservationChangeRepository;
 import modelly.modelly_be.domain.reservation.repository.ReservationRepository;
 import modelly.modelly_be.domain.review.entity.Review;
 import modelly.modelly_be.domain.review.repository.ReplyRepository;
+import modelly.modelly_be.domain.review.repository.ReviewImageRepository;
 import modelly.modelly_be.domain.review.repository.reviewRepository.ReviewRepository;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
@@ -32,10 +37,15 @@ public class UserHardDeleteService {
     private final ReservationChangeRepository reservationChangeRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final PortfolioRepository portfolioRepository;
+    private final PortfolioImageRepository portfolioImageRepository;
     private final ReviewRepository reviewRepository;
+    private final ReviewImageRepository reviewImageRepository;
     private final ReplyRepository replyRepository;
     private final DesignerLikeRepository designerLikeRepository;
     private final RecruitmentRepository recruitmentRepository;
+    private final RecruitmentTimeRepository recruitmentTimeRepository;
+    private final RecruitmentDateRepository recruitmentDateRepository;
+    private final RecruitmentImageRepository recruitmentImageRepository;
     private final RecruitmentLikeRepository recruitmentLikeRepository;
     private final UserRepository userRepository;
 
@@ -73,21 +83,30 @@ public class UserHardDeleteService {
         Long designerId = designer.getId();
         log.info("디자이너 데이터 DB 정리 시작: designerId={}", designerId);
 
-        /* --- 포트폴리오 삭제(PortfolioImage는 Entity의 CascadeType.ALL 설정에 의해 자동 삭제) --- */
-        List<Portfolio> portfolios = portfolioRepository.findAllByDesignerId(designerId);
-        portfolioRepository.deleteAll(portfolios);
+        /* --- 포트폴리오 삭제 --- */
+        // 포트폴리오 이미지 삭제
+        portfolioImageRepository.deleteByDesignerId(designerId);
 
-        /* --- 공고 삭제(image, time 등 cascade 설정에 의해 자동 삭제) --- */
-        List<Recruitment> recruitments = recruitmentRepository.findAllByDesignerId(designerId);
-        recruitmentRepository.deleteAll(recruitments);
+        // 포트폴리오 삭제
+        portfolioRepository.deleteByDesignerId(designerId);
+
+        /* --- 공고 삭제 전 예약과의 연결 끊기 --- */
+        reservationRepository.setRecruitmentNullByDesignerId(designerId);
+
+        /* --- 공고 삭제 (연관관계 순으로 삭제) --- */
+        recruitmentTimeRepository.deleteByDesignerId(designerId);
+        recruitmentDateRepository.deleteByDesignerId(designerId);
+        recruitmentImageRepository.deleteByDesignerId(designerId);
+        recruitmentLikeRepository.deleteByDesignerId(designerId);
+        recruitmentRepository.deleteByDesignerId(designerId);
 
         /* --- 리뷰 및 답글 삭제 --- */
         // 디자이너가 쓴 답글(Reply) 삭제
         replyRepository.deleteByDesignerId(designerId);
 
-        // 디자이너에게 달린 리뷰(Review) 삭제(ReviewImage는 Cascade에 의해 자동 삭제)
-        List<Review> reviews = reviewRepository.findAllByDesignerId(designerId);
-        reviewRepository.deleteAll(reviews);
+        // 디자이너에게 달린 리뷰 이미지 -> 리뷰 삭제
+        reviewImageRepository.deleteByDesignerId(designerId);
+        reviewRepository.deleteByDesignerId(designerId);
 
         /* --- 디자이너찜(DesignerLike) - 해당 디자이너를 찜한 내역 삭제 --- */
         designerLikeRepository.deleteByDesignerId(designerId);
