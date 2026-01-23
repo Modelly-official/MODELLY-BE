@@ -131,20 +131,13 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
 
     private List<DesignerListResponseDto> fetchDesignerList(Long userId, BooleanBuilder where, Coordinate userCoordinate, int size, OrderSpecifier<?> primaryOrder) {
 
-        JPQLSubQuery<String> firstImgSub = JPAExpressions
-                .select(qPortfolio.thumbnail.max())
-                .from(qPortfolio)
-                .where(qPortfolio.designer.eq(qDesigner));
-
-        StringExpression portfolio = Expressions.asString(ExpressionUtils.as(firstImgSub, "thumbnail"));
-
         return queryFactory
                 .select(Projections.constructor(DesignerListResponseDto.class,
                         qDesigner.id,
                         qDesigner.nickname,
                         qDesigner.shop,
                         qDesigner.addressLine1,
-                        portfolio,
+                        qDesigner.user.imageUrl,
                         qDesigner.category,
                         ExpressionUtils.as(getReviewCountSubQuery(), "reviewCount"),
                         ExpressionUtils.as(getDistanceExpression(userCoordinate), "distance"),
