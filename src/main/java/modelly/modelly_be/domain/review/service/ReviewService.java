@@ -103,9 +103,10 @@ public class ReviewService {
 
         //디자이너한테 리뷰 알림 전송
         User designerUser = designer.getUser();
-        if (designerUser.getNotificationSetting().isReviewNotification()){
-            eventPublisher.publishEvent(new ReviewCreateEvent(designerUser, model.getNickname(), review.getId()));
-        }
+        boolean isNotificationOn = designerUser.getNotificationSetting().isReviewNotification();
+
+        eventPublisher.publishEvent(new ReviewCreateEvent(designerUser, model.getNickname(), review.getId(), isNotificationOn));
+
 
         return review;
     }

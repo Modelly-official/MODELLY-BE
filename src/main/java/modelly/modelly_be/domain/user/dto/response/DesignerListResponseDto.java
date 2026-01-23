@@ -10,7 +10,7 @@ public record DesignerListResponseDto(
         String designerName,
         String shop,
         String shopAddress,
-        String thumbnail,
+        String designerProfileImage,
         @JsonSerialize(using = Category.CategorySerializer.class)
         Category category,
         Long reviewCount,

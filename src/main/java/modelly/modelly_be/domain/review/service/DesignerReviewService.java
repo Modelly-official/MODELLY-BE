@@ -70,9 +70,9 @@ public class DesignerReviewService {
 
         User model = review.getModel().getUser();
 
-        if (model.getNotificationSetting().isReviewNotification()){
-            eventPublisher.publishEvent(new ReplyCreateEvent(model, designer.getNickname(), reviewId));
-        }
+        boolean isNotificationOn = model.getNotificationSetting().isReviewNotification();
+
+        eventPublisher.publishEvent(new ReplyCreateEvent(model, designer.getNickname(), reviewId, isNotificationOn));
 
         return reply;
     }

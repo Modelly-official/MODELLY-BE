@@ -295,9 +295,9 @@ public class DesignerReservationService {
 
         reservation.confirm();
 
-        if(reservation.getModel().getUser().getNotificationSetting().isReservationNotification()){
-            eventPublisher.publishEvent(new ReservationAcceptEvent(reservation));
-        }
+        boolean isNotificationOn = reservation.getModel() != null && reservation.getModel().getUser().getNotificationSetting().isReservationNotification();
+        eventPublisher.publishEvent(new ReservationAcceptEvent(reservation, isNotificationOn));
+
         return new SimpleMessageDTO("예약이 확정되었습니다.");
     }
 
@@ -319,9 +319,9 @@ public class DesignerReservationService {
 
         reservation.reject();
 
-        if (reservation.getModel().getUser().getNotificationSetting().isReservationNotification()){
-            eventPublisher.publishEvent(new ReservationRejectEvent(reservation));
-        }
+        boolean isNotificationOn = reservation.getModel() != null && reservation.getModel().getUser().getNotificationSetting().isReservationNotification();
+
+        eventPublisher.publishEvent(new ReservationRejectEvent(reservation, isNotificationOn));
 
         return new SimpleMessageDTO("예약이 거절되었습니다.");
     }

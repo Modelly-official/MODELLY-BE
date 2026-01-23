@@ -116,6 +116,7 @@ public class ChattingService {
             default -> null;
         };
 
+
         if (otherUser != null &&otherUser.getNotificationSetting().isChattingNotification()){
             eventPublisher.publishEvent(new ChatEvent(type, messageContent, otherUser, room));
         }

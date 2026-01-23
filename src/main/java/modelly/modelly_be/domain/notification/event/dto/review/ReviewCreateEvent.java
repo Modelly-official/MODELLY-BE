@@ -5,6 +5,7 @@ import modelly.modelly_be.domain.user.entity.User;
 public record ReviewCreateEvent(
         User user,
         String userNickname,
-        Long reviewId
+        Long reviewId,
+        boolean isNotificationOn
 ) {
 }
