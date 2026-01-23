@@ -180,7 +180,7 @@ public class ChatRoomService {
     }
 
     public OpponentInfoResponse getOpponentInfo(ChatRoom room, Long currentUserId) {
-        Model model = room.getModel();
+        Model model = room.getModel() == null ? null : room.getModel();
         Designer designer = room.getDesigner();
 
         boolean iAmModel = model != null
@@ -201,10 +201,10 @@ public class ChatRoomService {
         }
         // 현재 유저가 디자이너인 경우 → 상대는 모델
         else {
-            User modelUser = model.getUser();
-            opponentUserId = modelUser.getId();
-            opponentName = modelUser.getName();             // 이름
-            opponentProfileImageUrl = modelUser.getImageUrl();
+            User modelUser = model == null ? null : model.getUser();
+            opponentUserId = modelUser == null ? null : modelUser.getId();
+            opponentName = modelUser == null ? null : modelUser.getName();             // 이름
+            opponentProfileImageUrl = modelUser == null ? null : modelUser.getImageUrl();
             opponentRole = UserRole.MODEL;
         }
 

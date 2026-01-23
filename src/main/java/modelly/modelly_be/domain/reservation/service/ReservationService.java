@@ -97,6 +97,10 @@ public class ReservationService {
     public ChatRoomReservationSummary getChatRoomReservationSummary(Long roomId, User me) {
         ChatRoom room = chatRoomService.getById(roomId);
 
+        if (room.getModel() == null || room.getDesigner() == null) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
         if (!room.isParticipant(me)) {
             throw new GeneralException(ErrorStatus._FORBIDDEN);
         }
