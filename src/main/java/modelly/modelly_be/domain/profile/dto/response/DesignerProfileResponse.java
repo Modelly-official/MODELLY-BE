@@ -22,7 +22,9 @@ public record DesignerProfileResponse(
             String shop,
             Address address,
             String intro,
-            boolean isLiked
+            boolean isLiked,
+            Long reviewCount,
+            double averageRating
     ) {}
 
     public record Address(String line1, String line2) {}
