@@ -45,7 +45,7 @@ public record DesignerReviewListResponseDto(
         return new DesignerReviewListResponseDto(
                 review.getId(),
                 modelImage,
-                review.getModel().getNickname(),
+                review.getModel() == null ? null : review.getModel().getNickname(),
                 review.getRating(),
                 createdDate,
                 review.getContent(),
@@ -67,7 +67,7 @@ public record DesignerReviewListResponseDto(
         return new DesignerReviewListResponseDto(
                 review.getId(),
                 modelImage,
-                review.getModel().getNickname(),
+                review.getModel() == null ? null : review.getModel().getNickname(),
                 review.getRating(),
                 createdDate,
                 review.getContent(),
