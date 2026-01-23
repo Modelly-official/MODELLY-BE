@@ -49,8 +49,10 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
             "WHERE r.model = :model AND (:category IS NULL OR r.reservation.category = :category) ")
     Long countByModelAndCategory(Model model, Category category);
 
-    // 해당 디자이너의 리뷰 조회
-    List<Review> findAllByDesignerId(Long designerId);
+    // 해당 디자이너의 리뷰 삭제
+    @Modifying
+    @Query("delete from Review r where r.designer.id = :designerId")
+    void deleteByDesignerId(Long designerId);
 
     // 해당 디자이너의 리뷰 삭제
     @Modifying
