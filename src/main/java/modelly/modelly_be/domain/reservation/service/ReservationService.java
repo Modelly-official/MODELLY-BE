@@ -7,8 +7,6 @@ import modelly.modelly_be.domain.chat.service.ChatRoomService;
 import modelly.modelly_be.domain.chat.service.ChattingService;
 import modelly.modelly_be.domain.notification.event.dto.schedule.ScheduleCancelEvent;
 import modelly.modelly_be.domain.notification.event.dto.schedule.ScheduleChangeEvent;
-import modelly.modelly_be.domain.notification.service.mapping.ReservationNotificationService;
-import modelly.modelly_be.domain.notification.service.mapping.ScheduleNotificationService;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
@@ -47,7 +45,6 @@ public class ReservationService {
 
     private final ChatRoomService chatRoomService;
     private final ChattingService chattingService;
-    private final ScheduleNotificationService scheduleNotificationService;
     private final ApplicationEventPublisher eventPublisher;
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
@@ -293,9 +290,9 @@ public class ReservationService {
                 ? reservation.getDesigner().getUser()
                 : reservation.getModel().getUser();
 
-        if (opponentUser.getNotificationSetting().isScheduleNotification()){
-            eventPublisher.publishEvent(new ScheduleChangeEvent(opponentUser, reservation, finalRoomId));
-        }
+        boolean isNotificationOn = opponentUser.getNotificationSetting().isScheduleNotification();
+
+        eventPublisher.publishEvent(new ScheduleChangeEvent(opponentUser, reservation, finalRoomId, isNotificationOn));
 
         // 채팅 저장 + STOMP 브로드캐스트
         chattingService.publishReservationPayload(me.getId(), finalRoomId, payload);
@@ -567,9 +564,9 @@ public class ReservationService {
                 ? reservation.getDesigner().getUser()
                 : reservation.getModel().getUser();
 
-        if (opponentUser.getNotificationSetting().isScheduleNotification()){
-            eventPublisher.publishEvent(new ScheduleCancelEvent(opponentUser, reservation, finalRoomId));
-        }
+        boolean isNotificationOn = opponentUser.getNotificationSetting().isScheduleNotification();
+
+        eventPublisher.publishEvent(new ScheduleCancelEvent(opponentUser, reservation, finalRoomId, isNotificationOn));
 
         return new SimpleMessageDTO("예약이 취소되었습니다.");
     }

@@ -32,7 +32,9 @@ public class ReviewNotificationEventListener {
         );
         notificationService.sendNotification(data);
 
-        fcmService.pushToFCM(data);
+        if (event.isNotificationOn()){
+            fcmService.pushToFCM(data);
+        }
     }
 
     @Async
@@ -45,6 +47,8 @@ public class ReviewNotificationEventListener {
         );
         notificationService.sendNotification(data);
 
-        fcmService.pushToFCM(data);
+        if (event.isNotificationOn()){
+            fcmService.pushToFCM(data);
+        }
     }
 }

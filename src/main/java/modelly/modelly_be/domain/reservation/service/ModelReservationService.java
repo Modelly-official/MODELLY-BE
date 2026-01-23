@@ -96,9 +96,10 @@ public class ModelReservationService {
 
         reservationService.save(reservation);
 
-        if (designer.getUser().getNotificationSetting().isReservationNotification()) {
-            eventPublisher.publishEvent(new ReservationCreatedEvent(reservation));
-        }
+        boolean isNotificationOn = designer.getUser().getNotificationSetting().isReservationNotification();
+
+        eventPublisher.publishEvent(new ReservationCreatedEvent(reservation, isNotificationOn));
+
     }
 
     /*----------- 예약 조회(다가오는 일정, 완료된 일정) ----------*/

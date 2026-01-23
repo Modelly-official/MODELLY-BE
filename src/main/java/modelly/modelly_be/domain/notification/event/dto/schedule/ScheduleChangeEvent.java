@@ -6,6 +6,7 @@ import modelly.modelly_be.domain.user.entity.User;
 public record ScheduleChangeEvent(
         User user,
         Reservation reservation,
-        Long finalRoomId
+        Long finalRoomId,
+        boolean isNotificationOn
 ) {
 }
