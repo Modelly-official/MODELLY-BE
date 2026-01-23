@@ -9,6 +9,7 @@ import modelly.modelly_be.domain.portfolio.entity.Portfolio;
 import modelly.modelly_be.domain.portfolio.repository.PortfolioRepository;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.repository.recruitmentRepository.RecruitmentRepository;
+import modelly.modelly_be.domain.reservation.repository.ReservationChangeRepository;
 import modelly.modelly_be.domain.reservation.repository.ReservationRepository;
 import modelly.modelly_be.domain.review.entity.Review;
 import modelly.modelly_be.domain.review.repository.ReplyRepository;
@@ -28,6 +29,7 @@ import java.util.List;
 public class UserHardDeleteService {
 
     private final ReservationRepository reservationRepository;
+    private final ReservationChangeRepository reservationChangeRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final PortfolioRepository portfolioRepository;
     private final ReviewRepository reviewRepository;
@@ -43,6 +45,11 @@ public class UserHardDeleteService {
      */
     @Transactional
     public void deleteUser(User user) {
+        Long userId = user.getId();
+
+        // (공통) 예약 변경 요청 내역 삭제
+        reservationChangeRepository.deleteAllByUserId(userId);
+
         // 디자이너인 경우의 연관 데이터 정리
         if (user.getDesigner() != null) {
             deleteDesignerData(user.getDesigner());
@@ -85,7 +92,11 @@ public class UserHardDeleteService {
         /* --- 디자이너찜(DesignerLike) - 해당 디자이너를 찜한 내역 삭제 --- */
         designerLikeRepository.deleteByDesignerId(designerId);
 
-        /* --- 예약 내역 (Designer -> NULL) --- */
+        /* --- 예약 처리--- */
+        // PENDING(대기) 상태의 예약은 삭제
+        reservationRepository.deletePendingByDesignerId(designerId);
+
+        // 남은 예약(CONFIRMED, CANCELLED 등)은 익명 처리 (NULL)
         reservationRepository.setDesignerNull(designerId);
 
         /* ---채팅방 (Designer -> NULL) --- */
@@ -109,7 +120,11 @@ public class UserHardDeleteService {
         /* --- 리뷰 (Review -> NULL) --- */
         reviewRepository.setModelNull(modelId);
 
-        /* --- 예약 내역 (Reservation -> NULL) --- */
+        /* --- 예약 처리 --- */
+        // PENDING(대기) 상태의 예약은 삭제
+        reservationRepository.deletePendingByModelId(modelId);
+
+        // 남은 예약(CONFIRMED, CANCELLED 등)은 익명 처리 (NULL)
         reservationRepository.setModelNull(modelId);
 
         /* --- 채팅방 (ChatRoom -> NULL) --- */
