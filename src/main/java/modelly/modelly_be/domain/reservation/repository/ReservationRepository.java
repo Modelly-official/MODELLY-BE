@@ -102,6 +102,16 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("UPDATE Reservation r SET r.model = NULL WHERE r.model.id = :modelId")
     void setModelNull(@Param("modelId") Long modelId);
 
+    // 디자이너의 PENDING(대기중) 예약 삭제
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM Reservation r WHERE r.designer.id = :designerId AND r.status = 'RESERVATION_PENDING'")
+    void deletePendingByDesignerId(@Param("designerId") Long designerId);
+
+    // 모델의 PENDING(대기중) 예약 삭제
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM Reservation r WHERE r.model.id = :modelId AND r.status = 'RESERVATION_PENDING'")
+    void deletePendingByModelId(@Param("modelId") Long modelId);
+
     @Query("SELECT r FROM Reservation r " +
             "JOIN FETCH r.designer " +
             "JOIN FETCH r.recruitment rec " +
