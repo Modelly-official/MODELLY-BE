@@ -8,6 +8,8 @@ import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse.De
 import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse.Address;
 import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse.RecruitmentCard;
 import modelly.modelly_be.domain.recruitment.repository.recruitmentRepository.RecruitmentRepository;
+import modelly.modelly_be.domain.review.dto.internal.AverageReview;
+import modelly.modelly_be.domain.review.service.ReviewService;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
@@ -27,6 +29,7 @@ public class DesignerProfileService {
 
     private final DesignerService designerService;
     private final ModelService modelService;
+    private final ReviewService reviewService;
     private final DesignerLikeService designerLikeService;
     private final RecruitmentRepository recruitmentRepository;
 
@@ -57,6 +60,8 @@ public class DesignerProfileService {
             isLiked = designerLikeService.existsByModelAndDesigner(model, designer);
         }
 
+        AverageReview reviewInfo = reviewService.calculateRating(designer);
+
         DesignerProfileInfo info = new DesignerProfileInfo(
                 designer.getUser().getId(),
                 designer.getId(),
@@ -65,7 +70,9 @@ public class DesignerProfileService {
                 designer.getShop(),
                 new Address(designer.getAddressLine1(), designer.getAddressLine2()),
                 designer.getIntro(),
-                isLiked
+                isLiked,
+                reviewInfo.totalCount(),
+                reviewInfo.averageRating()
         );
 
         List<RecruitmentCard> openRecruitments =
@@ -89,6 +96,8 @@ public class DesignerProfileService {
 
         if (req.profileImageUrl() != null) {user.updateImageUrl(req.profileImageUrl());}
 
+        AverageReview reviewInfo = reviewService.calculateRating(designer);
+
         // 응답은 최신 정보로 다시 조립
         DesignerProfileInfo info = new DesignerProfileInfo(
                 user.getId(),
@@ -98,7 +107,9 @@ public class DesignerProfileService {
                 designer.getShop(),
                 new Address(designer.getAddressLine1(), designer.getAddressLine2()),
                 designer.getIntro(),
-                false
+                false,
+                reviewInfo.totalCount(),
+                reviewInfo.averageRating()
         );
 
         return DesignerProfileResponse.of(
