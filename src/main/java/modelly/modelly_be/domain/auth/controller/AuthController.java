@@ -84,7 +84,7 @@ public class AuthController {
     /* ---------- 토큰 재발급 및 토큰 만료 확인---------- */
 
     /* 토큰 재발급 */
-    @Operation(summary = "Access Token 재발급", description = "사용자의 Access Token과 Refresh Token(쿠키)을 재발급합니다.")
+    @Operation(summary = "Access Token 재발급", description = "사용자의 Access Token과 Refresh Token(쿠키)을 재발급합니다. refresh token overlap 적용 - 10초")
     @PostMapping("/auth/refresh")
     public ApiResponse<AccessTokenResponse> newAccessToken(
             @CookieValue(name = CookieUtil.REFRESH_COOKIE, required = false) String refreshToken, HttpServletResponse response) {
