@@ -20,14 +20,18 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     // 모델 ID로 조회 (카테고리 필터링)
     @Query("""
-        SELECT r FROM ChatRoom r
-        JOIN r.designer d
-        LEFT JOIN Chatting c ON c.chatRoom = r
-        WHERE r.model.id = :modelId
-          AND (:category IS NULL OR d.category = :category)
-        GROUP BY r
-        ORDER BY COALESCE(MAX(c.createdAt), r.createdAt) DESC
-        """)
+    SELECT r FROM ChatRoom r
+    LEFT JOIN r.designer d
+    LEFT JOIN Chatting c ON c.chatRoom = r
+    WHERE r.model.id = :modelId
+      AND (
+            :category IS NULL
+            OR d IS NULL
+            OR d.category = :category
+          )
+    GROUP BY r
+    ORDER BY COALESCE(MAX(c.createdAt), r.createdAt) DESC
+    """)
     Page<ChatRoom> findAllByModelIdOrderByLastMessageTimeDesc(
             @Param("modelId") Long modelId,
             @Param("category") Category category,
