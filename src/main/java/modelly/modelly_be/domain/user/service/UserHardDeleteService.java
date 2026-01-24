@@ -70,8 +70,8 @@ public class UserHardDeleteService {
             deleteModelData(user.getModel());
         }
 
-//        // 유저 삭제
-//        userRepository.delete(user);
+        // 유저 삭제
+        userRepository.delete(user);
         log.info("유저 삭제 완료: userId={}", user.getId());
     }
 

@@ -26,6 +26,7 @@ import static modelly.modelly_be.domain.recruitment.entity.QRecruitment.recruitm
 import static modelly.modelly_be.domain.user.entity.QDesigner.designer;
 import static modelly.modelly_be.domain.user.entity.QModel.model;
 import static modelly.modelly_be.domain.review.entity.QReview.review;
+import static modelly.modelly_be.domain.user.entity.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
@@ -137,7 +138,7 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
                 ))
                 .from(reservation)
                 .leftJoin(reservation.recruitment, recruitment)
-                .join(reservation.designer, designer)
+                .leftJoin(reservation.designer, designer)
                 .where(where)
                 .orderBy(reservation.date.asc(), reservation.startTime.asc(), reservation.id.asc())
                 .limit(sizePlusOne)
@@ -255,7 +256,7 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
                                 .and(review.model.id.eq(reservation.model.id))
                 )
                 .leftJoin(reservation.recruitment, recruitment)
-                .join(reservation.designer, designer)
+                .leftJoin(reservation.designer, designer)
                 .where(where)
                 .orderBy(reservation.date.asc(), reservation.startTime.asc(), reservation.id.asc())
                 .limit(sizePlusOne)
@@ -359,7 +360,8 @@ public class ReservationQueryRepositoryImpl implements ReservationQueryRepositor
                 ))
                 .from(reservation)
                 .leftJoin(reservation.recruitment, recruitment) // recruitment nullable
-                .join(reservation.model, model)
+                .leftJoin(reservation.model, model)
+                .leftJoin(model.user, user)
                 .join(reservation.designer, designer)
                 .where(where)
                 .orderBy(reservation.date.asc(), reservation.startTime.asc(), reservation.id.asc())

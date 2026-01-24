@@ -467,6 +467,33 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION));
 
+        // 디자이너 탈퇴 케이스
+        if (reservation.getDesigner() == null){
+            reservation.cancel(req.reason());
+            return new SimpleMessageDTO("예약이 취소되었습니다.");
+        }
+
+        // 모델 탈퇴 케이스
+        if (reservation.getModel() == null) {
+
+            // 슬롯 해제
+            Long designerId = reservation.getDesigner().getId();
+            LocalDate date = reservation.getDate();
+            LocalTime start = reservation.getStartTime();
+
+            List<RecruitmentTime> times =
+                    recruitmentTimeRepository.findAllTimeForUpdateByDesigner(
+                            designerId, date, start
+                    );
+
+            times.forEach(RecruitmentTime::unreserve);
+
+            // 예약 취소
+            reservation.cancel(req.reason());
+
+            return new SimpleMessageDTO("예약이 취소되었습니다.");
+        }
+
         // 참여자 검증
         boolean meIsModel = reservation.getModel() != null
                 && reservation.getModel().getUser().getId().equals(me.getId());

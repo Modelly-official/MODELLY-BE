@@ -147,8 +147,8 @@ public class DesignerReservationService {
                         r.getId(),
                         r.getRecruitment() == null ? null : r.getRecruitment().getId(),
                         r.getStartTime().format(HM),
-                        r.getModel().getUser().getName(),
-                        r.getModel().getUser().getImageUrl(),
+                        r.getModel() == null ? null : r.getModel().getUser().getName(),
+                        r.getModel() == null ? null : r.getModel().getUser().getImageUrl(),
                         extractSubCategoryLabels(r)
                 ))
                 .toList();
@@ -251,8 +251,8 @@ public class DesignerReservationService {
                 reservation.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 reservation.getCategory().getDescription(),
                 extractSubCategoryLabels(reservation),
-                reservation.getModel().getUser().getId(),
-                reservation.getModel().getUser().getName(),
+                reservation.getModel() == null ? null : reservation.getModel().getUser().getId(),
+                reservation.getModel() == null ? null : reservation.getModel().getUser().getName(),
                 reservation.getImageUrl(),
                 reservation.getComment(),
                 reservation.getCancelReason()
