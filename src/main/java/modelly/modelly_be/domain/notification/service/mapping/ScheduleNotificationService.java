@@ -3,7 +3,6 @@ package modelly.modelly_be.domain.notification.service.mapping;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.notification.dto.internal.NotificationData;
 import modelly.modelly_be.domain.notification.entity.NotificationType;
-import modelly.modelly_be.domain.notification.service.NotificationService;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.user.entity.User;
 import org.springframework.stereotype.Service;
@@ -14,8 +13,6 @@ import static modelly.modelly_be.global.formatter.TimeFormatter.parseStartTime;
 @Service
 @RequiredArgsConstructor
 public class ScheduleNotificationService {
-
-    private final NotificationService notificationService;
 
     //일정 변동 알림
     public NotificationData createScheduleChangeNotification(User user, Reservation reservation, Long finalRoomId) {
@@ -60,7 +57,7 @@ public class ScheduleNotificationService {
     }
 
     @Transactional
-    public void createRemindNotification(User user, Reservation reservation) {
+    public NotificationData createRemindNotification(User user, Reservation reservation) {
         String message = "";
 
         switch (user.getUserRole()) {
@@ -75,6 +72,6 @@ public class ScheduleNotificationService {
         String title = "내일 예정된 모델 일정이 있어요.";
 
         NotificationData notificationData = NotificationData.otherNotification(user.getId(), NotificationType.SCHEDULE, title, message, reservation.getId());
-        notificationService.sendNotification(notificationData);
+        return notificationData;
     }
 }
