@@ -72,8 +72,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("excludeReservationId") Long excludeReservationId
     );
 
-    // date에 해당하는 예약 조회
-    List<Reservation> findAllByDesigner_User_IdAndDateAndStatusOrderByStartTimeAsc(
+    // date에 해당하는 예약 조회 (모델이 null이 아닌 경우 추가)
+    List<Reservation> findAllByDesigner_User_IdAndDateAndStatusAndModelIsNotNullOrderByStartTimeAsc(
             Long designerUserId,
             LocalDate date,
             ReservationStatus status

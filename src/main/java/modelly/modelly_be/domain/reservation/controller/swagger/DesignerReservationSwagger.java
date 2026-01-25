@@ -35,6 +35,12 @@ public interface DesignerReservationSwagger {
                     - `cursorTime`(optional) : 커서 시간(HH:mm)\n
                     - `cursorId`(optional) : 커서 예약 ID\n
                     \n
+                   ---\n
+                    ### 모델 탈퇴한 경우의 Response\n
+                    - `modelUserId`: null\n
+                    - `modelId` : null\n
+                    - `modelName` : 탈퇴한 유저\n
+                    \n
                     ---\n
                     ✅ 권한\n
                     - 디자이너 권한만 호출 가능합니다.\n
@@ -69,7 +75,7 @@ public interface DesignerReservationSwagger {
                   - `reservationId` : 예약 ID\n
                   - `recruitmentId` : 모집글 ID\n
                   - `time` : 예약 시작 시간 (HH:mm)\n
-                  - `modelName` : 모델 이름\n
+                  - `modelName` : 모델 이름 \n
                   - `imageUrl` : 모델 프로필 이미지\n
                   - `subCategory` : 세부 카테고리 표시값 (ex. 펌/커트)\n
                 \n
@@ -148,7 +154,8 @@ public interface DesignerReservationSwagger {
                 - `startTime` / `endTime` : 예약 시간 (HH:mm)\n
                 - `category` : 상위 카테고리\n
                 - `subCategories` : 하위 카테고리 리스트\n
-                - `modelName` : 신청자(모델) 이름\n
+                - `modelUserId` : 신청자(모델) 유저 ID (모델이 탈퇴한 경우 "null")\n
+                - `modelName` : 신청자(모델) 이름 (모델이 탈퇴한 경우 "탈퇴한 유저")\n
                 - `imageUrl` : 첨부 이미지 URL\n
                 - `comment` : 모델 요청사항\n
                 - `cancelReason` : 취소 사유 (취소된 경우 nullable)\n
