@@ -53,12 +53,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
     @Modifying
     @Query("delete from Review r where r.designer.id = :designerId")
     void deleteByDesignerId(Long designerId);
-
-    // 해당 디자이너의 리뷰 삭제
-    @Modifying
-    @Query("delete from Review r where r.designer.id = :designerId")
-    void deleteByDesignerId(Long designerId);
-
+    
     // 해당 모델이 작성한 리뷰의 모델 필드를 null로 설정 (모델 탈퇴 시 이용)
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Review r SET r.model = NULL WHERE r.model.id = :modelId")
