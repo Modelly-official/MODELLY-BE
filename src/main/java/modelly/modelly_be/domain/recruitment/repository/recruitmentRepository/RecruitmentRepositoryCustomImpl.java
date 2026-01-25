@@ -202,14 +202,6 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
         // 거리 조건 (반경 내)
         NumberExpression<Double> distance = getDistanceExpression(userCoordinate);
 
-        // 전체 카운트 조회
-        Long total = queryFactory
-                .select(qRecruitment.count())
-                .from(qRecruitment)
-                .join(qRecruitment.designer, qDesigner)
-                .where(booleanBuilder)
-                .fetchOne();
-
         List<RecruitmentBasic> content = queryFactory
                 .select(Projections.constructor(RecruitmentBasic.class,
                         qRecruitment.id,
@@ -358,7 +350,6 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                 )
                 .from(qRecruitment)
                 .join(qRecruitment.designer, qDesigner)
-                .leftJoin(qRecruitment.subCategoryList)
                 .where(booleanBuilder)
                 .orderBy(popularityScore.desc(), qRecruitment.id.desc())
                 .limit(5)
