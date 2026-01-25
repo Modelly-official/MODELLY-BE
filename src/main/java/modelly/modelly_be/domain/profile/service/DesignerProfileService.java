@@ -16,6 +16,7 @@ import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.domain.user.service.ModelService;
+import modelly.modelly_be.domain.user.service.UserService;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ public class DesignerProfileService {
     private final ReviewService reviewService;
     private final DesignerLikeService designerLikeService;
     private final RecruitmentRepository recruitmentRepository;
+    private final UserService userService;
 
     // 모델/게스트용 디자니어 프로필 조회
     @Transactional(readOnly = true)
@@ -85,6 +87,7 @@ public class DesignerProfileService {
     @Transactional
     public DesignerProfileResponse updateMyDesignerProfile(User user, UpdateDesignerProfileRequest req) {
         Designer designer = designerService.getByUser(user);
+        User managedUser = userService.getById(user.getId());
 
         designer.updateProfile(
                 req.nickname(),
@@ -94,7 +97,9 @@ public class DesignerProfileService {
                 req.addressLine2()
         );
 
-        if (req.profileImageUrl() != null) {user.updateImageUrl(req.profileImageUrl());}
+        if (req.profileImageUrl() != null) {
+            managedUser.updateImageUrl(req.profileImageUrl());
+        }
 
         AverageReview reviewInfo = reviewService.calculateRating(designer);
 
