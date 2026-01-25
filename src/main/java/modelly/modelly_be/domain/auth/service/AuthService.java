@@ -145,10 +145,6 @@ public class AuthService {
         User user = userRepository.findByLoginId(req.getLoginId())
                 .orElseThrow(() -> new GeneralException(ErrorStatus.LOGIN_FAIL));
 
-        // 탈퇴한 회원인지 확인
-        if (user.getDeletedAt() != null) {
-            user.recoverAccount();
-        }
 
         Designer designer = null;
         if (user.getUserRole()==UserRole.DESIGNER) {
@@ -157,6 +153,11 @@ public class AuthService {
 
         if (!passwordEncoder.matches(req.getPassword(), user.getPassword()))
             throw new GeneralException(ErrorStatus.LOGIN_FAIL);
+
+        // 탈퇴한 회원인지 확인
+        if (user.getDeletedAt() != null) {
+            user.recoverAccount();
+        }
 
         TokenResponse tokens = tokenProvider.createToken(user);
 
@@ -452,14 +453,15 @@ public class AuthService {
         if (optionalUser.isPresent()) {
             user = optionalUser.get();
 
-            // 이미 가입된 유저지만 탈퇴 상태인 경우
-            if (user.getDeletedAt() != null) {
-                user.recoverAccount();
-            }
 
             // 로그인 타입 검증
             if (user.getLoginType() != loginType) {
                 throw new GeneralException(ErrorStatus.DUPLICATE_USER_REGISTERED);
+            }
+
+            // 이미 가입된 유저지만 탈퇴 상태인 경우
+            if (user.getDeletedAt() != null) {
+                user.recoverAccount();
             }
 
             // 회원가입 완료 여부 확인
