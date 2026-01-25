@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.recruitment.service;
 
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.home.dto.response.PopularRecruitmentListResponse;
 import modelly.modelly_be.domain.like.service.RecruitmentLikeService;
 import modelly.modelly_be.domain.recruitment.dto.internal.CursorInformation;
 import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentBasic;
@@ -19,6 +20,7 @@ import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.domain.user.service.ModelService;
 import modelly.modelly_be.domain.user.service.UserService;
+import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.domain.recruitment.repository.recruitmentRepository.RecruitmentRepository;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
@@ -267,6 +269,52 @@ public class RecruitmentService {
                 yearMonth.getMonthValue(),
                 status
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<RecruitmentListResponseDto> getNearByRecruitments(Long userId, Coordinate userCoordinate, Category category){
+
+        List<RecruitmentBasic> recruitmentBasics = recruitmentRepository.findNearbyRecruitments(userId, userCoordinate, category);
+
+        List<Long> recruitmentIds = recruitmentBasics.stream()
+                .map(RecruitmentBasic::recruitmentId)
+                .toList();
+
+        Map<Long, Set<SubCategory>> setMap = recruitmentRepository.findSubCategoriesByRecruitmentIds(recruitmentIds);
+
+        List<RecruitmentListResponseDto> recruitments = recruitmentBasics.stream()
+                .map(basic -> {
+                    List<String> subCategories = setMap.getOrDefault(basic.recruitmentId(), Set.of())
+                            .stream().map(SubCategory::getDescription)
+                            .collect(Collectors.toList());
+
+                    return new RecruitmentListResponseDto(
+                            basic.recruitmentId(),
+                            basic.title(),
+                            basic.designerImage(),
+                            basic.designerName(),
+                            basic.recruitmentThumbnail(),
+                            basic.shop(),
+                            basic.shopAddress(),
+                            basic.category().getDescription(),
+                            subCategories,
+                            basic.reviewCount(),
+                            basic.distance() == 0.0? null: basic.distance(),
+                            basic.isLiked(),
+                            basic.createdAt(),
+                            basic.averageRating()
+                    );
+                }).toList();
+
+        return recruitments;
+    }
+
+    @Transactional(readOnly = true)
+    public List<PopularRecruitmentListResponse> getPopularRecruitments(Category category) {
+
+        List<PopularRecruitmentListResponse> responses = recruitmentRepository.findPopularRecruitments(category);
+
+        return responses;
     }
 
     private Long countByCondition(SearchCondition searchCondition) {

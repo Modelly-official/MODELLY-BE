@@ -17,6 +17,7 @@ import modelly.modelly_be.global.utils.ScrollResponse;
 import modelly.modelly_be.global.utils.ScrollUtil;
 import modelly.modelly_be.global.utils.SearchCondition;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -57,6 +58,13 @@ public class DesignerService {
         ScrollResponse<DesignerListResponseDto> responseDtos = ScrollUtil.paginate(designers,size, totalCount);
 
         return responseDtos;
+    }
+
+    @Transactional(readOnly = true)
+    public List<DesignerListResponseDto> getPopularDesigners(Long userId, Category category, Coordinate coordinate) {
+        List<DesignerListResponseDto> designers = designerRepository.findPopularDesigners(userId, category, coordinate);
+
+        return designers;
     }
 
     public Designer getById(Long designerId) {

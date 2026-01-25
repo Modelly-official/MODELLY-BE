@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.user.repository.designerRepository;
 
 import modelly.modelly_be.domain.map.dto.response.ShopResponse;
 import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
+import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.utils.Coordinate;
 import modelly.modelly_be.global.utils.SearchCondition;
@@ -16,4 +17,6 @@ public interface DesignerRepositoryCustom {
     List<DesignerListResponseDto> findDesignersByDistance(Long userId, SearchCondition searchCondition, Long cursorId, Double cursorDistance, int size, Coordinate userCoordinate);
 
     List<ShopResponse> findShopsByDistance(Long userId, Category category, int size, Coordinate userCoordinate);
+
+    List<DesignerListResponseDto> findPopularDesigners(Long userId, Category category, Coordinate coordinate);
 }
