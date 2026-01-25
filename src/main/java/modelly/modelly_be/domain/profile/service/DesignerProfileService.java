@@ -87,6 +87,7 @@ public class DesignerProfileService {
     @Transactional
     public DesignerProfileResponse updateMyDesignerProfile(User user, UpdateDesignerProfileRequest req) {
         Designer designer = designerService.getByUser(user);
+        User managedUser = userService.getById(user.getId());
 
         designer.updateProfile(
                 req.nickname(),
@@ -97,7 +98,7 @@ public class DesignerProfileService {
         );
 
         if (req.profileImageUrl() != null) {
-            user.updateImageUrl(req.profileImageUrl());
+            managedUser.updateImageUrl(req.profileImageUrl());
         }
 
         AverageReview reviewInfo = reviewService.calculateRating(designer);
