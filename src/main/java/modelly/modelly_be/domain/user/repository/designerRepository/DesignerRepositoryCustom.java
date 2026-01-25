@@ -16,4 +16,6 @@ public interface DesignerRepositoryCustom {
     List<DesignerListResponseDto> findDesignersByDistance(Long userId, SearchCondition searchCondition, Long cursorId, Double cursorDistance, int size, Coordinate userCoordinate);
 
     List<ShopResponse> findShopsByDistance(Long userId, Category category, int size, Coordinate userCoordinate);
+
+    List<DesignerListResponseDto> findPopularDesigners(Long userId, Category category, Coordinate coordinate);
 }

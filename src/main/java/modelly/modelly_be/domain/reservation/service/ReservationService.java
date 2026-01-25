@@ -19,12 +19,14 @@ import modelly.modelly_be.domain.reservation.entity.enums.ReservationChangeStatu
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.domain.reservation.repository.ReservationChangeRepository;
 import modelly.modelly_be.domain.reservation.repository.ReservationRepository;
+import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -695,5 +697,10 @@ public class ReservationService {
     @Transactional(readOnly = true)
     public List<Reservation> getAllByDate(LocalDate oneDaysLater) {
         return reservationRepository.findAllByDate(oneDaysLater);
+    }
+
+    public List<Reservation> getReservationTop5(Model model) {
+        Pageable pageable = PageRequest.of(0, 5);
+        return reservationRepository.findTop5ByModelAndStatus(model, ReservationStatus.RESERVATION_CONFIRMED);
     }
 }

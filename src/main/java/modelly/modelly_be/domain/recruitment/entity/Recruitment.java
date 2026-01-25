@@ -83,6 +83,15 @@ public class Recruitment extends BaseEntity {
     @Column(name = "folder_id", length = 36)
     private String imageFolderId;
 
+    @Column(name = "review_count", nullable = false)
+    private int reviewCount= 0;
+
+    @Column(name = "reservation_count", nullable = false)
+    private int reservationCount= 0;
+
+    @Column(name = "like_count", nullable = false)
+    private int likeCount= 0;
+
     public void addDate(RecruitmentDate date) {
         recruitmentDates.add(date);
     }
