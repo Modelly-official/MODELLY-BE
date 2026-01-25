@@ -140,14 +140,14 @@ public class AuthService {
     }
 
     /* 로그인 */
-    @Transactional(readOnly = true)
+    @Transactional
     public LoginResult login(LoginRequest req) {
         User user = userRepository.findByLoginId(req.getLoginId())
                 .orElseThrow(() -> new GeneralException(ErrorStatus.LOGIN_FAIL));
 
         // 탈퇴한 회원인지 확인
         if (user.getDeletedAt() != null) {
-            throw new GeneralException(ErrorStatus.WITHDRAWN_USER);
+            user.recoverAccount();
         }
 
         Designer designer = null;
@@ -454,7 +454,7 @@ public class AuthService {
 
             // 이미 가입된 유저지만 탈퇴 상태인 경우
             if (user.getDeletedAt() != null) {
-                throw new GeneralException(ErrorStatus.WITHDRAWN_USER);
+                user.recoverAccount();
             }
 
             // 로그인 타입 검증
