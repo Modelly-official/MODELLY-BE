@@ -43,6 +43,7 @@ public class ReviewRepositoryCustomImpl implements ReviewRepositoryCustom {
                 .select(Projections.constructor(
                         MyReviewListResponseDto.class,
                         review.id,
+                        review.reservation.id,
                         review.designer.nickname,
                         review.designer.shop,
                         review.designer.addressLine1,

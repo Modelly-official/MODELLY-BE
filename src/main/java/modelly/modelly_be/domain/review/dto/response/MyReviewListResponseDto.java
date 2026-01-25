@@ -8,6 +8,8 @@ import java.util.List;
 public record MyReviewListResponseDto(
         @Schema(description = "리뷰 id", example="1")
         Long reviewId,
+        @Schema(description = "예약 id", example="1")
+        Long reservationId,
         @Schema(description = "디자이너 이름", example="여노")
         String designerName,
         @Schema(description = "샵 이름", example="여노살롱")
@@ -30,7 +32,7 @@ public record MyReviewListResponseDto(
 
         public MyReviewListResponseDto withImages(List<String> images) {
                 return new MyReviewListResponseDto(
-                        reviewId, designerName, shop, shopAddress, summary,
+                        reviewId, reservationId, designerName, shop, shopAddress, summary,
                         rating, thumbnail, images, content, createdAt
                 );
         }
