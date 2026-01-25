@@ -4,6 +4,7 @@ import jakarta.persistence.LockModeType;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -44,4 +45,12 @@ public interface RecruitmentTimeRepository extends JpaRepository<RecruitmentTime
             @Param("date") LocalDate date,
             @Param("startTime") LocalTime startTime
     );
+
+    // 해당 디자이너의 recruitmentTime 삭제
+    @Modifying
+    @Query("""
+        delete from RecruitmentTime rt
+        where rt.recruitmentDate.recruitment.designer.id = :designerId
+    """)
+    void deleteByDesignerId(Long designerId);
 }

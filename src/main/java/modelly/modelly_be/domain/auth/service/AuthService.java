@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.auth.service;
 
 import com.google.maps.model.LatLng;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -139,10 +140,11 @@ public class AuthService {
     }
 
     /* 로그인 */
-    @Transactional(readOnly = true)
+    @Transactional
     public LoginResult login(LoginRequest req) {
         User user = userRepository.findByLoginId(req.getLoginId())
                 .orElseThrow(() -> new GeneralException(ErrorStatus.LOGIN_FAIL));
+
 
         Designer designer = null;
         if (user.getUserRole()==UserRole.DESIGNER) {
@@ -151,6 +153,11 @@ public class AuthService {
 
         if (!passwordEncoder.matches(req.getPassword(), user.getPassword()))
             throw new GeneralException(ErrorStatus.LOGIN_FAIL);
+
+        // 탈퇴한 회원인지 확인
+        if (user.getDeletedAt() != null) {
+            user.recoverAccount();
+        }
 
         TokenResponse tokens = tokenProvider.createToken(user);
 
@@ -232,6 +239,10 @@ public class AuthService {
         // user 조회
         User user = userRepository.findById(Long.valueOf(userId))
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+
+        if (user.getDeletedAt() != null) {
+            throw new GeneralException(ErrorStatus.WITHDRAWN_USER);
+        }
 
         //  Access, Refresh 발급
         String newAccess = tokenProvider.createAccessToken(user);
@@ -442,9 +453,15 @@ public class AuthService {
         if (optionalUser.isPresent()) {
             user = optionalUser.get();
 
+
             // 로그인 타입 검증
             if (user.getLoginType() != loginType) {
                 throw new GeneralException(ErrorStatus.DUPLICATE_USER_REGISTERED);
+            }
+
+            // 이미 가입된 유저지만 탈퇴 상태인 경우
+            if (user.getDeletedAt() != null) {
+                user.recoverAccount();
             }
 
             // 회원가입 완료 여부 확인
@@ -500,6 +517,34 @@ public class AuthService {
                 user.getUserRole()==UserRole.DESIGNER? designer.getCategory().getDescription() : null);
 
         return SocialLoginResult.of(loginResponse, refreshToken, ttlSec);
+    }
+
+    /* ---------- 탈퇴하기 ---------- */
+    @Transactional
+    public void withdraw(HttpServletRequest request) {
+        // 1. 토큰 추출 및 검증
+        String accessToken = tokenProvider.resolveToken(request);
+        if (accessToken == null || accessToken.isBlank()) {
+            throw new GeneralException(ErrorStatus.TOKEN_INVALID);
+        }
+
+        // 2. 유저 ID 추출
+        String userIdStr = tokenProvider.getUserIdFromToken(accessToken);
+        Long userId = Long.valueOf(userIdStr);
+
+        // 3. 유저 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_USER));
+
+        // 4. Soft Delete 처리
+        if (user.getDeletedAt() != null) {
+            throw new GeneralException(ErrorStatus.WITHDRAWN_USER);
+        }
+
+        redisService.deleteValue(RT_KEY_PREFIX + userId + ":current");
+        redisService.deleteValue(RT_KEY_PREFIX + userId + ":previous");
+
+        user.markAsDeleted();
     }
 }
 

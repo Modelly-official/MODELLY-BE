@@ -171,7 +171,7 @@ public class ModelReservationService {
                         r.recruitmentTitle(),
                         r.designerUserId(),
                         r.designerId(),
-                        r.designerNickname(),
+                        r.designerNickname() == null ? "탈퇴한 유저" : r.designerNickname(),
                         r.shop(),
                         r.category().getDescription(),
                         subMap.getOrDefault(r.reservationId(), List.of())
@@ -258,7 +258,7 @@ public class ModelReservationService {
                         r.recruitmentTitle(),
                         r.designerUserId(),
                         r.designerId(),
-                        r.designerNickname(),
+                        r.designerNickname() == null ? "탈퇴한 유저" : r.designerNickname(),
                         r.shop(),
                         r.category().getDescription(),
                         subMap.getOrDefault(r.reservationId(), List.of())

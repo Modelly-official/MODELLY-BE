@@ -8,6 +8,7 @@ import modelly.modelly_be.domain.user.entity.Model;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -72,8 +73,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("excludeReservationId") Long excludeReservationId
     );
 
-    // date에 해당하는 예약 조회
-    List<Reservation> findAllByDesigner_User_IdAndDateAndStatusOrderByStartTimeAsc(
+    // date에 해당하는 예약 조회 (모델이 null이 아닌 경우 추가)
+    List<Reservation> findAllByDesigner_User_IdAndDateAndStatusAndModelIsNotNullOrderByStartTimeAsc(
             Long designerUserId,
             LocalDate date,
             ReservationStatus status
@@ -91,6 +92,16 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             "WHERE r.date = :date ")
     List<Reservation> findAllByDate(LocalDate date);
 
+    // 디자이너가 포함된 예약의 designer 필드를 null로 설정(디자이너 탈퇴 시 이용)
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Reservation r SET r.designer = NULL WHERE r.designer.id = :designerId")
+    void setDesignerNull(@Param("designerId") Long designerId);
+
+    // 모델이 포함된 예약의 model 필드를 null로 설정(모델 탈퇴 시 이용)
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Reservation r SET r.model = NULL WHERE r.model.id = :modelId")
+    void setModelNull(@Param("modelId") Long modelId);
+
     @Query("SELECT r FROM Reservation r " +
             "JOIN FETCH r.designer " +
             "JOIN FETCH r.recruitment rec " +
@@ -101,4 +112,19 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("model") Model model,
             @Param("status") ReservationStatus status
     );
+
+    // 디자이너의 PENDING(대기중) 예약 삭제
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM Reservation r WHERE r.designer.id = :designerId AND r.status = 'RESERVATION_PENDING'")
+    void deletePendingByDesignerId(@Param("designerId") Long designerId);
+
+    // 모델의 PENDING(대기중) 예약 삭제
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM Reservation r WHERE r.model.id = :modelId AND r.status = 'RESERVATION_PENDING'")
+    void deletePendingByModelId(@Param("modelId") Long modelId);
+
+    // 해당 디자이너의 예약과 공고와의 연결 끊기
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Reservation r SET r.recruitment = NULL WHERE r.designer.id = :designerId")
+    void setRecruitmentNullByDesignerId(@Param("designerId") Long designerId);
 }

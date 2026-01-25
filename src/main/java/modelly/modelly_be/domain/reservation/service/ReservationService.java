@@ -99,6 +99,10 @@ public class ReservationService {
     public ChatRoomReservationSummary getChatRoomReservationSummary(Long roomId, User me) {
         ChatRoom room = chatRoomService.getById(roomId);
 
+        if (room.getModel() == null || room.getDesigner() == null) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
         if (!room.isParticipant(me)) {
             throw new GeneralException(ErrorStatus._FORBIDDEN);
         }
@@ -473,6 +477,33 @@ public class ReservationService {
 
         if (!meIsModel && !meIsDesigner) {
             throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        // 디자이너 탈퇴 케이스
+        if (reservation.getDesigner() == null){
+            reservation.cancel(req.reason());
+            return new SimpleMessageDTO("예약이 취소되었습니다.");
+        }
+
+        // 모델 탈퇴 케이스
+        if (reservation.getModel() == null) {
+
+            // 슬롯 해제
+            Long designerId = reservation.getDesigner().getId();
+            LocalDate date = reservation.getDate();
+            LocalTime start = reservation.getStartTime();
+
+            List<RecruitmentTime> times =
+                    recruitmentTimeRepository.findAllTimeForUpdateByDesigner(
+                            designerId, date, start
+                    );
+
+            times.forEach(RecruitmentTime::unreserve);
+
+            // 예약 취소
+            reservation.cancel(req.reason());
+
+            return new SimpleMessageDTO("예약이 취소되었습니다.");
         }
 
         // 이미 취소면 방어

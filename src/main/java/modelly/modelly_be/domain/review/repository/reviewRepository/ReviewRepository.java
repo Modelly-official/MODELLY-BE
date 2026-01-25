@@ -12,7 +12,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 
 public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRepositoryCustom {
@@ -44,4 +48,14 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
     @Query("SELECT COUNT(DISTINCT r) FROM Review r " +
             "WHERE r.model = :model AND (:category IS NULL OR r.reservation.category = :category) ")
     Long countByModelAndCategory(Model model, Category category);
+
+    // 해당 디자이너의 리뷰 삭제
+    @Modifying
+    @Query("delete from Review r where r.designer.id = :designerId")
+    void deleteByDesignerId(Long designerId);
+    
+    // 해당 모델이 작성한 리뷰의 모델 필드를 null로 설정 (모델 탈퇴 시 이용)
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Review r SET r.model = NULL WHERE r.model.id = :modelId")
+    void setModelNull(@Param("modelId") Long modelId);
 }

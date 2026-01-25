@@ -107,9 +107,9 @@ public class DesignerReviewService {
                             .orElse(null);
 
                     if (reply != null) {
-                        return DesignerReviewListResponseDto.of(review, review.getModel().getUser().getImageUrl(), reply);
+                        return DesignerReviewListResponseDto.of(review, review.getModel() == null ? null : review.getModel().getUser().getImageUrl(), reply);
                     } else {
-                        return DesignerReviewListResponseDto.of(review, review.getModel().getUser().getImageUrl());
+                        return DesignerReviewListResponseDto.of(review, review.getModel() == null ? null : review.getModel().getUser().getImageUrl());
                     }
                 })
                 .toList();

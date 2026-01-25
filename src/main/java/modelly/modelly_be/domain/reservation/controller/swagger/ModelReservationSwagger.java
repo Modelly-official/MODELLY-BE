@@ -96,6 +96,13 @@ public interface ModelReservationSwagger {
                     - `cursorId`(optional) : 커서 예약 ID\n
                     \n
                     ---\n
+                    ### 디자이너 탈퇴한 경우의 Response\n
+                    - `designerUserId`: null\n
+                    - `designerId` : null\n
+                    - `designerNickname` : 탈퇴한 유저\n
+                    - `shop` : null\n
+                    \n
+                    ---\n
                     ✅ 권한\n
                     - 모델 권한만 호출 가능합니다.\n
                     """
@@ -122,6 +129,13 @@ public interface ModelReservationSwagger {
                     - `category`(optional) : 카테고리 필터 (전체 조회면 null)\n
                     - `size`(default=12) : 페이지 사이즈\n
                     - `cursorDate/cursorTime/cursorId`(optional) : 무한스크롤 커서\n
+                    \n
+                    ---\n
+                    ### 디자이너 탈퇴한 경우의 Response\n
+                    - `designerUserId`: null\n
+                    - `designerId` : null\n
+                    - `designerNickname` : 탈퇴한 유저\n
+                    - `shop` : null\n
                     \n
                     ---\n
                     ✅ 권한\n

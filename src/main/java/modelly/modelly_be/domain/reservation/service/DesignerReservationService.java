@@ -99,7 +99,7 @@ public class DesignerReservationService {
                         r.recruitmentTitle(),
                         r.modelUserId(),
                         r.modelId(),
-                        r.modelName(),
+                        r.modelName() == null ? "탈퇴한 유저": r.modelName(),
                         subMap.getOrDefault(r.reservationId(), List.of())
                                 .stream()
                                 .map(SubCategory::getDescription)
@@ -136,7 +136,7 @@ public class DesignerReservationService {
     @Transactional(readOnly = true)
     public DesignerDailyReservationResponse getDailyReservations(User me, LocalDate date) {
         List<Reservation> reservations =
-                reservationRepository.findAllByDesigner_User_IdAndDateAndStatusOrderByStartTimeAsc(
+                reservationRepository.findAllByDesigner_User_IdAndDateAndStatusAndModelIsNotNullOrderByStartTimeAsc(
                         me.getId(),
                         date,
                         ReservationStatus.RESERVATION_CONFIRMED
@@ -147,8 +147,8 @@ public class DesignerReservationService {
                         r.getId(),
                         r.getRecruitment() == null ? null : r.getRecruitment().getId(),
                         r.getStartTime().format(HM),
-                        r.getModel().getUser().getName(),
-                        r.getModel().getUser().getImageUrl(),
+                        r.getModel() == null ? "탈퇴한 유저" : r.getModel().getUser().getName(),
+                        r.getModel() == null ? null : r.getModel().getUser().getImageUrl(),
                         extractSubCategoryLabels(r)
                 ))
                 .toList();
@@ -251,8 +251,8 @@ public class DesignerReservationService {
                 reservation.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 reservation.getCategory().getDescription(),
                 extractSubCategoryLabels(reservation),
-                reservation.getModel().getUser().getId(),
-                reservation.getModel().getUser().getName(),
+                reservation.getModel() == null ? null : reservation.getModel().getUser().getId(),
+                reservation.getModel() == null ? "탈퇴한 유저" : reservation.getModel().getUser().getName(),
                 reservation.getImageUrl(),
                 reservation.getComment(),
                 reservation.getCancelReason()

@@ -24,11 +24,11 @@ public class ChatRoom extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "designer_id", nullable = false)
+    @JoinColumn(name = "designer_id")
     private Designer designer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "model_id", nullable = false)
+    @JoinColumn(name = "model_id")
     private Model model;
 
     /* constructor */

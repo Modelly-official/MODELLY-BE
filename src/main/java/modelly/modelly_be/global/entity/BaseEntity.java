@@ -29,4 +29,8 @@ public class BaseEntity {
     public void markAsDeleted() {
         this.deletedAt = LocalDateTime.now();
     }
+
+    public void recoverAccount() {
+        this.deletedAt = null;
+    }
 }

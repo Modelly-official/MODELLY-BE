@@ -14,6 +14,7 @@ import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.global.entity.BaseEntity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -68,6 +69,13 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private NotificationSetting notificationSetting;
 
+    // Designer, Model과 연관관계 설정
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Model model;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Designer designer;
+
     /* 비밀번호 변경 */
     public void changePassword(String encodedPassword) {
         this.password = encodedPassword;
@@ -102,4 +110,5 @@ public class User extends BaseEntity {
         this.birth = birth;
         if (imageUrl != null) this.imageUrl = imageUrl;
     }
+
 }
