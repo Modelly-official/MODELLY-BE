@@ -1,9 +1,11 @@
 package modelly.modelly_be.domain.reservation.repository;
 
 import jakarta.persistence.LockModeType;
+import jakarta.persistence.Tuple;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
+import modelly.modelly_be.domain.user.entity.Model;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -90,6 +92,17 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             "JOIN FETCH r.designer " +
             "WHERE r.date = :date ")
     List<Reservation> findAllByDate(LocalDate date);
+
+    @Query("SELECT r FROM Reservation r " +
+            "JOIN FETCH r.designer " +
+            "JOIN FETCH r.recruitment rec " +
+            "WHERE r.model = :model AND r.status = :status " +
+            "ORDER BY r.date ASC " +
+            "LIMIT 5")
+    List<Reservation> findTop5ByModelAndStatus(
+            @Param("model") Model model,
+            @Param("status") ReservationStatus status
+    );
 
     // 디자이너가 포함된 예약의 designer 필드를 null로 설정(디자이너 탈퇴 시 이용)
     @Modifying(clearAutomatically = true)

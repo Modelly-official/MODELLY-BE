@@ -9,6 +9,7 @@ import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.global.entity.BaseEntity;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.entity.SubCategory;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -44,6 +45,7 @@ public class Reservation extends BaseEntity {
             joinColumns = @JoinColumn(name = "reservation_id")
     )
     @Enumerated(EnumType.STRING)
+    @BatchSize(size = 5)
     @Column(name = "sub_category", length = 50)
     private List<SubCategory> subCategories;
 
