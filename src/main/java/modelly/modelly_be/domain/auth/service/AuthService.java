@@ -539,6 +539,9 @@ public class AuthService {
             throw new GeneralException(ErrorStatus.WITHDRAWN_USER);
         }
 
+        redisService.deleteValue(RT_KEY_PREFIX + userId + ":current");
+        redisService.deleteValue(RT_KEY_PREFIX + userId + ":previous");
+
         user.markAsDeleted();
     }
 }
