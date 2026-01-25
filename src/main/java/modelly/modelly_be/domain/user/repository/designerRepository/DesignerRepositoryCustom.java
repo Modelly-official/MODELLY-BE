@@ -2,7 +2,6 @@ package modelly.modelly_be.domain.user.repository.designerRepository;
 
 import modelly.modelly_be.domain.map.dto.response.ShopResponse;
 import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
-import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.utils.Coordinate;
 import modelly.modelly_be.global.utils.SearchCondition;

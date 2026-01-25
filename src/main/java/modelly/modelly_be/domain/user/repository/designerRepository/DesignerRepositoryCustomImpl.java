@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.like.entity.QDesignerLike;
 import modelly.modelly_be.domain.map.dto.response.ShopResponse;
 import modelly.modelly_be.domain.reservation.entity.QReservation;
-import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.domain.review.entity.QReview;
 import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
 import modelly.modelly_be.domain.user.entity.QDesigner;
