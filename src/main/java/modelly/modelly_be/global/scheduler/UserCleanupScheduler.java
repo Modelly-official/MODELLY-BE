@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Slf4j
@@ -26,7 +27,7 @@ public class UserCleanupScheduler {
         log.info("=== 탈퇴 유저 영구 삭제 스케줄러 시작 ===");
 
         // 기준 시간(5일) 설정 후 탈퇴 후 5일이 지난 유저 찾기
-        LocalDateTime expirationTime = LocalDateTime.now().minusDays(5);
+        LocalDateTime expirationTime = LocalDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(5);
         List<User> expiredUsers = userRepository.findByDeletedAtBefore(expirationTime);
 
         if (expiredUsers.isEmpty()) {
