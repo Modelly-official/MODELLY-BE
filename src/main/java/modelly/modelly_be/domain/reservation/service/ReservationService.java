@@ -467,6 +467,16 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION));
 
+        // 참여자 검증
+        boolean meIsModel = reservation.getModel() != null
+                && reservation.getModel().getUser().getId().equals(me.getId());
+        boolean meIsDesigner = reservation.getDesigner() != null
+                && reservation.getDesigner().getUser().getId().equals(me.getId());
+
+        if (!meIsModel && !meIsDesigner) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
         // 디자이너 탈퇴 케이스
         if (reservation.getDesigner() == null){
             reservation.cancel(req.reason());
@@ -492,16 +502,6 @@ public class ReservationService {
             reservation.cancel(req.reason());
 
             return new SimpleMessageDTO("예약이 취소되었습니다.");
-        }
-
-        // 참여자 검증
-        boolean meIsModel = reservation.getModel() != null
-                && reservation.getModel().getUser().getId().equals(me.getId());
-        boolean meIsDesigner = reservation.getDesigner() != null
-                && reservation.getDesigner().getUser().getId().equals(me.getId());
-
-        if (!meIsModel && !meIsDesigner) {
-            throw new GeneralException(ErrorStatus._FORBIDDEN);
         }
 
         // 이미 취소면 방어
