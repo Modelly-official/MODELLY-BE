@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import modelly.modelly_be.global.entity.Category;
 
 import java.util.List;
-import java.util.Set;
 
 public record PopularRecruitmentListResponse(
         Long recruitmentId,

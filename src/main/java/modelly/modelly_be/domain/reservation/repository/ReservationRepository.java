@@ -1,7 +1,6 @@
 package modelly.modelly_be.domain.reservation.repository;
 
 import jakarta.persistence.LockModeType;
-import jakarta.persistence.Tuple;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
 import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
