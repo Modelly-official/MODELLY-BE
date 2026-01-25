@@ -48,6 +48,15 @@ public class Designer extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
+    @Column(name = "review_count", nullable = false)
+    private Long reviewCount= 0L;
+
+    @Column(name = "reservation_count", nullable = false)
+    private Long reservationCount= 0L;
+
+    @Column(name = "like_count", nullable = false)
+    private Long likeCount= 0L;
+
     @Builder
     public Designer(
             String shop,

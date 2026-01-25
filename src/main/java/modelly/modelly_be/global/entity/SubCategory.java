@@ -49,7 +49,11 @@ public enum SubCategory {
 
         @Override
         public void serialize(SubCategory value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            gen.writeString(value.getDescription());
+            if (value == null) {
+                gen.writeNull();
+            } else {
+                gen.writeString(value.getDescription());
+            }
         }
     }
 }

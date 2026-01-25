@@ -11,25 +11,33 @@ import com.querydsl.jpa.JPQLSubQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import modelly.modelly_be.domain.home.dto.response.PopularRecruitmentListResponse;
 import modelly.modelly_be.domain.like.entity.QRecruitmentLike;
 import modelly.modelly_be.domain.profile.dto.response.DesignerProfileResponse;
 import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentBasic;
 import modelly.modelly_be.domain.recruitment.dto.internal.DesignerRecruitmentList;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitment;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitmentDate;
+import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.enums.RecruitmentStatus;
+import modelly.modelly_be.domain.reservation.entity.QReservation;
+import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
+import modelly.modelly_be.domain.user.entity.Model;
+import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.domain.review.entity.QReview;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.QDesigner;
 import modelly.modelly_be.global.utils.SearchCondition;
 import modelly.modelly_be.global.utils.Coordinate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -42,6 +50,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
     private static final QRecruitmentLike qRecruitmentLike = QRecruitmentLike.recruitmentLike;
     private static final QReview qReview = QReview.review;
     private static final QRecruitmentDate qRecruitmentDate = QRecruitmentDate.recruitmentDate;
+    private static final QReservation qReservation = QReservation.reservation;
 
     @Override
     public List<RecruitmentBasic> findRecruitmentsByCreatedAt(Long userId, SearchCondition searchCondition, Long cursorId, int size, Coordinate userCoordinate) {
@@ -178,6 +187,222 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                 ));
     }
 
+    //내 주위 공고글 조회
+    @Override
+    public List<RecruitmentBasic> findNearbyRecruitments(
+            Long userId,
+            Coordinate userCoordinate,
+            Category category) {
+
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+
+        // OPEN 상태인 모집글만
+        booleanBuilder.and(qRecruitment.recruitmentStatus.eq(RecruitmentStatus.OPEN));
+
+        // 카테고리 필터
+        if (category != null) {
+            booleanBuilder.and(qRecruitment.category.eq(category));
+        }
+
+        // 거리 조건 (반경 내)
+        NumberExpression<Double> distance = getDistanceExpression(userCoordinate);
+
+        // 전체 카운트 조회
+        Long total = queryFactory
+                .select(qRecruitment.count())
+                .from(qRecruitment)
+                .join(qRecruitment.designer, qDesigner)
+                .where(booleanBuilder)
+                .fetchOne();
+
+        List<RecruitmentBasic> content = queryFactory
+                .select(Projections.constructor(RecruitmentBasic.class,
+                        qRecruitment.id,
+                        qRecruitment.title,
+                        qDesigner.user.imageUrl,
+                        qDesigner.nickname,
+                        qRecruitment.thumbnail,
+                        qDesigner.shop,
+                        qDesigner.addressLine1,
+                        qRecruitment.category,
+                        ExpressionUtils.as(getReviewCountSubQuery(), "reviewCount"),
+                        ExpressionUtils.as(distance, "distance"),
+                        qRecruitmentLike.id.isNotNull(),
+                        qRecruitment.createdAt,
+                        ExpressionUtils.as(getAverageRatingSubQuery(), "averageRating")
+                ))
+                .from(qRecruitment)
+                .join(qRecruitment.designer, qDesigner)
+                .leftJoin(qRecruitmentLike).on(isLikedByMe(userId))
+                .where(booleanBuilder)
+                .orderBy(distance.asc(), qRecruitment.id.desc()) // 거리순 정렬
+                .limit(10)
+                .fetch();
+
+        return content;
+    }
+
+    @Override
+    public List<DesignerProfileResponse.RecruitmentCard> findOpenRecruitmentsByDesigner(Long designerId) {
+        QRecruitment r = QRecruitment.recruitment;
+        QRecruitmentDate rd = QRecruitmentDate.recruitmentDate;
+
+        DateExpression<LocalDate> startDate = rd.date.min();
+
+        // 공고 정보 tuple로
+        List<Tuple> rows = queryFactory
+                .select(
+                        r.id,
+                        r.title,
+                        r.thumbnail,
+                        startDate,
+                        r.deadline
+                )
+                .from(r)
+                .join(r.recruitmentDates, rd)
+                .where(
+                        r.designer.id.eq(designerId),
+                        r.recruitmentStatus.eq(RecruitmentStatus.OPEN)
+                )
+                .groupBy(r.id, r.title, r.thumbnail, r.deadline)
+                .orderBy(r.deadline.asc().nullsLast(), r.id.asc())
+                .fetch();
+
+        if (rows.isEmpty()) return List.of();
+
+        // 공고 id 목록
+        List<Long> recruitmentIds = rows.stream()
+                .map(t -> t.get(r.id))
+                .toList();
+
+        // subCategory를 한 번에 조회해서 recruitmentId -> [description] 매핑
+        Map<Long, List<String>> subCategoryMap = fetchSubCategoriesByRecruitmentIds(recruitmentIds);
+
+        // DTO 반환
+        return rows.stream()
+                .map(t -> {
+                    Long recruitmentId = t.get(r.id);
+                    return new DesignerProfileResponse.RecruitmentCard(
+                            recruitmentId,
+                            t.get(r.title),
+                            t.get(r.thumbnail),
+                            t.get(startDate),
+                            t.get(r.deadline),
+                            subCategoryMap.getOrDefault(recruitmentId, List.of())
+                    );
+                })
+                .toList();
+    }
+
+    @Override
+    public List<PopularRecruitmentListResponse> findPopularRecruitments(Category category) {
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+
+        //OPEN 상태인 모집글만
+        booleanBuilder.and(qRecruitment.recruitmentStatus.eq(RecruitmentStatus.OPEN));
+
+        //카테고리 필터
+        if (category != null) {
+            booleanBuilder.and(qRecruitment.category.eq(category));
+        }
+
+        // 서브쿼리: 평균 평점
+        NumberExpression<Double> averageRating = Expressions.asNumber(getAverageRatingSubQuery()).doubleValue();
+
+        // 최근 30일 내 예약/리뷰에 더 높은 가중치
+        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+
+        // 최근 예약 수
+        JPQLSubQuery<Long> recentReservationCountSubQuery = JPAExpressions
+                .select(qReservation.count())
+                .from(qReservation)
+                .where(qReservation.recruitment.eq(qRecruitment)
+                        .and(qReservation.status.in(ReservationStatus.RESERVATION_CONFIRMED, ReservationStatus.RESERVATION_PENDING))
+                        .and(qReservation.createdAt.after(thirtyDaysAgo)));
+
+        NumberExpression<Double> recentReservationCount = Expressions.asNumber(recentReservationCountSubQuery)
+                .coalesce(0L).doubleValue();
+
+        // 최근 리뷰 수
+        JPQLSubQuery<Long> recentReviewCountSubQuery = JPAExpressions
+                .select(qReview.count())
+                .from(qReview)
+                .where(qReview.designer.eq(qRecruitment.designer)
+                        .and(qReview.createdAt.after(thirtyDaysAgo)));
+
+        NumberExpression<Double> recentReviewCount = Expressions.asNumber(recentReviewCountSubQuery)
+                .coalesce(0L).doubleValue();
+
+        //최근 찜 수
+        JPQLSubQuery<Long> recentLikeCountSubQuery = JPAExpressions
+                .select(qRecruitmentLike.count())
+                .from(qRecruitmentLike)
+                .where(qRecruitmentLike.recruitment.eq(qRecruitment)
+                        .and(qRecruitmentLike.createdAt.after(thirtyDaysAgo)));
+
+         NumberExpression<Double> recentLikeCount = Expressions.asNumber(recentLikeCountSubQuery).doubleValue();
+
+        // 인기도 점수: 최근 활동에 2배 가중치
+        NumberExpression<Double> popularityScore =
+                //recentReservationCount.multiply(6.0)  // 최근 예약 × 6
+                        qRecruitment.reservationCount.doubleValue().multiply(2.0)  // 전체 예약 × 2
+                        //.add(recentReviewCount.multiply(4.0))  // 최근 리뷰 × 4
+                        .add(qRecruitment.reviewCount.doubleValue().multiply(1.5))        // 전체 리뷰 × 1.5
+                        .add(qRecruitment.likeCount.doubleValue().multiply(1.5)) // 전체 찜 × 1.5
+                        //.add(recentLikeCount.multiply(1.5)) //최근 찜 x 3
+                        .add(averageRating.multiply(2.0));    // 평점 × 2
+
+        List<Tuple> tuples = queryFactory
+                .select(
+                        qRecruitment.id,
+                        qDesigner.nickname,
+                        qDesigner.shop,
+                        qRecruitment.title,
+                        qRecruitment.category,
+                        popularityScore
+                )
+                .from(qRecruitment)
+                .join(qRecruitment.designer, qDesigner)
+                .leftJoin(qRecruitment.subCategoryList)
+                .where(booleanBuilder)
+                .orderBy(popularityScore.desc(), qRecruitment.id.desc())
+                .limit(5)
+                .fetch();
+
+        List<Long> recruitmentIds = tuples.stream()
+                .map(t -> t.get(qRecruitment.id))
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<Long, List<String>> subCategories = fetchSubCategoriesByRecruitmentIds(recruitmentIds);
+
+        List<PopularRecruitmentListResponse> results = new ArrayList<>();
+
+        for (Tuple t : tuples) {
+            Long id = t.get(qRecruitment.id);
+            String nickname = t.get(qDesigner.nickname);
+            String shop = t.get(qDesigner.shop);
+            String title = t.get(qRecruitment.title);
+            Category categoryVal = t.get(qRecruitment.category);
+            Double score = t.get(popularityScore);
+
+            List<String> subList = subCategories.getOrDefault(id, List.of());
+
+            results.add(new PopularRecruitmentListResponse(
+                    id,
+                    nickname,
+                    shop,
+                    title,
+                    categoryVal,
+                    subList,
+                    score
+            ));
+        }
+
+
+        return results;
+    }
+
 
     private List<RecruitmentBasic> fetchRecruitmentList(Long userId, BooleanBuilder where, Coordinate coord, int size, OrderSpecifier<?> order) {
         return queryFactory
@@ -251,58 +476,6 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
     private BooleanExpression isLikedByMe(Long userId) {
         return qRecruitmentLike.recruitment.id.eq(qRecruitment.id)
                 .and(userId != null ? qRecruitmentLike.model.user.id.eq(userId) : qRecruitmentLike.id.isNull());
-    }
-
-    @Override
-    public List<DesignerProfileResponse.RecruitmentCard> findOpenRecruitmentsByDesigner(Long designerId) {
-        QRecruitment r = QRecruitment.recruitment;
-        QRecruitmentDate rd = QRecruitmentDate.recruitmentDate;
-
-        DateExpression<LocalDate> startDate = rd.date.min();
-
-        // 공고 정보 tuple로
-        List<Tuple> rows = queryFactory
-                .select(
-                        r.id,
-                        r.title,
-                        r.thumbnail,
-                        startDate,
-                        r.deadline
-                )
-                .from(r)
-                .join(r.recruitmentDates, rd)
-                .where(
-                        r.designer.id.eq(designerId),
-                        r.recruitmentStatus.eq(RecruitmentStatus.OPEN)
-                )
-                .groupBy(r.id, r.title, r.thumbnail, r.deadline)
-                .orderBy(r.deadline.asc().nullsLast(), r.id.asc())
-                .fetch();
-
-        if (rows.isEmpty()) return List.of();
-
-        // 공고 id 목록
-        List<Long> recruitmentIds = rows.stream()
-                .map(t -> t.get(r.id))
-                .toList();
-
-        // subCategory를 한 번에 조회해서 recruitmentId -> [description] 매핑
-        Map<Long, List<String>> subCategoryMap = fetchSubCategoriesByRecruitmentIds(recruitmentIds);
-
-        // DTO 반환
-        return rows.stream()
-                .map(t -> {
-                    Long recruitmentId = t.get(r.id);
-                    return new DesignerProfileResponse.RecruitmentCard(
-                            recruitmentId,
-                            t.get(r.title),
-                            t.get(r.thumbnail),
-                            t.get(startDate),
-                            t.get(r.deadline),
-                            subCategoryMap.getOrDefault(recruitmentId, List.of())
-                    );
-                })
-                .toList();
     }
 
     // 서브 카테고리 조회
