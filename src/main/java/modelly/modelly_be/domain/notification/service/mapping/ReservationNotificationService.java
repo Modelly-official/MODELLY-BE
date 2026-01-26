@@ -50,4 +50,15 @@ public class ReservationNotificationService {
                 reservation.getId());
 
     }
+
+    public NotificationData createReservationRemindNotification(Reservation reservation, String title) {
+        String message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getModel().getNickname() + "님";
+
+        return NotificationData.otherNotification(
+                reservation.getDesigner().getUser().getId(),
+                NotificationType.RESERVATION,
+                title,
+                message,
+                reservation.getId());
+    }
 }
