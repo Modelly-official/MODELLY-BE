@@ -44,10 +44,6 @@ public record UpdateDesignerMyPageRequest(
         @Schema(description = "매장 주소(상세)", example = "제4공학관 D504호")
         String addressLine2,
 
-        @NotNull
-        @Schema(description = "카테고리", example = "HAIR")
-        Category category,
-
         @Size(max = 254)
         @Schema(description = "프로필 이미지 URL(선택)", nullable = true)
         String profileImageUrl
