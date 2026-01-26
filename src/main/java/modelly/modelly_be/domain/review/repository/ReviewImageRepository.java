@@ -1,6 +1,9 @@
 package modelly.modelly_be.domain.review.repository;
 
+import modelly.modelly_be.domain.review.dto.response.ReviewImageListResponse;
 import modelly.modelly_be.domain.review.entity.ReviewImage;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +21,14 @@ public interface ReviewImageRepository extends JpaRepository<ReviewImage, Long> 
         )
     """)
     void deleteByDesignerId(@Param("designerId") Long designerId);
+
+    @Query("SELECT ri.id, r.id, ri.imageUrl, r.isFixed FROM ReviewImage ri " +
+            "JOIN ri.review r " +
+            "WHERE r.designer.id = :designerId AND (:cursorId IS NULL OR ri.id < :cursorId) " +
+            "ORDER BY r.isFixed desc, ri.id desc ")
+    Slice<ReviewImageListResponse> findReviewImageByCondition(@Param("designerId") Long designerId, @Param("cursorId")Long cursorId, Pageable pageable);
+
+    @Query("SELECT COUNT(ri) FROM ReviewImage ri " +
+            "WHERE ri.review.designer.id = :designerId")
+    Long countByDesignerId(@Param("designerId") Long designerId);
 }

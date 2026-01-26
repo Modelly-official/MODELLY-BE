@@ -114,7 +114,7 @@ public class DesignerReviewService {
                 })
                 .toList();
 
-        Long totalCount = reviewService.countByDesigner(designer);
+        Long totalCount = reviewService.countByDesignerId(designer.getId());
 
         ScrollResponse<DesignerReviewListResponseDto> responseDtos = ScrollUtil.paginate(dtoList, size, totalCount);
         return responseDtos;

@@ -16,8 +16,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-
 
 public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRepositoryCustom {
     boolean existsByModelAndReservation(Model model, Reservation reservation);
@@ -35,15 +33,16 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
 
     @Query("SELECT r.id, r.thumbnail, r.isFixed " +
             " FROM Review r WHERE r.designer = :designer AND (:cursorId IS NULL OR r.id < :cursorId) " +
-            " ORDER BY r.isFixed desc, r.id desc, r.createdAt desc ")
-    Slice<ReviewThumbnailListResponseDto> findThumbNailByDesignerAndIdLessThanOrderByCreatedAtDesc(Designer designer, Long cursorId, Pageable pageable);
+            " ORDER BY r.isFixed desc, r.id desc ")
+    Slice<ReviewThumbnailListResponseDto> findThumbNailByCondition(Designer designer, Long cursorId, Pageable pageable);
+
 
     @Query("SELECT COUNT(r), AVG(r.rating) " +
             "FROM Review r " +
             "WHERE r.designer = :designer")
     AverageReview findAverageRatingByDesigner(Designer designer);
 
-    Long countByDesigner(Designer designer);
+    Long countByDesignerId(Long designerId);
 
     @Query("SELECT COUNT(DISTINCT r) FROM Review r " +
             "WHERE r.model = :model AND (:category IS NULL OR r.reservation.category = :category) ")
@@ -58,4 +57,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Review r SET r.model = NULL WHERE r.model.id = :modelId")
     void setModelNull(@Param("modelId") Long modelId);
+
 }

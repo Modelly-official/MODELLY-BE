@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.review.controller;
 
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.review.controller.swagger.GuestReviewSwagger;
+import modelly.modelly_be.domain.review.dto.response.ReviewImageListResponse;
 import modelly.modelly_be.domain.review.dto.response.ReviewListResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReviewResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReviewThumbnailListResponseDto;
@@ -38,13 +39,24 @@ public class GuestReviewController implements GuestReviewSwagger {
         return ApiResponse.onSuccess(responseDtos);
     }
 
-    @GetMapping("/{designerId}/reviews/images")
+    @GetMapping("/{designerId}/reviews/thumbnails")
     public ApiResponse<ScrollResponse<ReviewThumbnailListResponseDto>> getDesignerReviewThumbnailList(
             @PathVariable Long designerId,
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "10") int size) {
 
         ScrollResponse<ReviewThumbnailListResponseDto> responseDtos = reviewService.getReviewThumbnailList(designerId, cursorId, size);
+
+        return ApiResponse.onSuccess(responseDtos);
+    }
+
+    @GetMapping("/{designerId}/reviews/images")
+    public ApiResponse<ScrollResponse<ReviewImageListResponse>> getDesignerReviewImageList(
+            @PathVariable Long designerId,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(defaultValue = "10") int size) {
+
+        ScrollResponse<ReviewImageListResponse> responseDtos = reviewService.getReviewImageList(designerId, cursorId, size);
 
         return ApiResponse.onSuccess(responseDtos);
     }
