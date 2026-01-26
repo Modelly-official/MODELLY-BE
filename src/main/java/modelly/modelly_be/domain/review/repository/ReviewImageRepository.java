@@ -24,9 +24,11 @@ public interface ReviewImageRepository extends JpaRepository<ReviewImage, Long> 
 
     @Query("SELECT ri.id, r.id, ri.imageUrl, r.isFixed FROM ReviewImage ri " +
             "JOIN ri.review r " +
-            "WHERE r.designer.id = :designerId AND (:cursorId IS NULL OR ri.id < :cursorId) " +
+            "WHERE r.designer.id = :designerId AND ( (:cursorId IS NULL AND :cursorIsFixed IS NULL) OR " +
+            "  (r.isFixed = :cursorIsFixed AND ri.id < :cursorId) OR " +
+            "  (r.isFixed = false AND :cursorIsFixed = true)) " +
             "ORDER BY r.isFixed desc, ri.id desc ")
-    Slice<ReviewImageListResponse> findReviewImageByCondition(@Param("designerId") Long designerId, @Param("cursorId")Long cursorId, Pageable pageable);
+    Slice<ReviewImageListResponse> findReviewImageByCondition(@Param("designerId") Long designerId, @Param("cursorId")Long cursorId, @Param("cursorIsFixed")Boolean cursorIsFixed, Pageable pageable);
 
     @Query("SELECT COUNT(ri) FROM ReviewImage ri " +
             "WHERE ri.review.designer.id = :designerId")

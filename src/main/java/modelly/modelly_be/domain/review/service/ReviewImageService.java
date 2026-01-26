@@ -13,8 +13,8 @@ public class ReviewImageService {
 
     private final ReviewImageRepository reviewImageRepository;
 
-    public Slice<ReviewImageListResponse> findReviewImageByCondition(Long designerId, Long cursorId, Pageable pageable) {
-        return reviewImageRepository.findReviewImageByCondition(designerId, cursorId, pageable);
+    public Slice<ReviewImageListResponse> findReviewImageByCondition(Long designerId, Long cursorId, Boolean cursorIsFixed, Pageable pageable) {
+        return reviewImageRepository.findReviewImageByCondition(designerId, cursorId, cursorIsFixed, pageable);
     }
 
     public Long countByDesignerId(Long designerId) {

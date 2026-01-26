@@ -27,9 +27,11 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
 
     @EntityGraph(attributePaths = {"model", "reviewImages", "model.user"})
     @Query("SELECT r FROM Review r " +
-            "WHERE r.designer = :designer AND (:cursorId IS NULL OR r.id < :cursorId) " +
+            "WHERE r.designer = :designer AND ( (:cursorId IS NULL AND :cursorIsFixed IS NULL) OR" +
+            "  (r.isFixed = :cursorIsFixed AND r.id < :cursorId) OR " +
+            "  (r.isFixed = false AND :cursorIsFixed = true)) " +
             "ORDER BY r.isFixed desc, r.id desc, r.createdAt desc ")
-    Slice<Review> findAllByDesignerAndIdLessThanOrderByCreatedAtDesc(Designer designer, Long cursorId, Pageable pageable);
+    Slice<Review> findAllByDesignerAndIdLessThanOrderByCreatedAtDesc(Designer designer, Long cursorId, @Param("cursorIsFixed")Boolean cursorIsFixed, Pageable pageable);
 
     @Query("SELECT r.id, r.thumbnail, r.isFixed " +
             " FROM Review r WHERE r.designer = :designer AND (:cursorId IS NULL OR r.id < :cursorId) " +

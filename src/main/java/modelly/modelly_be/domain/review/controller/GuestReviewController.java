@@ -2,16 +2,13 @@ package modelly.modelly_be.domain.review.controller;
 
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.review.controller.swagger.GuestReviewSwagger;
-import modelly.modelly_be.domain.review.dto.response.ReviewImageListResponse;
-import modelly.modelly_be.domain.review.dto.response.ReviewListResponseDto;
-import modelly.modelly_be.domain.review.dto.response.ReviewResponseDto;
-import modelly.modelly_be.domain.review.dto.response.ReviewThumbnailListResponseDto;
+import modelly.modelly_be.domain.review.dto.response.*;
 import modelly.modelly_be.domain.review.service.ReviewService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
 import modelly.modelly_be.global.utils.ScrollResponse;
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,15 +21,16 @@ public class GuestReviewController implements GuestReviewSwagger {
 
 
     @Override
-    public ApiResponse<ScrollResponse<ReviewListResponseDto>> getDesignerReviewList(
+    public ApiResponse<ReviewListScrollResponse> getDesignerReviewList(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long designerId,
             @RequestParam(required = false) Long cursorId,
+            @RequestParam(required = false) Boolean cursorIsFixed,
             @RequestParam(defaultValue = "10") int size) {
 
         Long userId = (authDetails != null ? authDetails.user().getId() : null);
 
-        ScrollResponse<ReviewListResponseDto> responseDtos = reviewService.getDesignerReviewList(userId, designerId, cursorId, size);
+        ReviewListScrollResponse responseDtos = reviewService.getDesignerReviewList(userId, designerId, cursorId, cursorIsFixed, size);
 
         return ApiResponse.onSuccess(responseDtos);
     }
@@ -51,12 +49,13 @@ public class GuestReviewController implements GuestReviewSwagger {
 
 
     @Override
-    public ApiResponse<ScrollResponse<ReviewImageListResponse>> getDesignerReviewImageList(
+    public ApiResponse<ReviewListScrollResponse> getDesignerReviewImageList(
             @PathVariable Long designerId,
             @RequestParam(required = false) Long cursorId,
+            @RequestParam(required = false) Boolean cursorIsFixed,
             @RequestParam(defaultValue = "10") int size) {
 
-        ScrollResponse<ReviewImageListResponse> responseDtos = reviewService.getReviewImageList(designerId, cursorId, size);
+        ReviewListScrollResponse responseDtos = reviewService.getReviewImageList(designerId, cursorId, cursorIsFixed, size);
 
         return ApiResponse.onSuccess(responseDtos);
     }

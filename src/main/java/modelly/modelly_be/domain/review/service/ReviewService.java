@@ -28,6 +28,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -200,11 +201,11 @@ public class ReviewService {
         return reviewRepository.countByModelAndCategory(model, category);
     }
 
-    public ScrollResponse<ReviewListResponseDto> getDesignerReviewList(Long userId, Long designerId, Long cursorId, int size) {
+    public ReviewListScrollResponse getDesignerReviewList(Long userId, Long designerId, Long cursorId, @Param("cursorIsFixed")Boolean cursorIsFixed, int size) {
         Designer designer = designerService.getById(designerId);
 
         Pageable pageable = PageRequest.of(0, size+1);
-        Slice<Review> reviews = reviewRepository.findAllByDesignerAndIdLessThanOrderByCreatedAtDesc(designer, cursorId, pageable);
+        Slice<Review> reviews = reviewRepository.findAllByDesignerAndIdLessThanOrderByCreatedAtDesc(designer, cursorId, cursorIsFixed, pageable);
 
         Long totalCount = countByDesignerId(designerId);
 
@@ -233,7 +234,7 @@ public class ReviewService {
                 })
                 .toList();
 
-        ScrollResponse<ReviewListResponseDto> responseDtos = ScrollUtil.paginate(dtolist, size, totalCount);
+        ReviewListScrollResponse responseDtos = ReviewListScrollResponse.of(dtolist, totalCount, size);
         return responseDtos;
 
     }
@@ -253,16 +254,16 @@ public class ReviewService {
     }
 
     @Transactional(readOnly = true)
-    public ScrollResponse<ReviewImageListResponse> getReviewImageList(Long designerId, Long cursorId, int size) {
+    public ReviewListScrollResponse getReviewImageList(Long designerId, Long cursorId, Boolean cursorIsFixed, int size) {
         Pageable pageable = PageRequest.of(0, size+1);
 
-        Slice<ReviewImageListResponse> dtoSlice = reviewImageService.findReviewImageByCondition(designerId, cursorId, pageable);
+        Slice<ReviewImageListResponse> dtoSlice = reviewImageService.findReviewImageByCondition(designerId, cursorId, cursorIsFixed, pageable);
 
         Long totalCount = (cursorId == null)
                 ? reviewImageService.countByDesignerId(designerId)
                 : null;
 
-        ScrollResponse<ReviewImageListResponse> responseDtos = ScrollUtil.paginate(dtoSlice.getContent(), size, totalCount);
+        ReviewListScrollResponse responseDtos = ReviewListScrollResponse.of(dtoSlice.getContent(), totalCount, size);
 
         return responseDtos;
     }
@@ -306,8 +307,8 @@ public class ReviewService {
         reviewRepository.save(review);
     }
 
-    public Slice<Review> findAllByDesigner(Designer designer, Long cursorId, Pageable pageable) {
-        return reviewRepository.findAllByDesignerAndIdLessThanOrderByCreatedAtDesc(designer, cursorId, pageable);
+    public Slice<Review> findAllByDesigner(Designer designer, Long cursorId, Boolean cursorIsFixed, Pageable pageable) {
+        return reviewRepository.findAllByDesignerAndIdLessThanOrderByCreatedAtDesc(designer, cursorId, cursorIsFixed, pageable);
     }
 
     @Transactional(readOnly = true)

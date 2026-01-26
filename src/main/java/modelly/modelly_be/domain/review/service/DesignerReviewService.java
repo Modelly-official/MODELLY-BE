@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.notification.event.dto.review.ReplyCreateEvent;
 import modelly.modelly_be.domain.review.dto.request.ReplyRequestDto;
 import modelly.modelly_be.domain.review.dto.response.DesignerReviewListResponseDto;
+import modelly.modelly_be.domain.review.dto.response.ReviewListScrollResponse;
 import modelly.modelly_be.domain.review.entity.Reply;
 import modelly.modelly_be.domain.review.entity.Review;
 import modelly.modelly_be.domain.user.entity.Designer;
@@ -95,11 +96,11 @@ public class DesignerReviewService {
         }
     }
 
-    public ScrollResponse<DesignerReviewListResponseDto> getDesignerReviewList(User user, Long cursorId, int size) {
+    public ReviewListScrollResponse getDesignerReviewList(User user, Long cursorId, Boolean cursorIsFixed, int size) {
         Designer designer = designerService.getByUser(user);
 
         Pageable pageable = PageRequest.of(0, size+1);
-        Slice<Review> reviews = reviewService.findAllByDesigner(designer, cursorId, pageable);
+        Slice<Review> reviews = reviewService.findAllByDesigner(designer, cursorId, cursorIsFixed, pageable);
 
         List<DesignerReviewListResponseDto> dtoList = reviews.getContent().stream()
                 .map(review -> {
@@ -116,7 +117,7 @@ public class DesignerReviewService {
 
         Long totalCount = reviewService.countByDesignerId(designer.getId());
 
-        ScrollResponse<DesignerReviewListResponseDto> responseDtos = ScrollUtil.paginate(dtoList, size, totalCount);
+        ReviewListScrollResponse responseDtos = ReviewListScrollResponse.of(dtoList, totalCount, size);
         return responseDtos;
     }
 }

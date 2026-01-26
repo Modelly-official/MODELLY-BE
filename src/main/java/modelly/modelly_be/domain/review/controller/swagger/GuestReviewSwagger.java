@@ -2,10 +2,7 @@ package modelly.modelly_be.domain.review.controller.swagger;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import modelly.modelly_be.domain.review.dto.response.ReviewImageListResponse;
-import modelly.modelly_be.domain.review.dto.response.ReviewListResponseDto;
-import modelly.modelly_be.domain.review.dto.response.ReviewResponseDto;
-import modelly.modelly_be.domain.review.dto.response.ReviewThumbnailListResponseDto;
+import modelly.modelly_be.domain.review.dto.response.*;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
 import modelly.modelly_be.global.utils.ScrollResponse;
@@ -21,12 +18,14 @@ public interface GuestReviewSwagger {
     @Operation(summary = "디자이너 리뷰 리스트 조회 API", description = """
             해당 디자이너의 리뷰 리스트를 조회하는 API입니다. \n
             `cursorId`: response에서의 nextCursor값을 넣어주시면 됩니다. \n
+            `cursorIsFixed`: response에서의 nextCursorFixed값을 넣어주시면 됩니다. \n
             `size` : 한 페이지에서 보여질 리뷰의 개수 \n
             """)
-    ApiResponse<ScrollResponse<ReviewListResponseDto>> getDesignerReviewList(
+    ApiResponse<ReviewListScrollResponse> getDesignerReviewList(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long designerId,
             @RequestParam(required = false) Long cursorId,
+            @RequestParam(required = false) Boolean cursorIsFixed,
             @RequestParam(defaultValue = "10") int size
             );
 
@@ -45,11 +44,13 @@ public interface GuestReviewSwagger {
     @Operation(summary = "디자이너 리뷰의 이미지 리스트 조회 API", description = """
             해당 디자이너의 리뷰의 이미지 리스트를 조회하는 API입니다. \n
             `cursorId`: response에서의 nextCursor값을 넣어주시면 됩니다. \n
+            `cursorIsFixed`: response에서의 nextCursorFixed값을 넣어주시면 됩니다. \n
             `size` : 한 페이지에서 보여질 리뷰 이미지의 개수 \n
             """)
-    ApiResponse<ScrollResponse<ReviewImageListResponse>> getDesignerReviewImageList(
+    ApiResponse<ReviewListScrollResponse> getDesignerReviewImageList(
             @PathVariable Long designerId,
             @RequestParam(required = false) Long cursorId,
+            @RequestParam(required = false) Boolean cursorIsFixed,
             @RequestParam(defaultValue = "10") int size);
 
     @GetMapping("/reviews/{reviewId}")
