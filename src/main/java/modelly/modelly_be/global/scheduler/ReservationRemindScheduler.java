@@ -21,7 +21,7 @@ public class ReservationRemindScheduler {
     private final ReservationRepository reservationRepository;
 
     // 매일 자정 실행
-    @Scheduled(cron = "30 45 16 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     @Transactional
     public void cancelExpiredPendingReservations() {
         log.info("=== 예약 대기 자동 취소 스케줄러 시작 ===");
