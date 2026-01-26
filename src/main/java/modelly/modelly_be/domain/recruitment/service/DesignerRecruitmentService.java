@@ -134,6 +134,13 @@ public class DesignerRecruitmentService {
             updateSubCategory(recruitment, designer.getCategory(), requestDto.subCategoryList());
         }
 
+        //이미지 수정
+        if (designer.getCategory() == Category.HAIR || designer.getCategory() == Category.NAIL){
+            if (requestDto.imageUrls() == null || requestDto.imageUrls().isEmpty()){
+                throw new GeneralException(ErrorStatus.REQUIRED_RECRUITMENT_IMAGE);
+            }
+        }
+
         if (requestDto.imageFolderId() != null && !requestDto.imageFolderId().equals(recruitment.getImageFolderId())) {
 
             //기존 S3 폴더 삭제

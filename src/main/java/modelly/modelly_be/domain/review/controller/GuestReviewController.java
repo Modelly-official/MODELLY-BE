@@ -10,14 +10,11 @@ import modelly.modelly_be.domain.review.service.ReviewService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
 import modelly.modelly_be.global.utils.ScrollResponse;
-import modelly.modelly_be.global.utils.ScrollUtil;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +22,8 @@ public class GuestReviewController implements GuestReviewSwagger {
 
     private final ReviewService reviewService;
 
-    @GetMapping("/{designerId}/reviews")
+
+    @Override
     public ApiResponse<ScrollResponse<ReviewListResponseDto>> getDesignerReviewList(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long designerId,
@@ -39,7 +37,8 @@ public class GuestReviewController implements GuestReviewSwagger {
         return ApiResponse.onSuccess(responseDtos);
     }
 
-    @GetMapping("/{designerId}/reviews/thumbnails")
+
+    @Override
     public ApiResponse<ScrollResponse<ReviewThumbnailListResponseDto>> getDesignerReviewThumbnailList(
             @PathVariable Long designerId,
             @RequestParam(required = false) Long cursorId,
@@ -50,7 +49,8 @@ public class GuestReviewController implements GuestReviewSwagger {
         return ApiResponse.onSuccess(responseDtos);
     }
 
-    @GetMapping("/{designerId}/reviews/images")
+
+    @Override
     public ApiResponse<ScrollResponse<ReviewImageListResponse>> getDesignerReviewImageList(
             @PathVariable Long designerId,
             @RequestParam(required = false) Long cursorId,
@@ -61,7 +61,7 @@ public class GuestReviewController implements GuestReviewSwagger {
         return ApiResponse.onSuccess(responseDtos);
     }
 
-    @GetMapping("/reviews/{reviewId}")
+    @Override
     public ApiResponse<ReviewResponseDto> getReview(
             @AuthenticationPrincipal AuthDetails authDetails,
             @PathVariable Long reviewId) {
