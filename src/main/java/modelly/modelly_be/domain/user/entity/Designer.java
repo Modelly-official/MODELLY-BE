@@ -96,13 +96,11 @@ public class Designer extends BaseEntity {
     public void updateMyPage(
             String nickname,
             String intro,
-            String shop,
-            Category category
+            String shop
     ) {
         this.nickname = nickname;
         this.intro = intro;
         this.shop = shop;
-        this.category = category;
     }
 
     public void updateLocation(

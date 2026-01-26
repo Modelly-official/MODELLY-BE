@@ -40,8 +40,7 @@ public class DesignerMyPageService {
         designer.updateMyPage(
                 req.nickname(),
                 req.intro(),
-                req.shop(),
-                req.category()
+                req.shop()
         );
 
         me.updateMyPage(
