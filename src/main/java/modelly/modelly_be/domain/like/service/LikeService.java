@@ -41,11 +41,14 @@ public class LikeService {
 
         if (alreadyExists) {
             recruitmentLikeService.deleteByModelAndRecruitment(model, recruitment);
+            recruitment.decrementLikeCount();
         } else {
             RecruitmentLike recruitmentLike = RecruitmentLike.builder()
                     .recruitment(recruitment)
                     .model(model)
                     .build();
+
+            recruitment.incrementLikeCount();
 
             recruitmentLikeService.save(recruitmentLike);
         }
@@ -76,11 +79,14 @@ public class LikeService {
 
         if (alreadyExists) {
             designerLikeService.deleteByModelAndDesigner(model, designer);
+            designer.decrementLikeCount();
         } else {
             DesignerLike designerLike = DesignerLike.builder()
                     .designer(designer)
                     .model(model)
                     .build();
+
+            designer.incrementLikeCount();
 
             designerLikeService.save(designerLike);
         }

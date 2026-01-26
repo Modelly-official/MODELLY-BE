@@ -101,6 +101,8 @@ public class ReviewService {
             }
         }
 
+        designer.incrementReviewCount();
+
         //디자이너한테 리뷰 알림 전송
         User designerUser = designer.getUser();
         boolean isNotificationOn = designerUser.getNotificationSetting().isReviewNotification();
@@ -182,6 +184,8 @@ public class ReviewService {
         }
 
         reviewRepository.delete(review);
+
+        review.getDesigner().decrementReviewCount();
     }
 
     public ScrollResponse<MyReviewListResponseDto> getReviewList(User user, Category category, Long cursorId, int size) {

@@ -96,6 +96,9 @@ public class ModelReservationService {
 
         reservationService.save(reservation);
 
+        designer.incrementReservationCount();
+        reservation.getRecruitment().incrementReservationCount();
+
         boolean isNotificationOn = designer.getUser().getNotificationSetting().isReservationNotification();
 
         eventPublisher.publishEvent(new ReservationCreatedEvent(reservation, isNotificationOn));
@@ -310,7 +313,11 @@ public class ModelReservationService {
             throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
         }
 
+        reservation.getDesigner().decrementReservationCount();
+        reservation.getRecruitment().decrementReservationCount();
+
         reservation.cancelByModel();
+
         return new SimpleMessageDTO("예약 신청이 취소되었습니다.");
     }
 }

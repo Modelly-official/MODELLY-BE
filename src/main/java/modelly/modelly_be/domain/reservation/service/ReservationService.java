@@ -482,6 +482,10 @@ public class ReservationService {
         // 디자이너 탈퇴 케이스
         if (reservation.getDesigner() == null){
             reservation.cancel(req.reason());
+
+            reservation.getDesigner().decrementReservationCount();
+            reservation.getRecruitment().decrementReservationCount();
+
             return new SimpleMessageDTO("예약이 취소되었습니다.");
         }
 
@@ -502,6 +506,9 @@ public class ReservationService {
 
             // 예약 취소
             reservation.cancel(req.reason());
+
+            reservation.getDesigner().decrementReservationCount();
+            reservation.getRecruitment().decrementReservationCount();
 
             return new SimpleMessageDTO("예약이 취소되었습니다.");
         }
@@ -592,6 +599,9 @@ public class ReservationService {
         );
 
         chattingService.publishReservationPayload(me.getId(), finalRoomId, payload);
+
+        reservation.getDesigner().decrementReservationCount();
+        reservation.getRecruitment().decrementReservationCount();
 
         User opponentUser = meIsModel
                 ? reservation.getDesigner().getUser()

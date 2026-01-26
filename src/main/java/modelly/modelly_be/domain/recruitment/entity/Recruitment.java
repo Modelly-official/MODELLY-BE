@@ -83,9 +83,6 @@ public class Recruitment extends BaseEntity {
     @Column(name = "folder_id", length = 36)
     private String imageFolderId;
 
-    @Column(name = "review_count", nullable = false)
-    private int reviewCount= 0;
-
     @Column(name = "reservation_count", nullable = false)
     private int reservationCount= 0;
 
@@ -115,5 +112,17 @@ public class Recruitment extends BaseEntity {
     public void updateImageInf(String imageFolderId, String thumbnail) {
         this.imageFolderId = imageFolderId;
         this.thumbnail = thumbnail;
+    }
+
+    public void incrementLikeCount() {likeCount++;}
+
+    public void decrementLikeCount() {
+        if (likeCount > 0) likeCount--;
+    }
+
+    public void incrementReservationCount() {reservationCount++;}
+
+    public void decrementReservationCount() {
+        if (reservationCount > 0) reservationCount--;
     }
 }

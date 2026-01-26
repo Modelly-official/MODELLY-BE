@@ -334,7 +334,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                 //recentReservationCount.multiply(6.0)  // 최근 예약 × 6
                         qRecruitment.reservationCount.doubleValue().multiply(2.0)  // 전체 예약 × 2
                         //.add(recentReviewCount.multiply(4.0))  // 최근 리뷰 × 4
-                        .add(qRecruitment.reviewCount.doubleValue().multiply(1.5))        // 전체 리뷰 × 1.5
+                        .add(qRecruitment.designer.reviewCount.doubleValue().multiply(1.5))        // 전체 리뷰 × 1.5
                         .add(qRecruitment.likeCount.doubleValue().multiply(1.5)) // 전체 찜 × 1.5
                         //.add(recentLikeCount.multiply(1.5)) //최근 찜 x 3
                         .add(averageRating.multiply(2.0));    // 평점 × 2
