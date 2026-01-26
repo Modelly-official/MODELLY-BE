@@ -47,6 +47,8 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
     private static final QRecruitmentDate qRecruitmentDate = QRecruitmentDate.recruitmentDate;
     private static final QReservation qReservation = QReservation.reservation;
 
+    public static final double NEARBY_RADIUS_METER = 5000.0;
+
     @Override
     public List<RecruitmentBasic> findRecruitmentsByCreatedAt(Long userId, SearchCondition searchCondition, Long cursorId, int size, Coordinate userCoordinate) {
 
@@ -201,6 +203,8 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
 
         // 거리 조건 (반경 내)
         NumberExpression<Double> distance = getDistanceExpression(userCoordinate);
+
+        booleanBuilder.and(distance.loe(NEARBY_RADIUS_METER));
 
         List<RecruitmentBasic> content = queryFactory
                 .select(Projections.constructor(RecruitmentBasic.class,
