@@ -294,42 +294,10 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
         }
 
         // 서브쿼리: 평균 평점
-        NumberExpression<Double> averageRating = Expressions.asNumber(getAverageRatingSubQuery()).doubleValue();
+        NumberExpression<Double> averageRating = Expressions.asNumber(getAverageRatingSubQuery())
+                .coalesce(0.0).doubleValue();
 
-        // 최근 30일 내 예약/리뷰에 더 높은 가중치
-        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
-
-        // 최근 예약 수
-        JPQLSubQuery<Long> recentReservationCountSubQuery = JPAExpressions
-                .select(qReservation.count())
-                .from(qReservation)
-                .where(qReservation.recruitment.eq(qRecruitment)
-                        .and(qReservation.status.in(ReservationStatus.RESERVATION_CONFIRMED, ReservationStatus.RESERVATION_PENDING))
-                        .and(qReservation.createdAt.after(thirtyDaysAgo)));
-
-        NumberExpression<Double> recentReservationCount = Expressions.asNumber(recentReservationCountSubQuery)
-                .coalesce(0L).doubleValue();
-
-        // 최근 리뷰 수
-        JPQLSubQuery<Long> recentReviewCountSubQuery = JPAExpressions
-                .select(qReview.count())
-                .from(qReview)
-                .where(qReview.designer.eq(qRecruitment.designer)
-                        .and(qReview.createdAt.after(thirtyDaysAgo)));
-
-        NumberExpression<Double> recentReviewCount = Expressions.asNumber(recentReviewCountSubQuery)
-                .coalesce(0L).doubleValue();
-
-        //최근 찜 수
-        JPQLSubQuery<Long> recentLikeCountSubQuery = JPAExpressions
-                .select(qRecruitmentLike.count())
-                .from(qRecruitmentLike)
-                .where(qRecruitmentLike.recruitment.eq(qRecruitment)
-                        .and(qRecruitmentLike.createdAt.after(thirtyDaysAgo)));
-
-         NumberExpression<Double> recentLikeCount = Expressions.asNumber(recentLikeCountSubQuery).doubleValue();
-
-        // 인기도 점수: 최근 활동에 2배 가중치
+        // 인기도 점수
         NumberExpression<Double> popularityScore =
                 //recentReservationCount.multiply(6.0)  // 최근 예약 × 6
                         qRecruitment.reservationCount.doubleValue().multiply(2.0)  // 전체 예약 × 2
@@ -422,8 +390,8 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
         b.and(qRecruitment.recruitmentStatus.eq(RecruitmentStatus.OPEN));
 
         if (cond.keyword() != null && !cond.keyword().isBlank()) {
-            b.and(qRecruitment.title.contains(cond.keyword())
-                    .or(qRecruitment.content.contains(cond.keyword())));
+            b.and(qRecruitment.title.like("%" + cond.keyword() + "%")
+                    .or(qRecruitment.content.like("%" + cond.keyword() + "%")));
         }
         if (cond.category() != null) {
             b.and(qRecruitment.category.eq(cond.category()));

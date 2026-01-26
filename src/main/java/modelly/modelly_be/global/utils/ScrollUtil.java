@@ -6,10 +6,7 @@ import modelly.modelly_be.domain.notification.dto.response.NotificationListRespo
 import modelly.modelly_be.domain.portfolio.dto.response.PortfolioListResponse;
 import modelly.modelly_be.domain.recruitment.dto.response.DesignerRecruitmentListResponse;
 import modelly.modelly_be.domain.recruitment.dto.response.RecruitmentListResponseDto;
-import modelly.modelly_be.domain.review.dto.response.DesignerReviewListResponseDto;
-import modelly.modelly_be.domain.review.dto.response.MyReviewListResponseDto;
-import modelly.modelly_be.domain.review.dto.response.ReviewListResponseDto;
-import modelly.modelly_be.domain.review.dto.response.ReviewThumbnailListResponseDto;
+import modelly.modelly_be.domain.review.dto.response.*;
 import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
@@ -46,6 +43,8 @@ public class ScrollUtil {
                 nextCursor = ((PortfolioListResponse) last).portfolioId();
             } else if (last instanceof NotificationListResponse) {
                 nextCursor = ((NotificationListResponse) last).notificationId();
+            } else if (last instanceof ReviewImageListResponse) {
+                nextCursor = ((ReviewImageListResponse) last).reviewImageId();
             }
 
             else {

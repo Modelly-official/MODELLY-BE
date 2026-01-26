@@ -49,6 +49,12 @@ public class DesignerRecruitmentService {
 
         Designer designer = designerService.getByUser(user);
 
+        if (designer.getCategory() == Category.HAIR || designer.getCategory() == Category.NAIL){
+            if (recruitmentRequestDto.imageUrls() == null || recruitmentRequestDto.imageUrls().isEmpty()){
+                throw new GeneralException(ErrorStatus.REQUIRED_RECRUITMENT_IMAGE);
+            }
+        }
+
         Recruitment recruitment = Recruitment.builder()
                 .designer(designer)
                 .title(recruitmentRequestDto.title())
@@ -129,6 +135,12 @@ public class DesignerRecruitmentService {
         }
 
         if (requestDto.imageFolderId() != null && !requestDto.imageFolderId().equals(recruitment.getImageFolderId())) {
+
+            if (designer.getCategory() == Category.HAIR || designer.getCategory() == Category.NAIL){
+                if (requestDto.imageUrls() == null || requestDto.imageUrls().isEmpty()){
+                    throw new GeneralException(ErrorStatus.REQUIRED_RECRUITMENT_IMAGE);
+                }
+            }
 
             //기존 S3 폴더 삭제
             if (recruitment.getImageFolderId() != null) {

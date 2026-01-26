@@ -6,6 +6,7 @@ import modelly.modelly_be.domain.review.controller.swagger.DesignerReviewSwagger
 import modelly.modelly_be.domain.review.dto.request.ReplyRequestDto;
 import modelly.modelly_be.domain.review.dto.response.DesignerReviewListResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReplyResponseDto;
+import modelly.modelly_be.domain.review.dto.response.ReviewListScrollResponse;
 import modelly.modelly_be.domain.review.entity.Reply;
 import modelly.modelly_be.domain.review.service.DesignerReviewService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
@@ -48,12 +49,13 @@ public class DesignerReviewController implements DesignerReviewSwagger {
     }
 
     @GetMapping("/designers/reviews")
-    public ApiResponse<ScrollResponse<DesignerReviewListResponseDto>> getDesignerReviewList(
+    public ApiResponse<ReviewListScrollResponse> getDesignerReviewList(
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam(required = false) Long cursorId,
+            @RequestParam(required = false) Boolean cursorIsFixed,
             @RequestParam(defaultValue = "10") int size
     ){
-        ScrollResponse<DesignerReviewListResponseDto> responseDtos = designerReviewService.getDesignerReviewList(authDetails.user(), cursorId, size);
+        ReviewListScrollResponse responseDtos = designerReviewService.getDesignerReviewList(authDetails.user(), cursorId, cursorIsFixed, size);
 
         return ApiResponse.onSuccess(responseDtos);
     }

@@ -36,4 +36,6 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     // 해당 디자이너의 포트폴리오 조회
     List<Portfolio> findAllByDesignerId(Long designerId);
 
+    @Query("SELECT p.designer.user.id FROM Portfolio p WHERE p.id = :portfolioId")
+    Optional<Long> findUserIdById(Long portfolioId);
 }
