@@ -1,5 +1,6 @@
 package modelly.modelly_be.domain.profile.service;
 
+import com.google.maps.model.LatLng;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.like.service.DesignerLikeService;
 import modelly.modelly_be.domain.profile.dto.request.UpdateDesignerProfileRequest;
@@ -19,10 +20,12 @@ import modelly.modelly_be.domain.user.service.ModelService;
 import modelly.modelly_be.domain.user.service.UserService;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
+import modelly.modelly_be.global.geocoding.GeoCodingService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +37,7 @@ public class DesignerProfileService {
     private final DesignerLikeService designerLikeService;
     private final RecruitmentRepository recruitmentRepository;
     private final UserService userService;
+    private final GeoCodingService geoCodingService;
 
     // 모델/게스트용 디자니어 프로필 조회
     @Transactional(readOnly = true)
@@ -89,14 +93,35 @@ public class DesignerProfileService {
         Designer designer = designerService.getByUser(user);
         User managedUser = userService.getById(user.getId());
 
+        // 기본 정보 업데이트
         designer.updateProfile(
                 req.nickname(),
                 req.intro(),
-                req.shop(),
-                req.addressLine1(),
-                req.addressLine2()
+                req.shop()
         );
 
+        boolean addressChanged = !Objects.equals(designer.getAddressLine1(), req.addressLine1())
+                || !Objects.equals(designer.getAddressLine2(), req.addressLine2());
+
+        // 주소가 바뀐 경우만 주소 update
+        if (addressChanged) {
+            LatLng latLng = geoCodingService.getLatLngRes(
+                    req.addressLine1() + " " + req.addressLine2()
+            );
+
+            if (latLng == null) {
+                throw new GeneralException(ErrorStatus.GEOCODING_FAILED);
+            }
+
+            designer.updateLocation(
+                    req.addressLine1(),
+                    req.addressLine2(),
+                    latLng.lat,
+                    latLng.lng
+            );
+        }
+
+        // 이미지 업데이트
         if (req.profileImageUrl() != null) {
             managedUser.updateImageUrl(req.profileImageUrl());
         }

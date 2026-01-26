@@ -170,7 +170,6 @@ public interface DesignerProfileSwagger {
                 - `shop`(required) : 매장 이름 (max=50)\n
                 - `addressLine1`(required) : 매장 주소(기본) (max=50)\n
                 - `addressLine2`(required) : 매장 주소(상세) (max=50)\n
-                - `category`(required) : 카테고리 (ex. HAIR)\n
                 - `profileImageUrl`(optional) : 프로필 이미지 URL (max=254)\n
                 \n
                 ---\n
