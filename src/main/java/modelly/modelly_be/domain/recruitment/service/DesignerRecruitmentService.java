@@ -49,6 +49,12 @@ public class DesignerRecruitmentService {
 
         Designer designer = designerService.getByUser(user);
 
+        if (designer.getCategory() == Category.HAIR || designer.getCategory() == Category.NAIL){
+            if (recruitmentRequestDto.imageUrls() == null || recruitmentRequestDto.imageUrls().isEmpty()){
+                throw new GeneralException(ErrorStatus.REQUIRED_RECRUITMENT_IMAGE);
+            }
+        }
+
         Recruitment recruitment = Recruitment.builder()
                 .designer(designer)
                 .title(recruitmentRequestDto.title())
