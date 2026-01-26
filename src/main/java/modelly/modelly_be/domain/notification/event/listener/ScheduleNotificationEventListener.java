@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import modelly.modelly_be.domain.notification.dto.internal.NotificationData;
 import modelly.modelly_be.domain.notification.event.dto.schedule.ScheduleCancelEvent;
+import modelly.modelly_be.domain.notification.event.dto.schedule.ScheduleChangeAcceptEvent;
 import modelly.modelly_be.domain.notification.event.dto.schedule.ScheduleChangeEvent;
+import modelly.modelly_be.domain.notification.event.dto.schedule.ScheduleChangeRejectEvent;
 import modelly.modelly_be.domain.notification.service.FCMService;
 import modelly.modelly_be.domain.notification.service.NotificationService;
 import modelly.modelly_be.domain.notification.service.mapping.ScheduleNotificationService;
@@ -46,6 +48,38 @@ public class ScheduleNotificationEventListener {
                 event.reservation(),
                 event.finalRoomId()
         );
+        notificationService.sendNotification(data);
+
+        if (event.isNotificationOn()){
+            fcmService.pushToFCM(data);
+        }
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleScheduleChangeReject(ScheduleChangeRejectEvent event) {
+        NotificationData data = scheduleNotificationService.createScheduleChangeRejectNotification(
+                event.user(),
+                event.reservation(),
+                event.finalRoomId()
+        );
+
+        notificationService.sendNotification(data);
+
+        if (event.isNotificationOn()){
+            fcmService.pushToFCM(data);
+        }
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleScheduleChangeAccept(ScheduleChangeAcceptEvent event) {
+        NotificationData data = scheduleNotificationService.createScheduleChangeAcceptNotification(
+                event.user(),
+                event.reservation(),
+                event.finalRoomId()
+        );
+
         notificationService.sendNotification(data);
 
         if (event.isNotificationOn()){

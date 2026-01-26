@@ -57,6 +57,47 @@ public class ScheduleNotificationService {
     }
 
     @Transactional
+    public NotificationData createScheduleChangeRejectNotification(User user, Reservation reservation, Long finalRoomId) {
+        String title ="예약 변경 요청이 거절되었습니다.";
+        String message ="";
+        String senderName ="";
+
+        switch (user.getUserRole()) {
+            case MODEL -> {
+                message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +" 디자이너";
+                senderName = reservation.getDesignerName();
+            }
+            case DESIGNER -> {
+                message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getModel().getNickname() + "님";
+                senderName = reservation.getModel().getNickname();
+            }
+        }
+
+        return NotificationData.chattingNotification(user.getId(), NotificationType.SCHEDULE, title, message, finalRoomId, senderName);
+
+    }
+
+    @Transactional
+    public NotificationData createScheduleChangeAcceptNotification(User user, Reservation reservation, Long finalRoomId) {
+        String title ="예약이 변경되었습니다.";
+        String message ="";
+        String senderName ="";
+
+        switch (user.getUserRole()) {
+            case MODEL -> {
+                message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +" 디자이너";
+                senderName = reservation.getDesignerName();
+            }
+            case DESIGNER -> {
+                message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getModel().getNickname() + "님";
+                senderName = reservation.getModel().getNickname();
+            }
+        }
+
+        return NotificationData.chattingNotification(user.getId(), NotificationType.SCHEDULE, title, message, finalRoomId, senderName);
+    }
+
+    @Transactional
     public NotificationData createRemindNotification(User user, Reservation reservation) {
         String message = "";
 
@@ -74,4 +115,6 @@ public class ScheduleNotificationService {
         NotificationData notificationData = NotificationData.otherNotification(user.getId(), NotificationType.SCHEDULE, title, message, reservation.getId());
         return notificationData;
     }
+
+
 }

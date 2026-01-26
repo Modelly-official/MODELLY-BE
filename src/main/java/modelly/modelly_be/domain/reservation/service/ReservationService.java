@@ -6,7 +6,9 @@ import modelly.modelly_be.domain.chat.entity.ChatRoom;
 import modelly.modelly_be.domain.chat.service.ChatRoomService;
 import modelly.modelly_be.domain.chat.service.ChattingService;
 import modelly.modelly_be.domain.notification.event.dto.schedule.ScheduleCancelEvent;
+import modelly.modelly_be.domain.notification.event.dto.schedule.ScheduleChangeAcceptEvent;
 import modelly.modelly_be.domain.notification.event.dto.schedule.ScheduleChangeEvent;
+import modelly.modelly_be.domain.notification.event.dto.schedule.ScheduleChangeRejectEvent;
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
@@ -414,6 +416,15 @@ public class ReservationService {
         String text = "예약 일정 변경 요청이 수락되었습니다. 변경 일정은 예약 내역에서 확인하실 수 있습니다.";
         chattingService.publishTextMessage(me.getId(), roomId, text);
 
+        //알림 전송
+        User opponentUser = meIsModel
+                ? reservation.getDesigner().getUser()
+                : reservation.getModel().getUser();
+
+        boolean isNotificationOn = opponentUser.getNotificationSetting().isScheduleNotification();
+
+        eventPublisher.publishEvent(new ScheduleChangeAcceptEvent(opponentUser, reservation, roomId, isNotificationOn));
+
         return new SimpleMessageDTO("예약이 변경되었습니다.");
     }
 
@@ -650,6 +661,15 @@ public class ReservationService {
                 text
         );
         chattingService.publishReservationPayload(me.getId(), roomId, payload);
+
+        //알림 전송
+        User opponentUser = meIsModel
+                ? reservation.getDesigner().getUser()
+                : reservation.getModel().getUser();
+
+        boolean isNotificationOn = opponentUser.getNotificationSetting().isScheduleNotification();
+
+        eventPublisher.publishEvent(new ScheduleChangeRejectEvent(opponentUser, reservation, roomId, isNotificationOn));
 
         return new SimpleMessageDTO("예약 변경 요청을 거절했습니다.");
     }
