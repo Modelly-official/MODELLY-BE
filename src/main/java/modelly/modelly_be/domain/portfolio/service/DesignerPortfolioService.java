@@ -149,4 +149,19 @@ public class DesignerPortfolioService {
 
         return response;
     }
+
+    @Transactional(readOnly = true)
+    public Portfolio getMyPortfolio(User user, Long portfolioId) {
+
+        //권한 검증
+        Long portfolioOwnerId = portfolioService.findUserIdByPortfolioId(portfolioId);
+
+        if (!portfolioOwnerId.equals(user.getId())) {
+            throw new GeneralException(ErrorStatus._FORBIDDEN);
+        }
+
+        Portfolio portfolio = portfolioService.getByIdWithDetails(portfolioId);
+
+        return portfolio;
+    }
 }

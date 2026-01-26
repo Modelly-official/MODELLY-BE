@@ -48,4 +48,9 @@ public class PortfolioService {
     public Long countByDesigner(Designer designer) {
         return portfolioRepository.countByDesigner(designer);
     }
+
+    public Long findUserIdByPortfolioId(Long portfolioId) {
+        return portfolioRepository.findUserIdById(portfolioId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_PORTFOLIO));
+    }
 }
