@@ -21,8 +21,8 @@ public class UserCleanupScheduler {
     private final UserRepository userRepository;
     private final UserHardDeleteService userHardDeleteService;
 
-    // 데이터 삭제 시간 설정(매일 자정)
-    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
+    // 데이터 삭제 시간 설정(매일 자정 + 5분) -> ReservationRemindScheduler와의 경합 방지
+    @Scheduled(cron = "0 5 0 * * *", zone = "Asia/Seoul")
     public void deleteExpiredUsers() {
         log.info("=== 탈퇴 유저 영구 삭제 스케줄러 시작 ===");
 
