@@ -300,48 +300,19 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
         // 서브쿼리: 평균 평점
         NumberExpression<Double> averageRating = Expressions.asNumber(getAverageRatingSubQuery()).doubleValue();
 
-        // 최근 30일 내 예약/리뷰에 더 높은 가중치
-        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+        NumberExpression<Double> ratingWithPenalty = new CaseBuilder()
+                .when(averageRating.lt(2.0)).then(0.0)
+                .when(averageRating.lt(3.0)).then(0.5)
+                .otherwise(averageRating);
 
-        // 최근 예약 수
-        JPQLSubQuery<Long> recentReservationCountSubQuery = JPAExpressions
-                .select(qReservation.count())
-                .from(qReservation)
-                .where(qReservation.recruitment.eq(qRecruitment)
-                        .and(qReservation.status.in(ReservationStatus.RESERVATION_CONFIRMED, ReservationStatus.RESERVATION_PENDING))
-                        .and(qReservation.createdAt.after(thirtyDaysAgo)));
 
-        NumberExpression<Double> recentReservationCount = Expressions.asNumber(recentReservationCountSubQuery)
-                .coalesce(0L).doubleValue();
-
-        // 최근 리뷰 수
-        JPQLSubQuery<Long> recentReviewCountSubQuery = JPAExpressions
-                .select(qReview.count())
-                .from(qReview)
-                .where(qReview.designer.eq(qRecruitment.designer)
-                        .and(qReview.createdAt.after(thirtyDaysAgo)));
-
-        NumberExpression<Double> recentReviewCount = Expressions.asNumber(recentReviewCountSubQuery)
-                .coalesce(0L).doubleValue();
-
-        //최근 찜 수
-        JPQLSubQuery<Long> recentLikeCountSubQuery = JPAExpressions
-                .select(qRecruitmentLike.count())
-                .from(qRecruitmentLike)
-                .where(qRecruitmentLike.recruitment.eq(qRecruitment)
-                        .and(qRecruitmentLike.createdAt.after(thirtyDaysAgo)));
-
-         NumberExpression<Double> recentLikeCount = Expressions.asNumber(recentLikeCountSubQuery).doubleValue();
-
-        // 인기도 점수: 최근 활동에 2배 가중치
+        // 인기도 점수
+        // 전체 예약수(40) + 전체 리뷰수(30) + 평점(20) + 전체 찜수(10)
         NumberExpression<Double> popularityScore =
-                //recentReservationCount.multiply(6.0)  // 최근 예약 × 6
-                        qRecruitment.reservationCount.doubleValue().multiply(2.0)  // 전체 예약 × 2
-                        //.add(recentReviewCount.multiply(4.0))  // 최근 리뷰 × 4
-                        .add(qRecruitment.designer.reviewCount.doubleValue().multiply(1.5))        // 전체 리뷰 × 1.5
-                        .add(qRecruitment.likeCount.doubleValue().multiply(1.5)) // 전체 찜 × 1.5
-                        //.add(recentLikeCount.multiply(1.5)) //최근 찜 x 3
-                        .add(averageRating.multiply(2.0));    // 평점 × 2
+                        qRecruitment.reservationCount.doubleValue().multiply(40)
+                        .add(qRecruitment.designer.reviewCount.doubleValue().multiply(30))
+                        .add(qRecruitment.likeCount.doubleValue().multiply(10))
+                        .add(ratingWithPenalty.multiply(20));
 
         List<Tuple> tuples = queryFactory
                 .select(
