@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import modelly.modelly_be.domain.portfolio.dto.request.PortfolioRequest;
 import modelly.modelly_be.domain.portfolio.dto.request.UpdatePortfolioRequest;
 import modelly.modelly_be.domain.portfolio.dto.response.PortfolioListResponse;
+import modelly.modelly_be.domain.portfolio.dto.response.PortfolioResponse;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
 import modelly.modelly_be.global.utils.ScrollResponse;
@@ -66,4 +67,12 @@ public interface DesignerPortfolioSwagger {
             @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "12") int size);
+
+
+
+    @GetMapping("/designers/portfolios/{portfolioId}")
+    @Operation(summary = "내 포트폴리오 단건 조회 API", description = "디자이너가 자신의 포트폴리오를 단건 조회할 때 사용하는 API입니다.")
+    ApiResponse<PortfolioResponse> getMyPortfolio(
+            @AuthenticationPrincipal  AuthDetails authDetails,
+            @PathVariable Long portfolioId);
 }

@@ -164,8 +164,8 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
         if (searchCondition.keyword() != null && !searchCondition.keyword().isEmpty()) {
-            booleanBuilder.and(qDesigner.nickname.eq(searchCondition.keyword())
-                    .or(qDesigner.shop.eq(searchCondition.keyword())));
+            booleanBuilder.and(qDesigner.nickname.like("%" + searchCondition.keyword() + "%")
+                    .or(qDesigner.shop.like("%" + searchCondition.keyword() + "%")));
         }
 
         if (searchCondition.category() != null) {

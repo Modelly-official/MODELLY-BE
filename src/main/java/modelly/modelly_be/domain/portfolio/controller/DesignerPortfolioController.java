@@ -6,6 +6,8 @@ import modelly.modelly_be.domain.portfolio.dto.request.PortfolioRequest;
 import modelly.modelly_be.domain.portfolio.controller.swagger.DesignerPortfolioSwagger;
 import modelly.modelly_be.domain.portfolio.dto.request.UpdatePortfolioRequest;
 import modelly.modelly_be.domain.portfolio.dto.response.PortfolioListResponse;
+import modelly.modelly_be.domain.portfolio.dto.response.PortfolioResponse;
+import modelly.modelly_be.domain.portfolio.entity.Portfolio;
 import modelly.modelly_be.domain.portfolio.service.DesignerPortfolioService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.security.AuthDetails;
@@ -49,6 +51,17 @@ public class DesignerPortfolioController implements DesignerPortfolioSwagger {
     public ApiResponse<ScrollResponse<PortfolioListResponse>> getMyPortfolios(AuthDetails authDetails, Long cursorId, int size) {
 
         ScrollResponse<PortfolioListResponse> response = designerPortfolioService.getMyPortfolios(authDetails.user(), cursorId, size);
+
+        return ApiResponse.onSuccess(response);
+    }
+
+    //포트폴리오 단건 조회
+    @Override
+    public ApiResponse<PortfolioResponse> getMyPortfolio(AuthDetails authDetails, Long portfolioId) {
+
+        Portfolio portfolio = designerPortfolioService.getMyPortfolio(authDetails.user(), portfolioId);
+
+        PortfolioResponse response = PortfolioResponse.from(portfolio);
 
         return ApiResponse.onSuccess(response);
     }

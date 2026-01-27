@@ -127,4 +127,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Reservation r SET r.recruitment = NULL WHERE r.designer.id = :designerId")
     void setRecruitmentNullByDesignerId(@Param("designerId") Long designerId);
+
+    // 특정 날짜 이전의 해당 status를 가진 예약 조회(예약 스케줄러에서 기간이 지난 대기중인 예약 조회할 때 이용)
+    List<Reservation> findByStatusAndDateBefore(
+            ReservationStatus status,
+            LocalDate date
+    );
 }

@@ -397,8 +397,8 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
         b.and(qRecruitment.recruitmentStatus.eq(RecruitmentStatus.OPEN));
 
         if (cond.keyword() != null && !cond.keyword().isBlank()) {
-            b.and(qRecruitment.title.contains(cond.keyword())
-                    .or(qRecruitment.content.contains(cond.keyword())));
+            b.and(qRecruitment.title.like("%" + cond.keyword() + "%")
+                    .or(qRecruitment.content.like("%" + cond.keyword() + "%")));
         }
         if (cond.category() != null) {
             b.and(qRecruitment.category.eq(cond.category()));

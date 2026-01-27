@@ -9,7 +9,7 @@ import java.io.IOException;
 public enum SubCategory {
     // HAIR
     HAIR_CUT("커트", Category.HAIR),
-    HAIR_PERM("파마", Category.HAIR),
+    HAIR_PERM("펌", Category.HAIR),
     HAIR_COLORING("염색", Category.HAIR),
     HAIR_MAGIC("매직", Category.HAIR),
 
