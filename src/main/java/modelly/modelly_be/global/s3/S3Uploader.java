@@ -86,8 +86,17 @@ public class S3Uploader {
                     imageUrl
             ));
         }
-        String thumbnailKey = String.format("%s/%s/thumbnails/%s_main", folder, folderId, folderId);
-        String thumbnailUrl = "https://" + bucket + ".s3." + region + ".amazonaws.com/" + thumbnailKey;
+        String thumbnailKey;
+        String thumbnailUrl;
+
+        if (folder.equals("recruitments")) {
+            thumbnailKey = String.format("%s/%s/originals/%s_main", folder, folderId, folderId);
+            thumbnailUrl = "https://" + bucket + ".s3." + region + ".amazonaws.com/" + thumbnailKey;
+        } else {
+            thumbnailKey = String.format("%s/%s/thumbnails/%s_main", folder, folderId, folderId);
+            thumbnailUrl = "https://" + bucket + ".s3." + region + ".amazonaws.com/" + thumbnailKey;
+
+        }
 
         return new PresignedUrlListResponse(folderId, uploadResponses, thumbnailUrl);
     }
