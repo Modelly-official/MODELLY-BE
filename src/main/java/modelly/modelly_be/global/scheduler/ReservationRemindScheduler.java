@@ -67,33 +67,53 @@ public class ReservationRemindScheduler {
         ZoneId seoulZone = ZoneId.of("Asia/Seoul");
         LocalDate today = LocalDate.now(seoulZone);
 
-        //3일 전에 들어온 예약 신청
-        // ex) 오늘이 10일이면, 7일에 신청했는데 아직도 PENDING인 것들
-        LocalDate createdTargetDate = today.minusDays(3);
-        LocalDateTime startOfDay = createdTargetDate.atStartOfDay();
-        LocalDateTime endOfDay = createdTargetDate.atTime(LocalTime.MAX);
+        sendRemindersForDaysPassed(today, 1, "아직 미확정 상태인 신청 건이 있습니다. 지금 바로 확인해보세요!");
 
-        List<Reservation> longPendingReservations = reservationRepository.findByStatusAndCreatedAtBetween(
+        for (int days = 3; days <=7; days++) {
+            String title = String.format("신청한 지 %d일이 된 미확정 건이 있습니다. 지금 바로 확인해보세요!", days);
+            sendRemindersForDaysPassed(today, days, title);
+        }
+
+        for (int daysUntil = 3; daysUntil >=1; daysUntil--) {
+            String title = String.format("시술 %d일 전 미확정 건이 있어요. 지금 바로 예약 신청을 확인하세요.", daysUntil);
+            sendRemindersForUpcomingReservation(today, daysUntil, title);
+        }
+
+        log.info("=== 리마인드 알림 종료 ===");
+
+    }
+
+    //예약 신청 후 N일 경과한 PENDING 상태의 예약에 대한 리마인드 알림 전송
+    private void sendRemindersForDaysPassed(LocalDate today, int dayPassed, String title) {
+        LocalDate targetDate = today.minusDays(dayPassed);
+        LocalDateTime startOfDay = targetDate.atStartOfDay();
+        LocalDateTime endOfDay = targetDate.atTime(LocalTime.MAX);
+
+        List<Reservation> reservations = reservationRepository.findByStatusAndCreatedAtBetween(
                 ReservationStatus.RESERVATION_PENDING,
                 startOfDay,
                 endOfDay
         );
 
-        //예약 날짜가 2일 남은 예약
-        // ex) 오늘이 10일이면, 예약일이 12일인 건들 (D-2)
-        LocalDate upcomingReservationDate = today.plusDays(2);
+        if (!reservations.isEmpty()) {
+            log.info("[신청 후 {}일 경과] 알림 대상 : {}건", dayPassed, reservations.size());
+            sendReminders(reservations, title);
+        }
+    }
 
-        List<Reservation> imminentReservations = reservationRepository.findByStatusAndDate(
-                ReservationStatus.RESERVATION_PENDING,
-                upcomingReservationDate
+    //시술 예정일 N일 전인 PENDING 상태의 예약에 대한 리마인드 알림 전송
+    private void sendRemindersForUpcomingReservation(LocalDate today, int daysUntil, String title) {
+        LocalDate targetDate = today.plusDays(daysUntil);
+
+        List<Reservation> reservations = reservationRepository.findByStatusAndDate(
+            ReservationStatus.RESERVATION_PENDING,
+                targetDate
         );
 
-        sendReminders(longPendingReservations, "3일 전 들어온 예약이 있습니다. 예약을 확정해주세요.");
-        sendReminders(imminentReservations, "예약일이 3일 남았습니다. 대기 중인 예약을 확인해주세요.");
-
-        log.info("=== 리마인드 알림 종료: 오래된 요청 {}건, 다가오는 요청 {}건 ===",
-                longPendingReservations.size(), imminentReservations.size());
-
+        if (!reservations.isEmpty()) {
+            log.info("[시술 {}일 전] 알림 대상 : {}건", daysUntil, reservations.size());
+            sendReminders(reservations, title);
+        }
     }
 
     private void sendReminders(List<Reservation> reservations, String title) {
@@ -101,7 +121,6 @@ public class ReservationRemindScheduler {
 
         for (Reservation reservation : reservations) {
             try {
-
                 NotificationData data = reservationNotificationService.createReservationRemindNotification(reservation, title);
                 notificationService.sendNotification(data);
 
@@ -111,7 +130,6 @@ public class ReservationRemindScheduler {
                     fcmService.pushToFCM(data);
                 }
 
-                log.info("[알림 발송] 예약ID: {}", reservation.getId());
             } catch (Exception e) {
                 log.error("[알림 실패] 예약ID: {}", reservation.getId(), e);
             }
