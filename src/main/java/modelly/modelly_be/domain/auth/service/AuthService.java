@@ -519,7 +519,7 @@ public class AuthService {
         return SocialLoginResult.of(loginResponse, refreshToken, ttlSec);
     }
 
-    /* ---------- 탈퇴하기 ---------- */
+    /* ---------- 탈퇴하기  ---------- */
     @Transactional
     public void withdraw(HttpServletRequest request) {
         // 1. 토큰 추출 및 검증
