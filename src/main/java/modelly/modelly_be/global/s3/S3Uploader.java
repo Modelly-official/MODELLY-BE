@@ -89,7 +89,7 @@ public class S3Uploader {
         String thumbnailKey;
         String thumbnailUrl;
 
-        if (folder.equals("recruitments")) {
+        if (folder.equals("recruitments") || folder.equals("portfolios")) {
             thumbnailKey = String.format("%s/%s/originals/%s_main", folder, folderId, folderId);
             thumbnailUrl = "https://" + bucket + ".s3." + region + ".amazonaws.com/" + thumbnailKey;
         } else {
