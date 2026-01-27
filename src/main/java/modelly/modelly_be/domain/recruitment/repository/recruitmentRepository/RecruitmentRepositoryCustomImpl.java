@@ -47,6 +47,8 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
     private static final QRecruitmentDate qRecruitmentDate = QRecruitmentDate.recruitmentDate;
     private static final QReservation qReservation = QReservation.reservation;
 
+    public static final double NEARBY_RADIUS_METER = 5000.0;
+
     @Override
     public List<RecruitmentBasic> findRecruitmentsByCreatedAt(Long userId, SearchCondition searchCondition, Long cursorId, int size, Coordinate userCoordinate) {
 
@@ -202,6 +204,8 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
         // 거리 조건 (반경 내)
         NumberExpression<Double> distance = getDistanceExpression(userCoordinate);
 
+        booleanBuilder.and(distance.loe(NEARBY_RADIUS_METER));
+
         List<RecruitmentBasic> content = queryFactory
                 .select(Projections.constructor(RecruitmentBasic.class,
                         qRecruitment.id,
@@ -294,18 +298,21 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
         }
 
         // 서브쿼리: 평균 평점
-        NumberExpression<Double> averageRating = Expressions.asNumber(getAverageRatingSubQuery())
-                .coalesce(0.0).doubleValue();
+        NumberExpression<Double> averageRating = Expressions.asNumber(getAverageRatingSubQuery()).doubleValue();
+
+        NumberExpression<Double> ratingWithPenalty = new CaseBuilder()
+                .when(averageRating.lt(2.0)).then(0.0)
+                .when(averageRating.lt(3.0)).then(0.5)
+                .otherwise(averageRating);
+
 
         // 인기도 점수
+        // 전체 예약수(40) + 전체 리뷰수(30) + 평점(20) + 전체 찜수(10)
         NumberExpression<Double> popularityScore =
-                //recentReservationCount.multiply(6.0)  // 최근 예약 × 6
-                        qRecruitment.reservationCount.doubleValue().multiply(2.0)  // 전체 예약 × 2
-                        //.add(recentReviewCount.multiply(4.0))  // 최근 리뷰 × 4
-                        .add(qRecruitment.reviewCount.doubleValue().multiply(1.5))        // 전체 리뷰 × 1.5
-                        .add(qRecruitment.likeCount.doubleValue().multiply(1.5)) // 전체 찜 × 1.5
-                        //.add(recentLikeCount.multiply(1.5)) //최근 찜 x 3
-                        .add(averageRating.multiply(2.0));    // 평점 × 2
+                        qRecruitment.reservationCount.doubleValue().multiply(40)
+                        .add(qRecruitment.designer.reviewCount.doubleValue().multiply(30))
+                        .add(qRecruitment.likeCount.doubleValue().multiply(10))
+                        .add(ratingWithPenalty.multiply(20));
 
         List<Tuple> tuples = queryFactory
                 .select(

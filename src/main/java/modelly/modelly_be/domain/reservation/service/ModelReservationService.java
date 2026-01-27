@@ -17,6 +17,7 @@ import modelly.modelly_be.domain.reservation.repository.ReservationRepository;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
+import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.domain.user.service.ModelService;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
@@ -43,6 +44,7 @@ public class ModelReservationService {
     private final ReservationService reservationService;
     private final ModelService modelService;
     private final RecruitmentService recruitmentService;
+    private final DesignerService designerService;
     private final ReservationQueryRepository reservationQueryRepository;
     private final ReservationRepository reservationRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -95,6 +97,9 @@ public class ModelReservationService {
                 .build();
 
         reservationService.save(reservation);
+
+        designerService.incrementReservationCount(designer.getId());
+        recruitmentService.incrementReservationCount(req.recruitmentId());
 
         boolean isNotificationOn = designer.getUser().getNotificationSetting().isReservationNotification();
 
@@ -310,7 +315,16 @@ public class ModelReservationService {
             throw new GeneralException(ErrorStatus.RESERVATION_BAD_REQUEST);
         }
 
+        if(reservation.getDesigner() != null){
+            designerService.decrementReservationCount(reservation.getDesigner().getId());
+        }
+
+        if (reservation.getRecruitment() != null){
+            recruitmentService.decrementReservationCount(reservation.getRecruitment().getId());
+        }
+
         reservation.cancelByModel();
+
         return new SimpleMessageDTO("예약 신청이 취소되었습니다.");
     }
 }

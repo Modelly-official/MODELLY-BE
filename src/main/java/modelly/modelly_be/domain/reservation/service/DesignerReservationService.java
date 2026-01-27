@@ -265,8 +265,10 @@ public class DesignerReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION));
 
+        Designer designer = reservation.getDesigner();
+
         // 본인 디자이너 예약인지 검증
-        if (reservation.getDesigner() == null || !reservation.getDesigner().getUser().getId().equals(me.getId())) {
+        if (designer == null || !designer.getUser().getId().equals(me.getId())) {
             throw new GeneralException(ErrorStatus._FORBIDDEN);
         }
 
@@ -307,8 +309,10 @@ public class DesignerReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_RESERVATION));
 
+        Designer designer = reservation.getDesigner();
+
         // 본인 디자이너 예약인지 검증
-        if (reservation.getDesigner() == null || !reservation.getDesigner().getUser().getId().equals(me.getId())) {
+        if (designer == null || !designer.getUser().getId().equals(me.getId())) {
             throw new GeneralException(ErrorStatus._FORBIDDEN);
         }
 
@@ -318,6 +322,11 @@ public class DesignerReservationService {
         }
 
         reservation.reject();
+
+        designerService.decrementReservationCount(designer.getId());
+        if (reservation.getRecruitment() != null) {
+            recruitmentService.decrementReservationCount(reservation.getRecruitment().getId());
+        }
 
         boolean isNotificationOn = reservation.getModel() != null && reservation.getModel().getUser().getNotificationSetting().isReservationNotification();
 

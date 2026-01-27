@@ -126,11 +126,17 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
         //서브쿼리 : 평균 평점
         NumberExpression<Double> averageRating = Expressions.asNumber(getAverageRatingSubQuery()).doubleValue();
 
+        NumberExpression<Double> ratingWithPenalty = new CaseBuilder()
+                .when(averageRating.lt(2.0)).then(0.0)
+                .when(averageRating.lt(3.0)).then(0.5)
+                .otherwise(averageRating);
+
+        // 전체 예약수(40) + 전체 리뷰수(30) + 평점(20) + 전체 찜수(10)
         NumberExpression<Double> popularityScore =
-                qDesigner.reservationCount.coalesce(0L).doubleValue().multiply(2.0)   // 전체 예약 × 2
-                        .add(qDesigner.reviewCount.coalesce(0L).doubleValue().multiply(1.5)) // 전체 리뷰 × 1.5
-                        .add(qDesigner.likeCount.coalesce(0L).doubleValue().multiply(1.5)) // 전체 찜 × 1.5
-                        .add(averageRating.multiply(2.0));    // 평점 × 2
+                qDesigner.reservationCount.doubleValue().multiply(40)
+                        .add(qDesigner.reviewCount.doubleValue().multiply(30))
+                        .add(qDesigner.likeCount.doubleValue().multiply(10))
+                        .add(ratingWithPenalty.multiply(20));
 
         return queryFactory.select(
                 Projections.constructor(DesignerListResponseDto.class,
