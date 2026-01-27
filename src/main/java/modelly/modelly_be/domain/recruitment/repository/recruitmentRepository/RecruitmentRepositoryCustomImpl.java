@@ -320,6 +320,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                         qDesigner.nickname,
                         qDesigner.shop,
                         qRecruitment.title,
+                        qRecruitment.thumbnail,
                         qRecruitment.category,
                         popularityScore
                 )
@@ -344,6 +345,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
             String nickname = t.get(qDesigner.nickname);
             String shop = t.get(qDesigner.shop);
             String title = t.get(qRecruitment.title);
+            String thumbnail = t.get(qRecruitment.thumbnail);
             Category categoryVal = t.get(qRecruitment.category);
             Double score = t.get(popularityScore);
 
@@ -354,6 +356,7 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
                     nickname,
                     shop,
                     title,
+                    thumbnail,
                     categoryVal,
                     subList,
                     score

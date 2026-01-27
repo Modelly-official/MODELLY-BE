@@ -11,6 +11,7 @@ public record PopularRecruitmentListResponse(
         String designerNickname,
         String shop,
         String recruitmentTitle,
+        String thumbnailUrl,
         @JsonSerialize(using = Category.CategorySerializer.class)
         Category category,
         List<String> subCategories,
