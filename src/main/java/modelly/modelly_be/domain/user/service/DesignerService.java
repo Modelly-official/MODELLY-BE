@@ -96,4 +96,28 @@ public class DesignerService {
                 searchCondition.keyword(),
                 searchCondition.category());
     }
+
+    public void decrementLikeCount(Long designerId) {
+        designerRepository.decrementLikeCount(designerId);
+    }
+
+    public void incrementLikeCount(Long designerId) {
+        designerRepository.incrementLikeCount(designerId);
+    }
+
+    public void incrementReviewCount(Long designerId) {
+        designerRepository.incrementReviewCount(designerId);
+    }
+
+    public void decrementReviewCount(Long designerId) {
+        designerRepository.decrementReviewCount(designerId);
+    }
+
+    public void incrementReservationCount(Long designerId) {
+        designerRepository.incrementReservationCount(designerId);
+    }
+
+    public void decrementReservationCount(Long designerId) {
+        designerRepository.decrementReservationCount(designerId);
+    }
 }

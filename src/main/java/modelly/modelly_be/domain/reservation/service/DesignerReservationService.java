@@ -323,8 +323,10 @@ public class DesignerReservationService {
 
         reservation.reject();
 
-        designer.decrementReservationCount();
-        reservation.getRecruitment().decrementReservationCount();
+        designerService.decrementReservationCount(designer.getId());
+        if (reservation.getRecruitment() != null) {
+            recruitmentService.decrementReservationCount(reservation.getRecruitment().getId());
+        }
 
         boolean isNotificationOn = reservation.getModel() != null && reservation.getModel().getUser().getNotificationSetting().isReservationNotification();
 

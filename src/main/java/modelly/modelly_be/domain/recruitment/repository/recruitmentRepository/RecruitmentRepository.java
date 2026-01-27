@@ -67,9 +67,29 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
     // 해당 디자이너의 공고 조회
     List<Recruitment> findAllByDesignerId(Long designerId);
 
-
     // 해당 디자이너의 공고 삭제
     @Modifying
     @Query("delete from Recruitment r where r.designer.id = :designerId")
     void deleteByDesignerId(Long designerId);
+
+    @Modifying
+    @Query("UPDATE Recruitment r SET r.likeCount = r.likeCount + 1 " +
+            "WHERE r.id = :recruitmentId")
+    void incrementLikeCount(@Param("recruitmentId") Long recruitmentId);
+
+    @Modifying
+    @Query("UPDATE Recruitment r SET r.likeCount = r.likeCount - 1 " +
+            "WHERE r.id = :recruitmentId AND r.likeCount > 0")
+    void decrementLikeCount(Long recruitmentId);
+
+    @Modifying
+    @Query("UPDATE Recruitment r SET r.reservationCount = r.reservationCount + 1 " +
+            "WHERE r.id = :recruitmentId ")
+    void incrementReservationCount(Long recruitmentId);
+
+    @Modifying
+    @Query("UPDATE Recruitment r SET r.reservationCount = r.reservationCount - 1 " +
+            "WHERE r.id = :recruitmentId AND r.reservationCount > 0")
+    void decrementReservationCount(Long recruitmentId);
+
 }

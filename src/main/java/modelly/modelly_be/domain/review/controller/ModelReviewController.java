@@ -8,6 +8,7 @@ import modelly.modelly_be.domain.review.dto.request.ReviewUpdateRequestDto;
 import modelly.modelly_be.domain.review.dto.response.MyReviewListResponseDto;
 import modelly.modelly_be.domain.review.dto.response.ReviewResponseDto;
 import modelly.modelly_be.domain.review.entity.Review;
+import modelly.modelly_be.domain.review.service.ModelReviewService;
 import modelly.modelly_be.domain.review.service.ReviewService;
 import modelly.modelly_be.global.apiPayload.ApiResponse;
 import modelly.modelly_be.global.entity.Category;
@@ -25,10 +26,11 @@ import java.util.List;
 public class ModelReviewController implements ModelReviewSwagger {
 
     private final ReviewService reviewService;
+    private final ModelReviewService modelReviewService;
 
     @PostMapping("/reviews/{reservationId}")
     public ApiResponse<ReviewResponseDto> createReview(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long reservationId, @RequestBody @Valid ReviewCreateRequestDto reviewCreateRequestDto) {
-        Review review = reviewService.createReview(authDetails.user(), reservationId, reviewCreateRequestDto);
+        Review review = modelReviewService.createReview(authDetails.user(), reservationId, reviewCreateRequestDto);
 
         ReviewResponseDto responseDto = ReviewResponseDto.of(review, true);
 
@@ -37,7 +39,7 @@ public class ModelReviewController implements ModelReviewSwagger {
 
     @PutMapping("/reviews/{reviewId}")
     public ApiResponse<ReviewResponseDto> updateReview(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long reviewId, @RequestBody @Valid ReviewUpdateRequestDto reviewUpdateRequestDto) {
-        Review review = reviewService.updateReview(authDetails.user(), reviewId, reviewUpdateRequestDto);
+        Review review = modelReviewService.updateReview(authDetails.user(), reviewId, reviewUpdateRequestDto);
 
         ReviewResponseDto responseDto = ReviewResponseDto.of(review, true);
 
@@ -47,7 +49,7 @@ public class ModelReviewController implements ModelReviewSwagger {
     @DeleteMapping("/reviews/{reviewId}")
     public ApiResponse<String> deleteReview(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long reviewId) {
 
-        reviewService.deleteReview(authDetails.user(), reviewId);
+        modelReviewService.deleteReview(authDetails.user(), reviewId);
 
         return ApiResponse.onSuccess("리뷰가 삭제되었습니다.");
     }

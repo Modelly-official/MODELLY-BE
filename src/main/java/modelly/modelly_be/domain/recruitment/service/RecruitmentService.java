@@ -23,7 +23,6 @@ import modelly.modelly_be.domain.user.service.UserService;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.domain.recruitment.repository.recruitmentRepository.RecruitmentRepository;
-import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.domain.review.dto.internal.AverageReview;
 import modelly.modelly_be.domain.review.service.ReviewService;
 import modelly.modelly_be.domain.user.dto.response.DesignerResponseDto;
@@ -56,7 +55,6 @@ public class RecruitmentService {
     private final RecruitmentRepository recruitmentRepository;
     private final RecruitmentTimeRepository recruitmentTimeRepository;
     private final RecruitmentLikeService recruitmentLikeService;
-    private final ReservationService reservationService;
     private final ReviewService reviewService;
     private final ModelService modelService;
     private final UserService userService;
@@ -72,11 +70,6 @@ public class RecruitmentService {
 
     @Transactional
     public void deleteRecruitment(Recruitment recruitment) {
-        //관련된 찜 삭제
-        recruitmentLikeService.deleteRecruitmentLike(recruitment);
-
-        //관련된 예약 연관관계 삭제
-        reservationService.deleteRelationshipWithRecruitment(recruitment);
 
         recruitmentRepository.delete(recruitment);
     }
@@ -324,5 +317,21 @@ public class RecruitmentService {
                 searchCondition.subCategory(),
                 RecruitmentStatus.OPEN
         );
+    }
+
+    public void incrementLikeCount(Long recruitmentId) {
+        recruitmentRepository.incrementLikeCount(recruitmentId);
+    }
+
+    public void decrementLikeCount(Long recruitmentId) {
+        recruitmentRepository.decrementLikeCount(recruitmentId);
+    }
+
+    public void incrementReservationCount(Long recruitmentId) {
+        recruitmentRepository.incrementReservationCount(recruitmentId);
+    }
+
+    public void decrementReservationCount(Long recruitmentId) {
+        recruitmentRepository.decrementReservationCount(recruitmentId);
     }
 }

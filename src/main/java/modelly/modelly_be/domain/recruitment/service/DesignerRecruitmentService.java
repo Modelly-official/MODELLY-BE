@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.recruitment.service;
 
 import lombok.RequiredArgsConstructor;
+import modelly.modelly_be.domain.like.service.RecruitmentLikeService;
 import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentSchedule;
 import modelly.modelly_be.domain.recruitment.dto.request.RecruitmentRequestDto;
 import modelly.modelly_be.domain.recruitment.dto.request.UpdateRecruitmentRequestDto;
@@ -39,6 +40,7 @@ import java.util.List;
 public class DesignerRecruitmentService {
 
     private final RecruitmentService recruitmentService;
+    private final RecruitmentLikeService recruitmentLikeService;
     private final DesignerService designerService;
     private final ReservationService reservationService;
     private final ApplicationEventPublisher eventPublisher;
@@ -176,6 +178,12 @@ public class DesignerRecruitmentService {
             String oldFolderPath = "recruitments/" + recruitment.getImageFolderId() + "/";
             eventPublisher.publishEvent(new S3FolderDeleteEvent(oldFolderPath));
         }
+
+        //관련된 찜 삭제
+        recruitmentLikeService.deleteRecruitmentLike(recruitment);
+
+        //관련된 예약 연관관계 삭제
+        reservationService.deleteRelationshipWithRecruitment(recruitment);
 
         recruitmentService.deleteRecruitment(recruitment);
     }

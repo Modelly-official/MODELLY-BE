@@ -10,6 +10,7 @@ import modelly.modelly_be.domain.notification.event.dto.schedule.ScheduleChangeE
 import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
+import modelly.modelly_be.domain.recruitment.service.RecruitmentService;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationCancelRequest;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationChangeCreateRequest;
 import modelly.modelly_be.domain.reservation.dto.internal.ChatRoomReservationSummary;
@@ -21,6 +22,7 @@ import modelly.modelly_be.domain.reservation.repository.ReservationChangeReposit
 import modelly.modelly_be.domain.reservation.repository.ReservationRepository;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
+import modelly.modelly_be.domain.user.service.DesignerService;
 import modelly.modelly_be.global.apiPayload.code.SimpleMessageDTO;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
@@ -51,6 +53,8 @@ public class ReservationService {
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
+    private final DesignerService designerService;
+    private final RecruitmentService recruitmentService;
 
     public void hasPendingOrConfirmedReservation(Recruitment recruitment) {
         List<Reservation> reservations = reservationRepository.findAllByRecruitment(recruitment);
@@ -483,9 +487,6 @@ public class ReservationService {
         if (reservation.getDesigner() == null){
             reservation.cancel(req.reason());
 
-            reservation.getDesigner().decrementReservationCount();
-            reservation.getRecruitment().decrementReservationCount();
-
             return new SimpleMessageDTO("예약이 취소되었습니다.");
         }
 
@@ -507,9 +508,11 @@ public class ReservationService {
             // 예약 취소
             reservation.cancel(req.reason());
 
-            reservation.getDesigner().decrementReservationCount();
-            reservation.getRecruitment().decrementReservationCount();
+            designerService.decrementReservationCount(designerId);
 
+            if (reservation.getRecruitment() != null) {
+                recruitmentService.decrementReservationCount(reservation.getRecruitment().getId());
+            }
             return new SimpleMessageDTO("예약이 취소되었습니다.");
         }
 
@@ -600,9 +603,13 @@ public class ReservationService {
 
         chattingService.publishReservationPayload(me.getId(), finalRoomId, payload);
 
-        reservation.getDesigner().decrementReservationCount();
-        reservation.getRecruitment().decrementReservationCount();
+        if (designerId != null) {
+            designerService.decrementReservationCount(designerId);
+        }
 
+        if (reservation.getRecruitment() != null) {
+            recruitmentService.decrementReservationCount(reservation.getRecruitment().getId());
+        }
         User opponentUser = meIsModel
                 ? reservation.getDesigner().getUser()
                 : reservation.getModel().getUser();
@@ -744,4 +751,6 @@ public class ReservationService {
         Pageable pageable = PageRequest.of(0, 5);
         return reservationRepository.findTop5ByModelAndStatus(model, ReservationStatus.RESERVATION_CONFIRMED);
     }
+
+
 }

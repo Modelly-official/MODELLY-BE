@@ -6,6 +6,7 @@ import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.global.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -27,4 +28,34 @@ public interface DesignerRepository extends JpaRepository<Designer, Long>, Desig
             "WHERE (:keyword IS NULL OR d.nickname LIKE %:keyword% OR d.shop LIKE %:keyword%) " +
             "AND (:category IS NULL OR d.category = :category) ")
     Long countByCondition(String keyword, Category category);
+
+    @Modifying
+    @Query("UPDATE Designer d SET d.likeCount = d.likeCount - 1 " +
+            "WHERE d.id = :designerId AND d.likeCount > 0")
+    void decrementLikeCount(@Param("designerId") Long designerId);
+
+    @Modifying
+    @Query("UPDATE Designer d SET d.likeCount = d.likeCount + 1 " +
+            "WHERE d.id = :designerId")
+    void incrementLikeCount(@Param("designerId") Long designerId);
+
+    @Modifying
+    @Query("UPDATE Designer d SET d.reviewCount = d.reviewCount + 1 " +
+            "WHERE d.id = :designerId")
+    void incrementReviewCount(Long designerId);
+
+    @Modifying
+    @Query("UPDATE Designer d SET d.reviewCount = d.reviewCount - 1 " +
+            "WHERE d.id = :designerId AND d.reviewCount > 0")
+    void decrementReviewCount(Long designerId);
+
+    @Modifying
+    @Query("UPDATE Designer d SET d.reservationCount = d.reservationCount + 1 " +
+            "WHERE d.id = :designerId")
+    void incrementReservationCount(Long designerId);
+
+    @Modifying
+    @Query("UPDATE Designer d SET d.reservationCount = d.reservationCount - 1 " +
+            "WHERE d.id = :designerId AND d.reservationCount > 0")
+    void decrementReservationCount(Long designerId);
 }

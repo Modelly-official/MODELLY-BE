@@ -113,22 +113,4 @@ public class Designer extends BaseEntity {
         this.category = category;
     }
 
-    public void incrementLikeCount() {likeCount++;}
-
-    public void decrementLikeCount() {
-        if (likeCount > 0) likeCount--;
-    }
-
-    public void incrementReviewCount() {reviewCount++;}
-
-    public void decrementReviewCount() {
-        if (reviewCount > 0) reviewCount--;
-    }
-
-    public void incrementReservationCount() {reservationCount++;}
-
-    public void decrementReservationCount() {
-        if (reservationCount > 0) reservationCount--;
-    }
-
 }
