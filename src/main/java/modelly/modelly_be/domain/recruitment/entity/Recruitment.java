@@ -113,4 +113,8 @@ public class Recruitment extends BaseEntity {
         this.imageFolderId = imageFolderId;
         this.thumbnail = thumbnail;
     }
+
+    public void decrementReservationCount() {
+        this.reservationCount--;
+    }
 }

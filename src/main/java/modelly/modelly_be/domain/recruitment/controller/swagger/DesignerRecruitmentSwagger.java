@@ -37,6 +37,13 @@ public interface DesignerRecruitmentSwagger {
             
             ### Request Param </p>
             `month` : 공고를 확인하는 해당 달 ex) 2025-10
+            
+            \n
+            ---\n
+            ### Response </p>
+            `hasPendingReservation` : 대기 중인 예약 존재 유무 \n
+            `hasConfirmedReservation` : 확정된 예약 중 아직 진행하지 않은 예약 존재 유무 \n
+            `canModify` : 수정/삭제 가능 여부
             """)
     ApiResponse<ScrollResponse<DesignerRecruitmentListResponse>> getMyRecruitments(
             @AuthenticationPrincipal AuthDetails authDetails,

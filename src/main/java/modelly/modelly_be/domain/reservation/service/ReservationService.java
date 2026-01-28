@@ -13,6 +13,7 @@ import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
 import modelly.modelly_be.domain.recruitment.service.RecruitmentService;
+import modelly.modelly_be.domain.reservation.dto.internal.ReservationEditInfoMap;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationCancelRequest;
 import modelly.modelly_be.domain.reservation.dto.request.ReservationChangeCreateRequest;
 import modelly.modelly_be.domain.reservation.dto.internal.ChatRoomReservationSummary;
@@ -40,7 +41,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -56,7 +59,6 @@ public class ReservationService {
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm");
     private final DesignerService designerService;
-    private final RecruitmentService recruitmentService;
 
     public void hasPendingOrConfirmedReservation(Recruitment recruitment) {
         List<Reservation> reservations = reservationRepository.findAllByRecruitment(recruitment);
@@ -521,8 +523,9 @@ public class ReservationService {
 
             designerService.decrementReservationCount(designerId);
 
-            if (reservation.getRecruitment() != null) {
-                recruitmentService.decrementReservationCount(reservation.getRecruitment().getId());
+            Recruitment recruitment = reservation.getRecruitment();
+            if (recruitment != null) {
+                recruitment.decrementReservationCount();
             }
             return new SimpleMessageDTO("예약이 취소되었습니다.");
         }
@@ -618,9 +621,11 @@ public class ReservationService {
             designerService.decrementReservationCount(designerId);
         }
 
-        if (reservation.getRecruitment() != null) {
-            recruitmentService.decrementReservationCount(reservation.getRecruitment().getId());
+        Recruitment recruitment = reservation.getRecruitment();
+        if (recruitment != null) {
+            recruitment.decrementReservationCount();
         }
+
         User opponentUser = meIsModel
                 ? reservation.getDesigner().getUser()
                 : reservation.getModel().getUser();
@@ -772,5 +777,25 @@ public class ReservationService {
         return reservationRepository.findTop5ByModelAndStatus(model, ReservationStatus.RESERVATION_CONFIRMED);
     }
 
+    // 해당 공고의 대기 중인/미완료된 확정 예약 상태 반환
+    public ReservationEditInfoMap getEditInfoMap(List<Long> recruitmentIds) {
 
+        if (recruitmentIds == null || recruitmentIds.isEmpty()) {
+            return new ReservationEditInfoMap();
+        }
+
+        Set<Long> pendingIds = new HashSet<>(
+                reservationRepository.findRecruitmentIdsWithPending(recruitmentIds)
+        );
+
+        Set<Long> confirmedIds = new HashSet<>(
+                reservationRepository.findRecruitmentIdsWithOngoingConfirmed(
+                        recruitmentIds,
+                        LocalDate.now(),
+                        LocalTime.now()
+                )
+        );
+
+        return new ReservationEditInfoMap(pendingIds, confirmedIds);
+    }
 }

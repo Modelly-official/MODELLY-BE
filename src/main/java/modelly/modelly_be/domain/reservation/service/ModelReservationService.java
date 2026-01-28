@@ -319,8 +319,9 @@ public class ModelReservationService {
             designerService.decrementReservationCount(reservation.getDesigner().getId());
         }
 
-        if (reservation.getRecruitment() != null){
-            recruitmentService.decrementReservationCount(reservation.getRecruitment().getId());
+        Recruitment recruitment = reservation.getRecruitment();
+        if (recruitment != null){
+            recruitment.decrementReservationCount();
         }
 
         reservation.cancelByModel();
