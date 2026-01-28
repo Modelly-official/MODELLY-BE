@@ -6,6 +6,7 @@ import modelly.modelly_be.domain.user.entity.User;
 public record NotificationData(
         Long userId,
         NotificationType type,
+        //String typeDescription,
         String title,
         String message,
         Long targetId,

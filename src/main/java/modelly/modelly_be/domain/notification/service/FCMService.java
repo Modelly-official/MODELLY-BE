@@ -34,6 +34,8 @@ public class FCMService {
 
             //각 알림에 맞게 데이터 생성
             Map<String, String> data = new HashMap<>();
+            data.put("title", notificationData.title());
+            data.put("body", notificationData.message());
             data.put("targetId", notificationData.targetId().toString());
             data.put("notificationType", notificationData.type().getDescription());
 
