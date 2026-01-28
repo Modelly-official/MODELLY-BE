@@ -20,7 +20,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Tag(name = "로그인X 상태에서의 공고관련 API", description = "공고별로 보기, 디자이너별로 보기, 공고 상세 조회, 공고 검색")
 public interface GuestRecruitmentSwagger {
 
-    @Operation(summary = "공고 상세 조회하기", description = "공고 상세 조회 시 사용하는 API입니다. (로그인 필요X)")
+    @Operation(summary = "공고 상세 조회하기", description = """
+            공고 상세 조회 시 사용하는 API입니다. (로그인 필요X)
+            \n
+            `hasPendingReservation` : 확정 대기 중인 예약 존재 유무 (true: 유, false: 무)
+            """)
     ApiResponse<GuestRecruitmentResponseDto> getRecruitment(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long recruitmentId);
 
     @Operation(summary = "공고별로 보기", description = """
