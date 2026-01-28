@@ -31,7 +31,9 @@ public class ScheduleNotificationService {
             }
         }
 
-        return NotificationData.chattingNotification(user.getId(), NotificationType.SCHEDULE, title, message, finalRoomId, senderName);}
+        String notificationTypeDescription = NotificationType.SCHEDULE.toDisplayScheduleType(title);
+
+        return NotificationData.chattingNotification(user.getId(), NotificationType.SCHEDULE, notificationTypeDescription, title, message, finalRoomId, senderName);}
 
     //일정 취소 알림
     public NotificationData createScheduleCancelNotification(User user, Reservation reservation, Long finalRoomId) {
@@ -53,7 +55,9 @@ public class ScheduleNotificationService {
             }
         }
 
-        return NotificationData.chattingNotification(user.getId(), NotificationType.SCHEDULE, title, message, finalRoomId, senderName);
+        String notificationTypeDescription = NotificationType.SCHEDULE.toDisplayScheduleType(title);
+
+        return NotificationData.chattingNotification(user.getId(), NotificationType.SCHEDULE, notificationTypeDescription, title, message, finalRoomId, senderName);
     }
 
     @Transactional
@@ -73,7 +77,9 @@ public class ScheduleNotificationService {
             }
         }
 
-        return NotificationData.chattingNotification(user.getId(), NotificationType.SCHEDULE, title, message, finalRoomId, senderName);
+        String notificationTypeDescription = NotificationType.SCHEDULE.toDisplayScheduleType(title);
+
+        return NotificationData.chattingNotification(user.getId(), NotificationType.SCHEDULE, notificationTypeDescription, title, message, finalRoomId, senderName);
 
     }
 
@@ -94,7 +100,10 @@ public class ScheduleNotificationService {
             }
         }
 
-        return NotificationData.chattingNotification(user.getId(), NotificationType.SCHEDULE, title, message, finalRoomId, senderName);
+        String notificationTypeDescription = NotificationType.SCHEDULE.toDisplayScheduleType(title);
+
+
+        return NotificationData.chattingNotification(user.getId(), NotificationType.SCHEDULE, notificationTypeDescription, title, message, finalRoomId, senderName);
     }
 
     @Transactional
@@ -112,7 +121,10 @@ public class ScheduleNotificationService {
 
         String title = "내일 예정된 모델 일정이 있어요.";
 
-        NotificationData notificationData = NotificationData.otherNotification(user.getId(), NotificationType.SCHEDULE, title, message, reservation.getId());
+        String notificationTypeDescription = NotificationType.SCHEDULE.toDisplayScheduleType(title);
+
+
+        NotificationData notificationData = NotificationData.otherNotification(user.getId(), NotificationType.SCHEDULE, notificationTypeDescription, title, message, reservation.getId());
         return notificationData;
     }
 

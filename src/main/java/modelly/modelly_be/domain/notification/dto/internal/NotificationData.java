@@ -6,17 +6,18 @@ import modelly.modelly_be.domain.user.entity.User;
 public record NotificationData(
         Long userId,
         NotificationType type,
-        //String typeDescription,
+        String typeDescription,
         String title,
         String message,
         Long targetId,
         String senderName //채팅일 경우
 ) {
 
-    public static NotificationData chattingNotification(Long userId, NotificationType type, String title, String message,Long chattingRoomId, String senderName) {
+    public static NotificationData chattingNotification(Long userId, NotificationType type, String typeDescription, String title, String message,Long chattingRoomId, String senderName) {
         return new NotificationData(
                 userId,
                 type,
+                typeDescription,
                 title,
                 message,
                 chattingRoomId,
@@ -24,10 +25,11 @@ public record NotificationData(
         );
     }
 
-    public static NotificationData otherNotification(Long userId, NotificationType type, String title, String message,Long targetId) {
+    public static NotificationData otherNotification(Long userId, NotificationType type, String typeDescription, String title, String message,Long targetId) {
         return new NotificationData(
                 userId,
                 type,
+                typeDescription,
                 title,
                 message,
                 targetId,

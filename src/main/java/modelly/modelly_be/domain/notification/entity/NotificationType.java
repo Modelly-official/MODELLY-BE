@@ -23,7 +23,7 @@ public enum NotificationType {
                 NotificationType.REVIEW.getDescription() : "리뷰 답글 알림";
     }
 
-    public String toDisplayScheduleType(UserRole userRole, String content) {
+    public String toDisplayScheduleType(String content) {
 
         if (content.contains("취소")) return "예약 취소";
         if (content.contains("변경")) return "예약 변경";
@@ -34,7 +34,7 @@ public enum NotificationType {
     public String toDisplayReservationType(UserRole userRole, String content) {
         if (userRole == UserRole.MODEL){
             if (content.contains("확정")) return "예약 확정";
-            if (content.contains("취소")) return "예약 취소";
+            if (content.contains("확정되지 않았어요.")) return "예약 취소";
             else new GeneralException(ErrorStatus._BAD_REQUEST);
         } else if (userRole == UserRole.DESIGNER){
             return "예약 신청 알림";

@@ -21,6 +21,6 @@ public class ChatNotificationService {
             case DESIGNER -> title = room.getModel().getNickname() + "님";
         }
 
-        return NotificationData.chattingNotification(otherUser.getId(), NotificationType.CHATTING, title, message, room.getId(), title);
+        return NotificationData.chattingNotification(otherUser.getId(), NotificationType.CHATTING, NotificationType.CHATTING.getDescription(), title, message, room.getId(), title);
     }
 }

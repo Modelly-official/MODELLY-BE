@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.notification.dto.internal.NotificationData;
 import modelly.modelly_be.domain.notification.entity.NotificationType;
 import modelly.modelly_be.domain.user.entity.User;
+import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +18,9 @@ public class ReviewNotificationService {
         String title = modelNickname + "님이 작성하신 새로운 리뷰가 등록되었어요.";
         String message = "리뷰 관리에서 답글을 작성해보세요.";
 
-        return NotificationData.otherNotification(designer.getId(), NotificationType.REVIEW, title, message, reviewId);
+        String notificationTypeDescription = NotificationType.REVIEW.toDisplayReviewType(UserRole.DESIGNER);
+
+        return NotificationData.otherNotification(designer.getId(), NotificationType.REVIEW, notificationTypeDescription, title, message, reviewId);
     }
 
     //모델한테 리뷰 답글 알림 전송
@@ -26,7 +29,9 @@ public class ReviewNotificationService {
         String title = "작성한 리뷰에 " + designerNickname + " 디자이너님이 답글을 작성했어요.";
         String message = "리뷰 내역에서 확인해보세요.";
 
-        return NotificationData.otherNotification(model.getId(), NotificationType.REVIEW, title, message, reviewId);
+        String notificationTypeDescription = NotificationType.REVIEW.toDisplayReviewType(UserRole.MODEL);
+
+        return NotificationData.otherNotification(model.getId(), NotificationType.REVIEW, notificationTypeDescription, title, message, reviewId);
     }
 
 }

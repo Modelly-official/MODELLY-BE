@@ -64,7 +64,7 @@ public class NotificationRepositoryCustomImpl implements NotificationRepositoryC
                                 case RESERVATION -> type.toDisplayReservationType(userRole, title);
                                 case REVIEW -> type.toDisplayReviewType(userRole);
                                 case CHATTING -> type.getDescription();
-                                case SCHEDULE -> type.toDisplayScheduleType(userRole, title);
+                                case SCHEDULE -> type.toDisplayScheduleType(title);
                             },
                         t.get(qNotification.title),
                         t.get(qNotification.content),

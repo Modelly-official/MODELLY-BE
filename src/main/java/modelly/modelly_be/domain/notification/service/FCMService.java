@@ -38,6 +38,7 @@ public class FCMService {
             data.put("body", notificationData.message());
             data.put("targetId", notificationData.targetId().toString());
             data.put("notificationType", notificationData.type().getDescription());
+            data.put("typeDescription", notificationData.typeDescription());
 
             Message message = Message.builder()
                     .setToken(fcmToken)

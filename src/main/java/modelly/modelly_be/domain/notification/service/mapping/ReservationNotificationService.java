@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.notification.service.mapping;
 import modelly.modelly_be.domain.notification.dto.internal.NotificationData;
 import modelly.modelly_be.domain.notification.entity.NotificationType;
 import modelly.modelly_be.domain.reservation.entity.Reservation;
+import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,10 +16,16 @@ public class ReservationNotificationService {
     public NotificationData createReservationRejectNotification(Reservation reservation){
 
         String message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +"디자이너";
+
+        String title = "해당 예약은 확정되지 않았어요.";
+
+        String notificationTypeDescription = NotificationType.RESERVATION.toDisplayReservationType(UserRole.MODEL, title);
+
         return NotificationData.otherNotification(
                 reservation.getModel().getUser().getId(),
                 NotificationType.RESERVATION,
-                "해당 예약은 확정되지 않았어요.",
+                notificationTypeDescription,
+                title,
                 message,
                 reservation.getId());
 
@@ -29,10 +36,16 @@ public class ReservationNotificationService {
     public NotificationData createReservationAcceptedNotification(Reservation reservation){
 
         String message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getDesignerName() +"디자이너";
+
+        String title = "신청한 예약이 확정되었어요.";
+
+        String notificationTypeDescription = NotificationType.RESERVATION.toDisplayReservationType(UserRole.MODEL, title);
+
         return NotificationData.otherNotification(
                 reservation.getModel().getUser().getId(),
                 NotificationType.RESERVATION,
-                "신청한 예약이 확정되었어요.",
+                notificationTypeDescription,
+                title,
                 message,
                 reservation.getId());
 
@@ -42,10 +55,16 @@ public class ReservationNotificationService {
     public NotificationData createReservationRequestNotification(Reservation reservation) {
 
         String message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getModel().getNickname() + "님";
+
+        String title = "새로운 예약 신청이 있어요.";
+
+        String notificationTypeDescription = NotificationType.RESERVATION.toDisplayReservationType(UserRole.DESIGNER, title);
+
         return NotificationData.otherNotification(
                 reservation.getDesigner().getUser().getId(),
                 NotificationType.RESERVATION,
-                "새로운 예약 신청이 있어요.",
+                notificationTypeDescription,
+                title,
                 message,
                 reservation.getId());
 
@@ -54,9 +73,12 @@ public class ReservationNotificationService {
     public NotificationData createReservationRemindNotification(Reservation reservation, String title) {
         String message = parseStartTime(reservation.getDate(), reservation.getStartTime()) +" "+ reservation.getModel().getNickname() + "님";
 
+        String notificationTypeDescription = NotificationType.RESERVATION.toDisplayReservationType(UserRole.DESIGNER, title);
+
         return NotificationData.otherNotification(
                 reservation.getDesigner().getUser().getId(),
                 NotificationType.RESERVATION,
+                notificationTypeDescription,
                 title,
                 message,
                 reservation.getId());
