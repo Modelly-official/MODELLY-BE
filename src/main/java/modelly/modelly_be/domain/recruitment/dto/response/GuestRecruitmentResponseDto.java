@@ -26,10 +26,11 @@ public record GuestRecruitmentResponseDto(
     boolean agreeMosaic,
     String etc,
     Long reviewCount,
-    double averageRating
+    double averageRating,
+    boolean hasPendingReservation
 ) {
 
-    public static GuestRecruitmentResponseDto of(DesignerResponseDto designerProfile, Recruitment recruitment, AverageReview averageReview, boolean isLiked) {
+    public static GuestRecruitmentResponseDto of(DesignerResponseDto designerProfile, Recruitment recruitment, AverageReview averageReview, boolean isLiked, boolean hasPendingReservation) {
         List<RecruitmentSchedule> schedules = recruitment.getRecruitmentDates().stream()
                 .map(date -> RecruitmentSchedule.of(date.getDate(),
                         date.getRecruitmentTimes().stream()
@@ -64,7 +65,8 @@ public record GuestRecruitmentResponseDto(
                 recruitment.isAgreeMosaic(),
                 recruitment.getEtc(),
                 averageReview.totalCount(),
-                averageReview.averageRating()
+                averageReview.averageRating(),
+                hasPendingReservation
         );
     }
 }

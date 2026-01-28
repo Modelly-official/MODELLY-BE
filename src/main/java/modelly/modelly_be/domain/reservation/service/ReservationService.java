@@ -41,6 +41,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -797,5 +798,19 @@ public class ReservationService {
         );
 
         return new ReservationEditInfoMap(pendingIds, confirmedIds);
+    }
+
+    // 공고에 특정 모델이 신청한 대기 중인 예약이 존재하는지 확인
+    public boolean hasReservationByModelAndRecruitment(
+            Long modelId,
+            Long recruitmentId,
+            Collection<ReservationStatus> statuses
+    ) {
+        return reservationRepository
+                .existsByModel_IdAndRecruitment_IdAndStatusIn(
+                        modelId,
+                        recruitmentId,
+                        statuses
+                );
     }
 }

@@ -16,6 +16,7 @@ import modelly.modelly_be.domain.recruitment.entity.enums.RecruitmentStatus;
 import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
 import modelly.modelly_be.domain.reservation.dto.internal.ReservationEditInfoMap;
 import modelly.modelly_be.domain.reservation.dto.response.AvailableReservationScheduleResponse;
+import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
@@ -86,6 +87,8 @@ public class RecruitmentService {
         AverageReview averageReview = reviewService.calculateRating(recruitment.getDesigner());
 
         boolean isLiked = false;
+        boolean hasPendingReservation = false;
+
         if (userId != null){
 
             User user = userService.getById(userId);
@@ -94,6 +97,14 @@ public class RecruitmentService {
 
                 Model model = modelService.getModelByUserId(userId);
                 isLiked = recruitmentLikeService.existsByModelAndRecruitment(model, recruitment);
+
+                // 이미 예약 신청(PENDING)을 했는지 확인
+                hasPendingReservation =
+                        reservationService.hasReservationByModelAndRecruitment(
+                                model.getId(),
+                                recruitment.getId(),
+                                List.of(ReservationStatus.RESERVATION_PENDING)
+                        );
             }
 
         }
@@ -102,7 +113,8 @@ public class RecruitmentService {
                 DesignerResponseDto.from(recruitment.getDesigner()),
                 recruitment,
                 averageReview,
-                isLiked
+                isLiked,
+                hasPendingReservation
         );
     }
 
