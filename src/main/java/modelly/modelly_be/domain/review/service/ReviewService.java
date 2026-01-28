@@ -158,7 +158,7 @@ public class ReviewService {
     }
 
     public Review getById(Long reviewId) {
-        return reviewRepository.findById(reviewId)
+        return reviewRepository.findByIdWithImages(reviewId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.NOT_FOUND_REVIEW));
     }
 

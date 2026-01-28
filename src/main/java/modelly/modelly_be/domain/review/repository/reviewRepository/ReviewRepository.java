@@ -16,6 +16,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 
 public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRepositoryCustom {
     boolean existsByModelAndReservation(Model model, Reservation reservation);
@@ -60,4 +62,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRep
     @Query("UPDATE Review r SET r.model = NULL WHERE r.model.id = :modelId")
     void setModelNull(@Param("modelId") Long modelId);
 
+    @Query("SELECT r FROM Review r " +
+            "LEFT JOIN FETCH r.reviewImages " +
+            "WHERE r.id = :reviewId")
+    Optional<Review> findByIdWithImages(@Param("reviewId") Long reviewId);
 }
