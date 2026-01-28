@@ -17,6 +17,7 @@ public record DesignerListResponseDto(
         Double distance,
         boolean isLiked,
         LocalDateTime createdAt,
-        double averageRating
+        double averageRating,
+        double popularityScore
 ) {
 }

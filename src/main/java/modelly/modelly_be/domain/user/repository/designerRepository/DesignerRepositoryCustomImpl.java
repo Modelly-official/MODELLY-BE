@@ -131,12 +131,12 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
                 .when(averageRating.lt(3.0)).then(0.5)
                 .otherwise(averageRating);
 
-        // 전체 예약수(40) + 전체 리뷰수(30) + 평점(20) + 전체 찜수(10)
+        // 전체 예약수(40) + 전체 리뷰수(25) + 평점(25) + 전체 찜수(10)
         NumberExpression<Double> popularityScore =
                 qDesigner.reservationCount.doubleValue().multiply(40)
-                        .add(qDesigner.reviewCount.doubleValue().multiply(30))
+                        .add(qDesigner.reviewCount.doubleValue().multiply(25))
                         .add(qDesigner.likeCount.doubleValue().multiply(10))
-                        .add(ratingWithPenalty.multiply(20));
+                        .add(ratingWithPenalty.multiply(25));
 
         return queryFactory.select(
                 Projections.constructor(DesignerListResponseDto.class,
@@ -150,7 +150,8 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
                         ExpressionUtils.as(getDistanceExpression(userCoordinate), "distance"),
                         qDesignerLike.id.isNotNull(),
                         qDesigner.createdAt,
-                        averageRating
+                        averageRating,
+                        popularityScore
                         ))
                 .from(qDesigner)
                 .leftJoin(qDesignerLike).on(isLikedByMe(userId))

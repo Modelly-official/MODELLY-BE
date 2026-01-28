@@ -20,7 +20,6 @@ import modelly.modelly_be.domain.recruitment.entity.QRecruitment;
 import modelly.modelly_be.domain.recruitment.entity.QRecruitmentDate;
 import modelly.modelly_be.domain.recruitment.entity.enums.RecruitmentStatus;
 import modelly.modelly_be.domain.reservation.entity.QReservation;
-import modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus;
 import modelly.modelly_be.global.entity.Category;
 import modelly.modelly_be.global.entity.SubCategory;
 import modelly.modelly_be.domain.review.entity.QReview;
@@ -30,7 +29,6 @@ import modelly.modelly_be.global.utils.SearchCondition;
 import modelly.modelly_be.global.utils.Coordinate;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -307,12 +305,12 @@ public class RecruitmentRepositoryCustomImpl implements RecruitmentRepositoryCus
 
 
         // 인기도 점수
-        // 전체 예약수(40) + 전체 리뷰수(30) + 평점(20) + 전체 찜수(10)
+        // 전체 예약수(40) + 전체 리뷰수(25) + 평점(25) + 전체 찜수(10)
         NumberExpression<Double> popularityScore =
                         qRecruitment.reservationCount.doubleValue().multiply(40)
-                        .add(qRecruitment.designer.reviewCount.doubleValue().multiply(30))
+                        .add(qRecruitment.designer.reviewCount.doubleValue().multiply(25))
                         .add(qRecruitment.likeCount.doubleValue().multiply(10))
-                        .add(ratingWithPenalty.multiply(20));
+                        .add(ratingWithPenalty.multiply(25));
 
         List<Tuple> tuples = queryFactory
                 .select(
