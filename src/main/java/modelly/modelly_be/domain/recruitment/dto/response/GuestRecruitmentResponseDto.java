@@ -27,10 +27,13 @@ public record GuestRecruitmentResponseDto(
     String etc,
     Long reviewCount,
     double averageRating,
-    boolean hasPendingReservation
+    boolean modelHasPendingReservation,
+    boolean designerHasPendingReservation,
+    boolean designerHasConfirmedReservation,
+    boolean canModify
 ) {
 
-    public static GuestRecruitmentResponseDto of(DesignerResponseDto designerProfile, Recruitment recruitment, AverageReview averageReview, boolean isLiked, boolean hasPendingReservation) {
+    public static GuestRecruitmentResponseDto of(DesignerResponseDto designerProfile, Recruitment recruitment, AverageReview averageReview, boolean isLiked, boolean modelHasPendingReservation, boolean designerHasPendingReservation, boolean designerHasConfirmedReservation, boolean canModify) {
         List<RecruitmentSchedule> schedules = recruitment.getRecruitmentDates().stream()
                 .map(date -> RecruitmentSchedule.of(date.getDate(),
                         date.getRecruitmentTimes().stream()
@@ -66,7 +69,10 @@ public record GuestRecruitmentResponseDto(
                 recruitment.getEtc(),
                 averageReview.totalCount(),
                 averageReview.averageRating(),
-                hasPendingReservation
+                modelHasPendingReservation,
+                designerHasPendingReservation,
+                designerHasConfirmedReservation,
+                canModify
         );
     }
 }

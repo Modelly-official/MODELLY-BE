@@ -23,7 +23,10 @@ public interface GuestRecruitmentSwagger {
     @Operation(summary = "공고 상세 조회하기", description = """
             공고 상세 조회 시 사용하는 API입니다. (로그인 필요X)
             \n
-            `hasPendingReservation` : 확정 대기 중인 예약 존재 유무 (true: 유, false: 무)
+            `modelHasPendingReservation` : 모델이 신청한 확정 대기 중인 예약 존재 유무 (true: 유, false: 무)\n
+            `designerHasPendingReservation` : 해당 공고의 확정 대기 중인 예약 존재 유무 (true: 유, false: 무)\n
+            `designerHasConfirmedReservation` : 해당 공고의 확정된 예약 중 아직 진행하지 않은 예약 존재 유무 (true: 유, false: 무)\n
+            `canModify` : 디자이너의 해당 공고 수정/삭제 가능 여부 \n
             """)
     ApiResponse<GuestRecruitmentResponseDto> getRecruitment(@AuthenticationPrincipal AuthDetails authDetails, @PathVariable Long recruitmentId);
 
