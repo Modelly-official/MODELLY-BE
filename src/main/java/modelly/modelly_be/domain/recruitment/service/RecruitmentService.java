@@ -14,7 +14,9 @@ import modelly.modelly_be.domain.recruitment.entity.RecruitmentDate;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.entity.enums.RecruitmentStatus;
 import modelly.modelly_be.domain.recruitment.repository.RecruitmentTimeRepository;
+import modelly.modelly_be.domain.reservation.dto.internal.ReservationEditInfoMap;
 import modelly.modelly_be.domain.reservation.dto.response.AvailableReservationScheduleResponse;
+import modelly.modelly_be.domain.reservation.service.ReservationService;
 import modelly.modelly_be.domain.user.entity.Model;
 import modelly.modelly_be.domain.user.entity.User;
 import modelly.modelly_be.domain.user.entity.enums.UserRole;
@@ -58,6 +60,7 @@ public class RecruitmentService {
     private final ReviewService reviewService;
     private final ModelService modelService;
     private final UserService userService;
+    private final ReservationService reservationService;
 
     public void save(Recruitment recruitment) {
         recruitmentRepository.save(recruitment);
@@ -176,20 +179,34 @@ public class RecruitmentService {
 
         Map<Long, Set<SubCategory>> setMap = recruitmentRepository.findSubCategoriesByRecruitmentIds(recruitmentIds);
 
+        ReservationEditInfoMap editInfoMap = reservationService.getEditInfoMap(recruitmentIds);
+
         return recruitmentLists.stream()
                 .map(recruitment -> {
-                    List<String> subCategories = setMap.getOrDefault(recruitment.recruitmentId(), Set.of())
+                    Long id = recruitment.recruitmentId();
+
+                    List<String> subCategories = setMap.getOrDefault(id, Set.of())
                             .stream().map(SubCategory::getDescription)
                             .collect(Collectors.toList());
 
+                    // 수정/삭제 가능 여부 파악
+                    boolean hasPending = editInfoMap.pendingRecruitmentIds().contains(id);
+
+                    boolean hasConfirmed = editInfoMap.confirmedRecruitmentIds().contains(id);
+
+                    boolean canModify = !hasPending && !hasConfirmed;
+
                     return new DesignerRecruitmentListResponse(
-                            recruitment.recruitmentId(),
+                            id,
                             recruitment.title(),
                             recruitment.period(),
                             recruitment.thumbnail(),
                             recruitment.reviewCount(),
                             recruitment.averageRating(),
-                            subCategories
+                            subCategories,
+                            hasPending,
+                            hasConfirmed,
+                            canModify
                     );
                 })
                 .toList();
@@ -331,7 +348,4 @@ public class RecruitmentService {
         recruitmentRepository.incrementReservationCount(recruitmentId);
     }
 
-    public void decrementReservationCount(Long recruitmentId) {
-        recruitmentRepository.decrementReservationCount(recruitmentId);
-    }
 }

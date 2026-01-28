@@ -138,4 +138,32 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findByStatusAndCreatedAtBetween(ReservationStatus reservationStatus, LocalDateTime startOfDay, LocalDateTime endOfDay);
 
     List<Reservation> findByStatusAndDate(ReservationStatus reservationStatus, LocalDate upcomingReservationDate);
+
+    // Pending 예약이 있는 공고 ID들(디자이너 모집글 조회의 modify 여부 반환 시 이용)
+    @Query("""
+        select distinct r.recruitment.id
+        from Reservation r
+        where r.recruitment.id in :recruitmentIds
+          and r.status = modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus.RESERVATION_PENDING
+    """)
+    List<Long> findRecruitmentIdsWithPending(
+            @Param("recruitmentIds") List<Long> recruitmentIds
+    );
+
+    // 아직 끝나지 않은 CONFIRMED 예약이 있는 공고 ID들(디자이너 모집글 조회의 modify 여부 반환 시 이용)
+    @Query("""
+        select distinct r.recruitment.id
+        from Reservation r
+        where r.recruitment.id in :recruitmentIds
+          and r.status = modelly.modelly_be.domain.reservation.entity.enums.ReservationStatus.RESERVATION_CONFIRMED
+          and (
+                r.date > :today
+             or (r.date = :today and r.endTime >= :now)
+          )
+    """)
+    List<Long> findRecruitmentIdsWithOngoingConfirmed(
+            @Param("recruitmentIds") List<Long> recruitmentIds,
+            @Param("today") LocalDate today,
+            @Param("now") LocalTime now
+    );
 }

@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.reservation.service;
 import lombok.RequiredArgsConstructor;
 import modelly.modelly_be.domain.notification.event.dto.reservation.ReservationAcceptEvent;
 import modelly.modelly_be.domain.notification.event.dto.reservation.ReservationRejectEvent;
+import modelly.modelly_be.domain.recruitment.entity.Recruitment;
 import modelly.modelly_be.domain.recruitment.entity.RecruitmentTime;
 import modelly.modelly_be.domain.recruitment.service.RecruitmentService;
 import modelly.modelly_be.domain.reservation.dto.internal.DesignerDailyReservationItem;
@@ -324,8 +325,10 @@ public class DesignerReservationService {
         reservation.reject();
 
         designerService.decrementReservationCount(designer.getId());
-        if (reservation.getRecruitment() != null) {
-            recruitmentService.decrementReservationCount(reservation.getRecruitment().getId());
+
+        Recruitment recruitment = reservation.getRecruitment();
+        if (recruitment != null) {
+            recruitment.decrementReservationCount();
         }
 
         boolean isNotificationOn = reservation.getModel() != null && reservation.getModel().getUser().getNotificationSetting().isReservationNotification();
