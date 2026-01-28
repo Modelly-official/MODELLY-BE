@@ -87,7 +87,9 @@ public class RecruitmentService {
         AverageReview averageReview = reviewService.calculateRating(recruitment.getDesigner());
 
         boolean isLiked = false;
-        boolean hasPendingReservation = false;
+        boolean modelHasPendingReservation = false;
+        boolean designerHasPendingReservation = false;
+        boolean designerHasConfirmedReservation = false;
 
         if (userId != null){
 
@@ -99,22 +101,37 @@ public class RecruitmentService {
                 isLiked = recruitmentLikeService.existsByModelAndRecruitment(model, recruitment);
 
                 // 이미 예약 신청(PENDING)을 했는지 확인
-                hasPendingReservation =
+                modelHasPendingReservation =
                         reservationService.hasReservationByModelAndRecruitment(
                                 model.getId(),
                                 recruitment.getId(),
                                 List.of(ReservationStatus.RESERVATION_PENDING)
                         );
+
             }
+            // DESIGNER 기준 (공고 전체)
+            designerHasPendingReservation =
+                    reservationService.hasPendingReservationByRecruitment(
+                            recruitment.getId()
+                    );
+
+            designerHasConfirmedReservation =
+                    reservationService.hasOngoingConfirmedReservation(
+                            recruitment.getId()
+                    );
 
         }
+        boolean canModify = !designerHasConfirmedReservation && !designerHasPendingReservation;
 
         return GuestRecruitmentResponseDto.of(
                 DesignerResponseDto.from(recruitment.getDesigner()),
                 recruitment,
                 averageReview,
                 isLiked,
-                hasPendingReservation
+                modelHasPendingReservation,
+                designerHasPendingReservation,
+                designerHasConfirmedReservation,
+                canModify
         );
     }
 

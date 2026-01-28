@@ -166,4 +166,27 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("today") LocalDate today,
             @Param("now") LocalTime now
     );
+
+    // 해당 공고의 status인 예약이 endtime 이후인지
+    @Query("""
+        select case when count(r) > 0 then true else false end
+        from Reservation r
+        where r.recruitment.id = :recruitmentId
+          and r.status = :status
+          and (
+                r.date > :today
+                or (r.date = :today and r.endTime > :now)
+              )
+    """)
+    boolean existsOngoingConfirmedReservation(
+            @Param("recruitmentId") Long recruitmentId,
+            @Param("status") ReservationStatus status,
+            @Param("today") LocalDate today,
+            @Param("now") LocalTime now
+    );
+
+    boolean existsByRecruitment_IdAndStatus(
+            Long recruitmentId,
+            ReservationStatus status
+    );
 }

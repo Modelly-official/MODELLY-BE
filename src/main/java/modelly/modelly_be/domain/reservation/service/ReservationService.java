@@ -813,4 +813,26 @@ public class ReservationService {
                         statuses
                 );
     }
+
+    // 확정된 예약 중 끝난 예약이 있는지
+    @Transactional(readOnly = true)
+    public boolean hasOngoingConfirmedReservation(Long recruitmentId) {
+        LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
+
+        return reservationRepository.existsOngoingConfirmedReservation(
+                recruitmentId,
+                ReservationStatus.RESERVATION_CONFIRMED,
+                today,
+                now
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public boolean hasPendingReservationByRecruitment(Long recruitmentId) {
+        return reservationRepository.existsByRecruitment_IdAndStatus(
+                recruitmentId,
+                ReservationStatus.RESERVATION_PENDING
+        );
+    }
 }
