@@ -2,6 +2,7 @@ package modelly.modelly_be.domain.user.entity.enums;
 
 public enum UserRole {
     DESIGNER("디자이너"),
+    DESIGNER_PENDING("디자이너 신청"),
     MODEL("모델")
     ;
 

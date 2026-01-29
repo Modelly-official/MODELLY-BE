@@ -86,7 +86,7 @@ public class User extends BaseEntity {
         this.gender = base.getGender();
         this.birth = base.getBirth();
         this.imageUrl = base.getImageUrl();
-        this.userRole = base.getUserRole();
+        this.userRole = base.getUserRole() == UserRole.MODEL ? UserRole.MODEL : UserRole.DESIGNER_PENDING;
     }
 
     public void createNotificationSetting() {

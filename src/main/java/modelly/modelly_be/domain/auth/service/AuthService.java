@@ -80,7 +80,7 @@ public class AuthService {
                 .birth(base.getBirth())
                 .imageUrl(base.getImageUrl())
                 .loginType(LoginType.JWT)
-                .userRole(base.getUserRole())
+                .userRole(base.getUserRole() ==UserRole.MODEL ? UserRole.MODEL : UserRole.DESIGNER_PENDING)
                 .permission(Permission.USER)
                 .build();
 
