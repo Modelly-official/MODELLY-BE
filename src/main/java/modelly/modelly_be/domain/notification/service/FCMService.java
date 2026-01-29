@@ -27,10 +27,6 @@ public class FCMService {
         }
 
         try {
-            Notification notification = Notification.builder()
-                    .setTitle(notificationData.title())
-                    .setBody(notificationData.message())
-                    .build();
 
             //각 알림에 맞게 데이터 생성
             Map<String, String> data = new HashMap<>();
@@ -42,7 +38,6 @@ public class FCMService {
 
             Message message = Message.builder()
                     .setToken(fcmToken)
-                    .setNotification(notification)
                     .putAllData(data)
                     .build();
 

@@ -150,9 +150,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
                         ExpressionUtils.as(getDistanceExpression(userCoordinate), "distance"),
                         qDesignerLike.id.isNotNull(),
                         qDesigner.createdAt,
-                        averageRating,
-                        popularityScore
-                        ))
+                        averageRating))
                 .from(qDesigner)
                 .leftJoin(qDesignerLike).on(isLikedByMe(userId))
                 .where(booleanBuilder)
