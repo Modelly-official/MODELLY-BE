@@ -1,6 +1,7 @@
 package modelly.modelly_be.domain.recruitment.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import modelly.modelly_be.domain.like.service.RecruitmentLikeService;
 import modelly.modelly_be.domain.recruitment.dto.internal.RecruitmentSchedule;
 import modelly.modelly_be.domain.recruitment.dto.request.RecruitmentRequestDto;
@@ -34,7 +35,11 @@ import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DesignerRecruitmentService {
@@ -122,10 +127,11 @@ public class DesignerRecruitmentService {
         isRecruitmentAuthor(designer,recruitment);
 
         //이미 확정된 예약이 있는 경우 예외처리
-        reservationService.hasPendingOrConfirmedReservation(recruitment);
+        //reservationService.hasPendingOrConfirmedReservation(recruitment);
 
         //스케줄 수정
         if (requestDto.recruitmentSchedule()!= null) {
+            validateScheduleDeletion(recruitment, requestDto.recruitmentSchedule());
             recruitment.getRecruitmentDates().clear();
             updateSchedule(recruitment, requestDto.recruitmentSchedule());
         }
@@ -259,5 +265,41 @@ public class DesignerRecruitmentService {
 
             recruitment.getSubCategoryList()
                     .addAll(subCategoryList);
+    }
+
+    private void validateScheduleDeletion(Recruitment recruitment, List<RecruitmentSchedule> newSchedules) {
+        Map<LocalDate, Set<LocalTime>> newScheduleMap = newSchedules.stream()
+                .collect(Collectors.toMap(
+                        RecruitmentSchedule::recruitmentDate,
+                        schedule -> schedule.recruitmentTimes().stream()
+                                .map(LocalTime::parse)
+                                .collect(Collectors.toSet())
+                ));
+
+        // 기존 스케줄 확인
+        for (RecruitmentDate existingDate : recruitment.getRecruitmentDates()) {
+            Set<LocalTime> newTimes = newScheduleMap.get(existingDate.getDate());
+
+            // 날짜 자체가 삭제되는 경우
+            if (newTimes == null) {
+                if (hasReservation(existingDate)) {
+                    throw new GeneralException(ErrorStatus.CAN_NOT_UPDATE_SCHEDULE);
+                }
+            } else {
+                // 날짜는 유지되지만 특정 시간대가 삭제되는 경우
+                for (RecruitmentTime existingTime : existingDate.getRecruitmentTimes()) {
+                    if (!newTimes.contains(existingTime.getStartTime())) {
+                        if (existingTime.isReserved()) {
+                            throw new GeneralException(ErrorStatus.CAN_NOT_UPDATE_SCHEDULE);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean hasReservation(RecruitmentDate recruitmentDate) {
+        return recruitmentDate.getRecruitmentTimes().stream()
+                .anyMatch(RecruitmentTime::isReserved);
     }
 }

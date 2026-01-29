@@ -53,6 +53,7 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_FOUND_RECRUITMENT(HttpStatus.NOT_FOUND,"RECRUITMENT404", "공고를 찾을 수 없습니다."),
     FORBIDDEN_DELETE_OR_MODIFY_RECRUITMENT(HttpStatus.FORBIDDEN, "RECRUITMENT403", "작성자만 공고 삭제 및 수정이 가능합니다."),
     CAN_NOT_RECRUITMENT_DELETE_OR_MODIFY(HttpStatus.CONFLICT, "RECRUITMENT409", "현재 진행중이거나 확정된 예약이 있어 삭제 및 수정이 불가능합니다."),
+    CAN_NOT_UPDATE_SCHEDULE(HttpStatus.BAD_REQUEST, "RECRUITMENT4003", "수정 전 공고 시간대에 이미 예약이 잡혀있어 일자를 수정할 수 없습니다."),
     SUBCATEGORY_MISMATCH(HttpStatus.BAD_REQUEST, "RECRUITMENT4001", "선택한 서브 카테고리가 상위 카테고리와 일치하지 않습니다."),
     REQUIRED_RECRUITMENT_IMAGE(HttpStatus.BAD_REQUEST, "RECRUITMENT4002","헤어, 네일 관련 공고는 이미지가 필수입니다."),
     NOT_FOUND_RECRUITMENT_TIME(HttpStatus.NOT_FOUND,"RECRUITMENT404", "공고에서 선택한 일시를 찾을 수 없습니다."),
