@@ -15,6 +15,7 @@ import modelly.modelly_be.domain.reservation.entity.QReservation;
 import modelly.modelly_be.domain.review.entity.QReview;
 import modelly.modelly_be.domain.user.dto.response.DesignerListResponseDto;
 import modelly.modelly_be.domain.user.entity.QDesigner;
+import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.global.apiPayload.code.status.ErrorStatus;
 import modelly.modelly_be.global.apiPayload.exception.GeneralException;
 import modelly.modelly_be.global.entity.Category;
@@ -118,6 +119,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
         booleanBuilder.and(qDesigner.category.eq(category));
+        booleanBuilder.and(qDesigner.user.userRole.eq(UserRole.DESIGNER));
 
         //서브쿼리 : 리뷰 수
         NumberExpression<Long> reviewCount = Expressions.asNumber(
@@ -170,6 +172,8 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
         if (searchCondition.category() != null) {
             booleanBuilder.and(qDesigner.category.eq(searchCondition.category()));
         }
+
+        booleanBuilder.and(qDesigner.user.userRole.eq(UserRole.DESIGNER));
 
         return booleanBuilder;
     }
