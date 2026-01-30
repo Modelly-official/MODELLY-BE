@@ -174,6 +174,7 @@ public class DesignerRepositoryCustomImpl implements DesignerRepositoryCustom {
         }
 
         booleanBuilder.and(qDesigner.user.userRole.eq(UserRole.DESIGNER));
+        booleanBuilder.and(qDesigner.user.deletedAt.isNull());
 
         return booleanBuilder;
     }

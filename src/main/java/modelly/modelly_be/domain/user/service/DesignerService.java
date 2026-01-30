@@ -94,7 +94,8 @@ public class DesignerService {
     private Long countByCondition(SearchCondition searchCondition) {
         return designerRepository.countByCondition(
                 searchCondition.keyword(),
-                searchCondition.category());
+                searchCondition.category(),
+                UserRole.DESIGNER);
     }
 
     public void decrementLikeCount(Long designerId) {

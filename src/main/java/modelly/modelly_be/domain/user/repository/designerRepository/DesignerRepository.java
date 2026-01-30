@@ -3,6 +3,7 @@ package modelly.modelly_be.domain.user.repository.designerRepository;
 import jakarta.persistence.LockModeType;
 import modelly.modelly_be.domain.user.entity.Designer;
 import modelly.modelly_be.domain.user.entity.User;
+import modelly.modelly_be.domain.user.entity.enums.UserRole;
 import modelly.modelly_be.global.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -25,9 +26,10 @@ public interface DesignerRepository extends JpaRepository<Designer, Long>, Desig
     Designer findByIdForUpdate(@Param("id") Long id);
 
     @Query("SELECT COUNT(DISTINCT d.id) FROM Designer d " +
-            "WHERE (:keyword IS NULL OR d.nickname LIKE %:keyword% OR d.shop LIKE %:keyword%) " +
+            "WHERE d.user.userRole = :userRole AND d.user.deletedAt IS NULL " +
+            "AND (:keyword IS NULL OR d.nickname LIKE %:keyword% OR d.shop LIKE %:keyword%) " +
             "AND (:category IS NULL OR d.category = :category) ")
-    Long countByCondition(String keyword, Category category);
+    Long countByCondition(String keyword, Category category, UserRole userRole);
 
     @Modifying
     @Query("UPDATE Designer d SET d.likeCount = d.likeCount - 1 " +
